@@ -1,0 +1,23 @@
+language: scala
+
+jdk:
+  - oraclejdk11
+  - openjdk11
+
+scala:
+  - 2.12.9
+  
+os:
+  - linux
+  - osx
+
+install: true
+
+script:
+  - java -version
+  - sbt ++$TRAVIS_SCALA_VERSION test
+
+branches:
+  only:
+    - master
+    - develop
