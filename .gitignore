@@ -10,3 +10,5 @@ classes
 build
 .gradle
 .idea
+
+!process/requirements/Requirements_ScalamonTCG.pdf
