@@ -18,6 +18,7 @@ script:
   - sbt ++$TRAVIS_SCALA_VERSION test
 
 branches:
+  on_success: never
   only:
     - master
     - develop

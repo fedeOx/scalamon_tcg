@@ -1,0 +1,3 @@
+object GameLauncher extends App {
+
+}
