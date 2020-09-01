@@ -19,14 +19,19 @@ class GameBoardView extends JFXApp.PrimaryStage {
     root = new Group() {
       children = new GridPane() {
         add(new Rectangle{
-          x = 0
-          y = 0
+
           width = 1600
           height = 450
-          fill <== when(hover) choose Green otherwise Red
+          fill <== when(hover) choose Green otherwise Transparent
         },0,0)
-        /*add(legendPanel, 1, 0)
-        add(utilityPanel, 2, 0)
+        /*add(new Rectangle{
+
+          width = 1600
+          height = 450
+          fill <== when(hover) choose Red otherwise Transparent
+        },0,1)*/
+        add(new HumanPlayerBoard, 0, 1)
+        /*add(utilityPanel, 2, 0)
         add(boardAndPlayerPanel, 0, 0)*/
       }
     }
