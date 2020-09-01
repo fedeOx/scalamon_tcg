@@ -1,7 +1,14 @@
 .body {
-    -fx-background-color: yellow;
+    -fx-background-image: url("/assets/playmat.jpg");
+    -fx-background-repeat: stretch;
+    -fx-background-size: 1600 900;
+    -fx-background-position: center center;
 }
 
 .prizeCards {
-    -fx-background-color: gold;
+    /*-fx-background-color: gold;*/
+}
+
+.humanPB {
+    -fx-background-color: transparent;
 }
