@@ -1,130 +1,5 @@
 [
     {
-        "id": "d-base1-1",
-        "name": "2-Player Starter Set",
-        "types": [
-            "Fire",
-            "Fighting",
-            "Colorless"
-        ],
-        "cards": [
-            {
-                "id": "base1-47",
-                "name": "Diglett",
-                "rarity": "Common",
-                "count": 3
-            },
-            {
-                "id": "base1-52",
-                "name": "Machop",
-                "rarity": "Common",
-                "count": 4
-            },
-            {
-                "id": "base1-34",
-                "name": "Machoke",
-                "rarity": "Uncommon",
-                "count": 2
-            },
-            {
-                "id": "base1-8",
-                "name": "Machamp",
-                "rarity": "Rare Holo",
-                "count": 1
-            },
-            {
-                "id": "base1-60",
-                "name": "Ponyta",
-                "rarity": "Common",
-                "count": 4
-            },
-            {
-                "id": "base1-46",
-                "name": "Charmander",
-                "rarity": "Common",
-                "count": 4
-            },
-            {
-                "id": "base1-24",
-                "name": "Charmeleon",
-                "rarity": "Uncommon",
-                "count": 2
-            },
-            {
-                "id": "base1-28",
-                "name": "Growlithe",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-61",
-                "name": "Rattata",
-                "rarity": "Common",
-                "count": 2
-            },
-            {
-                "id": "base1-26",
-                "name": "Dratini",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-91",
-                "name": "Bill",
-                "rarity": "Common",
-                "count": 1
-            },
-            {
-                "id": "base1-92",
-                "name": "Energy Removal",
-                "rarity": "Common",
-                "count": 1
-            },
-            {
-                "id": "base1-81",
-                "name": "Energy Retrieval",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-93",
-                "name": "Gust of Wind",
-                "rarity": "Common",
-                "count": 1
-            },
-            {
-                "id": "base1-87",
-                "name": "Pokédex",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-94",
-                "name": "Potion",
-                "rarity": "Common",
-                "count": 2
-            },
-            {
-                "id": "base1-95",
-                "name": "Switch",
-                "rarity": "Common",
-                "count": 2
-            },
-            {
-                "id": "base1-97",
-                "name": "Fighting Energy",
-                "rarity": "Common",
-                "count": 14
-            },
-            {
-                "id": "base1-98",
-                "name": "Fire Energy",
-                "rarity": "Common",
-                "count": 14
-            }
-        ]
-    },
-    {
         "id": "d-base1-2",
         "name": "Overgrowth",
         "types": [
@@ -232,7 +107,7 @@
     },
     {
         "id": "d-base1-3",
-        "name": "Zap!",
+        "name": "Zap",
         "types": [
             "Lightning",
             "Psychic"
