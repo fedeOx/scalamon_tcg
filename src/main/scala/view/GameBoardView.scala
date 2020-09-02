@@ -1,9 +1,11 @@
 package view
 
+import com.sun.javafx.sg.prism.NGNode
 import scalafx.Includes._
 import scalafx.application.JFXApp
+import scalafx.geometry.Point3D
 import scalafx.scene.image.Image
-import scalafx.scene.{Group, Scene}
+import scalafx.scene.{Camera, Group, PerspectiveCamera, Scene}
 import scalafx.scene.layout.{Background, BackgroundImage, BackgroundPosition, BackgroundRepeat, BackgroundSize, GridPane, Pane}
 import scalafx.scene.paint.Color._
 import scalafx.scene.shape.Rectangle
@@ -18,9 +20,13 @@ class GameBoardView extends JFXApp.PrimaryStage {
   title = TITLE
   scene = new Scene(WIDTH, HEIGHT) {
     stylesheets = List("/style/PlayerBoardStyle.css")
+    camera = new PerspectiveCamera() {
+      rotationAxis = new Point3D(90,45,90)
+      fieldOfView = 45
+    }
     root = new Pane() {
       styleClass += "body"
-      jfxBackgroundImage2sfx(new BackgroundImage(new Image("/assets/playmat.jpg"),BackgroundRepeat.NoRepeat,
+      jfxBackgroundImage2sfx(new BackgroundImage(new Image("/assets/playmat.png"),BackgroundRepeat.NoRepeat,
         BackgroundRepeat.NoRepeat, BackgroundPosition.Default, BackgroundSize.Default))
       children = new GridPane() {
 

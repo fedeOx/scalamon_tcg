@@ -1,5 +1,5 @@
 .body {
-    -fx-background-image: url("/assets/playmat.jpg");
+    -fx-background-image: url("/assets/playmat.png");
     -fx-background-repeat: stretch;
     -fx-background-size: 1600 900;
     -fx-background-position: center center;
