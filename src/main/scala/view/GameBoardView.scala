@@ -30,12 +30,16 @@ class GameBoardView extends JFXApp.PrimaryStage {
         BackgroundRepeat.NoRepeat, BackgroundPosition.Default, BackgroundSize.Default))
       children = new GridPane() {
 
-        add(new Rectangle{
+        /*add(new Rectangle{
 
           width = 1600
           height = 450
           fill <== when(hover) choose Green otherwise Transparent
-        },0,0)
+        },0,0)*/
+        add(new IAPlayerBoard {
+          minWidth = 1600
+          minHeight = 450
+        }, 0, 0)
         add(new HumanPlayerBoard, 0, 1)
       }
     }

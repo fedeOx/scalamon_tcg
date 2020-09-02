@@ -30,25 +30,17 @@ class HumanPlayerBoard extends PlayerBoard {
 }
 
 class PrizeCardsZone extends VBox {
-  children = List(new ImageView(new Image("/assets/cardBack.jpg")) {
-    fitWidth = 150
-    fitHeight = 210
-  }, new Label("Remaining: 6"))
+  children = List(new CardComponent("/assets/cardBack.jpg",150,210,true,false).card
+    , new Label("Remaining: 6"))
   alignment = Pos.Center
   minWidth = 300
   styleClass += "prizeCards"
 }
 
 class DeckDiscardZone extends HBox {
-  private val discardStack = mutable.Stack(new Image("/assets/1.jpg"), new Image("/assets/4.jpg"))
-  children = List(new ImageView(new Image("/assets/cardBack.jpg")) {
-    fitWidth = 150
-    fitHeight = 210
-    margin = new Insets(new geometry.Insets(0,20,0,0))
-  }, new ImageView(discardStack.top) {
-    fitWidth = 150
-    fitHeight = 210
-  })
+  private val discardStack = mutable.Stack("/assets/1.jpg", "/assets/4.jpg")
+  children = List(new CardComponent("/assets/cardBack.jpg",150,210,true,false).card,
+    new CardComponent(discardStack.top,150,210,true,false).card)
 
 
   alignment = Pos.Center
@@ -59,18 +51,22 @@ class DeckDiscardZone extends HBox {
 class ActivePkmnZone extends HBox {
   minWidth = 900
   minHeight = 250
-  alignment = Pos.Center
+  alignment = Pos.BottomCenter
 
-  children = new ImageView(new Image("/assets/4.jpg")) {
+  children = new CardComponent("/assets/4.jpg",150,210,true,true).card
+
+    /*new ImageView(new Image("/assets/4.jpg")) {
     fitWidth <== when(hover) choose 357 otherwise 150
     fitHeight <== when(hover) choose 500 otherwise 210
     onMouseClicked = _ => println("ciao")
-
-  }
+  }*/
 }
 
 class BenchZone extends HBox {
-  private val bench = List(new ImageView(new Image("/assets/1.jpg")) {
+  private val bench = List(new CardComponent("/assets/1.jpg",110,154,true,true).card,
+    new CardComponent("/assets/4.jpg",110,154,true,true).card)
+
+    /*List(new ImageView(new Image("/assets/1.jpg")) {
     fitWidth <== when(hover) choose 357 otherwise 110
     fitHeight <== when(hover) choose 500 otherwise 154
 
@@ -78,9 +74,8 @@ class BenchZone extends HBox {
   } , new ImageView(new Image("/assets/4.jpg")) {
     fitWidth <== when(hover) choose 357 otherwise 110
     fitHeight <== when(hover) choose 500 otherwise 154
-    y <== when(hover) choose 300 otherwise 710
     margin = new Insets(new geometry.Insets(0,20,0,0))
-  })
+  })*/
   children = bench
 
 
@@ -91,17 +86,8 @@ class BenchZone extends HBox {
 }
 
 class HandZone extends HBox {
-    private val hand = List(new ImageView(new Image("/assets/4.jpg")) {
-      fitWidth <== when(hover) choose 357 otherwise 110
-      fitHeight <== when(hover) choose 500 otherwise 154
-
-      margin = new Insets(new geometry.Insets(0,20,0,0))
-    } , new ImageView(new Image("/assets/1.jpg")) {
-      fitWidth <== when(hover) choose 357 otherwise 110
-      fitHeight <== when(hover) choose 500 otherwise 154
-      y <== when(hover) choose 300 otherwise 710
-      margin = new Insets(new geometry.Insets(0,20,0,0))
-    })
+    private val hand = List(new CardComponent("/assets/4.jpg",110,154,true,true).card,
+      new CardComponent("/assets/1.jpg",110,154,true,true).card)
     children = hand
 
     margin = new Insets(new geometry.Insets(0,100,0,100))
