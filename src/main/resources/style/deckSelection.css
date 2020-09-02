@@ -1,0 +1,29 @@
+#deckSelection-pane {
+    -fx-padding: 10;
+    -fx-background-image: url("/assets/deckSelection.jpg");
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: stretch;
+}
+#Zap , #OverGrowth , #BlackOut, #BrushFire{
+    -fx-min-height: 250;
+    -fx-min-width: 100;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+    -fx-padding: 10;
+    -fx-background-radius: 5;
+    -fx-background-size: 90% 90%;
+    -fx-background-repeat: stretch;
+    -fx-background-color: transparent;
+}
+
+#Zap {
+    -fx-background-image: url("/assets/zap.png");
+}
+#OverGrowth {
+    -fx-background-image: url("/assets/overGrowth.png");
+}
+#BlackOut {
+    -fx-background-image: url("/assets/blackout.png");
+}
+#BrushFire {
+    -fx-background-image: url("/assets/brushfire.png");
+}
