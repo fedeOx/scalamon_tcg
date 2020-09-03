@@ -31,8 +31,7 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-core"% "0.12.3",
       "io.circe"    %% "circe-generic"  % "0.13.0-M2",
       "io.circe" %% "circe-parser" % "0.11.1",
-      "io.iteratee" %% "iteratee-files" % "0.19.0",
-      "io.circe" %% "circe-optics" % "0.12.3"
+      "io.iteratee" %% "iteratee-files" % "0.19.0"
     ),
     crossPaths := false, // https://github.com/sbt/junit-interface/issues/35
     Test / parallelExecution := false
