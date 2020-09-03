@@ -1,16 +1,9 @@
 package view
 
 import javafx.geometry
-import scalafx.Includes.when
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control.Label
-import scalafx.scene.{image, input}
-import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.input.MouseButton
-import scalafx.scene.input.MouseButton._
-import scalafx.scene.layout.{Border, BorderStroke, GridPane, HBox, VBox}
-import scalafx.scene.shape.Rectangle
-import scalafx.scene.paint.Color._
+import scalafx.scene.layout.{GridPane, HBox, VBox}
 
 import scala.collection.mutable
 
@@ -25,7 +18,9 @@ class HumanPlayerBoard extends PlayerBoard {
     add(new BenchZone,1,1,1,1)
     add(new DeckDiscardZone,2,0,1,2)
     add(new HandZone,0,2,3,2)
+
   }
+
   children = gameGrid
 }
 
