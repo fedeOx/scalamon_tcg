@@ -3,6 +3,7 @@ package view
 import javafx.geometry
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.control.Label
+import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{GridPane, HBox, VBox}
 
 import scala.collection.mutable
@@ -10,17 +11,24 @@ import scala.collection.mutable
 /***
  * Player board component for the human player
  */
-class HumanPlayerBoard extends PlayerBoard {
+class HumanPlayerBoard(isHumans: Boolean) extends PlayerBoard {
   styleClass += "humanPB"
   private val gameGrid = new GridPane() {
+    val zoomZone = new ZoomZone
+
     add(new PrizeCardsZone,0,0,1,2)
-    add(new ActivePkmnZone,1,0,1,1)
-    add(new BenchZone,1,1,1,1)
+    add(new ActivePkmnZone(zoomZone, isHumans),1,0,1,1)
+    add(new BenchZone(zoomZone, isHumans),1,1,1,1)
     add(new DeckDiscardZone,2,0,1,2)
-    add(new HandZone,0,2,3,2)
+     if (isHumans)
+       add(new HandZone(zoomZone),0,2,3,2)
+    add(zoomZone,2,0,1,2)
+
+
 
   }
-
+  if(!isHumans)
+    rotate = 180
   children = gameGrid
 }
 
@@ -43,36 +51,20 @@ class DeckDiscardZone extends HBox {
   styleClass += "deckDiscard"
 }
 
-class ActivePkmnZone extends HBox {
+class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean) extends HBox {
   minWidth = 900
   minHeight = 250
   alignment = Pos.BottomCenter
 
-  children = new CardComponent("/assets/4.jpg",150,210,true,true).card
+  children = new CardComponent("/assets/4.jpg",150,210,isHumans,true,Some(zone)).card
 
-    /*new ImageView(new Image("/assets/4.jpg")) {
-    fitWidth <== when(hover) choose 357 otherwise 150
-    fitHeight <== when(hover) choose 500 otherwise 210
-    onMouseClicked = _ => println("ciao")
-  }*/
 }
 
-class BenchZone extends HBox {
-  private val bench = List(new CardComponent("/assets/1.jpg",110,154,true,true).card,
-    new CardComponent("/assets/4.jpg",110,154,true,true).card)
+class BenchZone(zone: ZoomZone, isHumans: Boolean) extends HBox {
+  private val bench = List(new CardComponent("/assets/1.jpg",110,154,isHumans,true,Some(zone)).card,
+    new CardComponent("/assets/4.jpg",110,154,isHumans,true,Some(zone)).card)
 
-    /*List(new ImageView(new Image("/assets/1.jpg")) {
-    fitWidth <== when(hover) choose 357 otherwise 110
-    fitHeight <== when(hover) choose 500 otherwise 154
-
-    margin = new Insets(new geometry.Insets(0,20,0,0))
-  } , new ImageView(new Image("/assets/4.jpg")) {
-    fitWidth <== when(hover) choose 357 otherwise 110
-    fitHeight <== when(hover) choose 500 otherwise 154
-    margin = new Insets(new geometry.Insets(0,20,0,0))
-  })*/
   children = bench
-
 
   margin = new Insets(new geometry.Insets(0,10,0,100))
   minWidth = 800
@@ -80,13 +72,18 @@ class BenchZone extends HBox {
   alignment = Pos.BottomLeft
 }
 
-class HandZone extends HBox {
-    private val hand = List(new CardComponent("/assets/4.jpg",110,154,true,true).card,
-      new CardComponent("/assets/1.jpg",110,154,true,true).card)
+class HandZone(zone: ZoomZone) extends HBox {
+    private val hand = List(new CardComponent("/assets/4.jpg",110,154,true,true,Some(zone)).card,
+      new CardComponent("/assets/1.jpg",110,154,true,true,Some(zone)).card)
     children = hand
 
     margin = new Insets(new geometry.Insets(0,100,0,100))
     minWidth = 1600
     minHeight = 160
     alignment = Pos.BottomLeft
+}
+
+class ZoomZone extends HBox {
+  alignment = Pos.TopLeft
+
 }

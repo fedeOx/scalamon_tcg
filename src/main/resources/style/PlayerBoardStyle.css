@@ -12,3 +12,9 @@
 .humanPB {
     -fx-background-color: transparent;
 }
+
+ImageView {
+    -fx-border-radius: 5px;
+    -fx-border-style: solid;
+    -fx-border-width: 5px;
+}
