@@ -1,0 +1,40 @@
+#deckSelection-pane {
+    -fx-padding: 10;
+    -fx-background-image: url("/assets/deckSelection.jpg");
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: stretch;
+}
+#Zap , #Overgrowth , #Blackout, #Brushfire{
+    -fx-min-height: 250;
+    -fx-min-width: 100;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+    -fx-padding: 10;
+    -fx-background-radius: 5;
+    -fx-background-size: 90% 90%;
+    -fx-background-repeat: stretch;
+    -fx-background-color: transparent;
+}
+
+#Zap {
+    -fx-background-image: url("/assets/zap.png");
+}
+#Overgrowth {
+    -fx-background-image: url("/assets/overGrowth.png");
+}
+#Blackout {
+    -fx-background-image: url("/assets/blackout.png");
+}
+#Brushfire {
+    -fx-background-image: url("/assets/brushfire.png");
+}
+#tableView-Cards{
+    -fx-padding: 10;
+    -fx-max-height: 450;
+}
+#startGame-btn {
+    -fx-background-radius: 48;
+    -fx-padding: 10 20 10 20;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 16px;
+
+}
