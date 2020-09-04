@@ -8,7 +8,7 @@ import scala.util.Try
 
 trait Attack {
   def name: String
-  def costMap: Map[EnergyType, Int]
+  def costMap: Seq[EnergyType]
   def damage: Option[Int]
   // def effect: Effect // TODO
 }
@@ -20,12 +20,9 @@ object Attack {
         _costs <- c.downField("cost").as[Seq[EnergyType]]
         _damage <- c.downField("damage").as[String]
       } yield {
-        val map = _costs.foldLeft(scala.collection.mutable.Map[EnergyType, Int]().withDefaultValue(0)){
-          (map, energy) => map(energy) += 1; map
-        }.toMap
         new Attack {
           override def name: String = _name
-          override def costMap: Map[EnergyType, Int] = map
+          override def costMap: Seq[EnergyType] = _costs
           override def damage: Option[Int] = Try(_damage.replaceAll("[^0-9.]", "").toInt).toOption
         }
       }
