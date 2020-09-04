@@ -2,7 +2,7 @@ import io.circe.{Decoder, HCursor, Json}
 
 import scala.io.Source
 import io.circe.parser._
-import model.Cards.{Card, PokemonCard}
+import model.Cards.{Card, EnergyCard, PokemonCard}
 import io.circe.optics.JsonPath
 
 object GameLauncher extends App {
@@ -13,18 +13,20 @@ object GameLauncher extends App {
   val parseResult: Json = parse(lines).getOrElse(Json.Null)
 
   val cursor: HCursor = parseResult.hcursor
-  var cards: Seq[Card] = List()
+  var pokemonCards: Seq[Card] = List()
+  var energyCards: Seq[Card] = List()
   val supertypePath = JsonPath.root.supertype.string
 
   for (i <- cursor.values.get) {
     val supertype = supertypePath.getOption(i).get
     if (supertype == "Pokémon") {
-      cards = cards :+ i.as[PokemonCard].toOption.get
+      pokemonCards = pokemonCards :+ i.as[PokemonCard].toOption.get
     }
-    /*
-    if (supertype == "Energy")
-      ???
-     */
+    if (supertype == "Energy") {
+      energyCards = energyCards :+ i.as[EnergyCard].toOption.get
+    }
+
   }
-  cards.foreach(println)
+  pokemonCards.foreach(println)
+  energyCards.foreach(println)
 }

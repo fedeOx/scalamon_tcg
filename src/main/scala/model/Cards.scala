@@ -2,6 +2,7 @@ package model
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
+import model.Cards.EnergyCard.EnergyCardType.EnergyCardType
 import model.EnergyType.EnergyType
 import model.exception.MissingEnergyException
 
@@ -43,18 +44,18 @@ object Cards {
     implicit val decoder: Decoder[PokemonCard] = new Decoder[PokemonCard] {
       override def apply(c: HCursor): Result[PokemonCard] =
         for {
-          id <- c.downField("id").as[String]
-          pokemonTypes <- c.downField("types").as[Seq[EnergyType]]
-          name <- c.downField("name").as[String]
-          initHp <- c.downField("hp").as[String]
-          weaknesses <- c.getOrElse[Seq[Weakness]]("weaknesses")(Seq())
-          resistances <- c.getOrElse[Seq[Resistance]]("resistances")(Seq())
-          retreatCost <- c.getOrElse[Seq[EnergyType]]("retreatCost")(Seq())
-          evolvesFrom <- c.getOrElse[String]("evolvesFrom")("")
-          attacks <- c.downField("attacks").as[Seq[Attack]]
+          _id <- c.downField("id").as[String]
+          _pokemonTypes <- c.downField("types").as[Seq[EnergyType]]
+          _name <- c.downField("name").as[String]
+          _initHp <- c.downField("hp").as[String]
+          _weaknesses <- c.getOrElse[Seq[Weakness]]("weaknesses")(Seq())
+          _resistances <- c.getOrElse[Seq[Resistance]]("resistances")(Seq())
+          _retreatCost <- c.getOrElse[Seq[EnergyType]]("retreatCost")(Seq())
+          _evolvesFrom <- c.getOrElse[String]("evolvesFrom")("")
+          _attacks <- c.downField("attacks").as[Seq[Attack]]
         } yield {
-          val imageId = id.replace(c.downField("setCode").as[String].getOrElse("") + "-", "")
-          PokemonCard(imageId, pokemonTypes, name, initHp.toInt, weaknesses, resistances, retreatCost, evolvesFrom, attacks)
+          val imageId = _id.replace(c.downField("setCode").as[String].getOrElse("") + "-", "")
+          PokemonCard(imageId, _pokemonTypes, _name, _initHp.toInt, _weaknesses, _resistances, _retreatCost, _evolvesFrom, _attacks)
         }
     }
 
@@ -125,13 +126,57 @@ object Cards {
   }
 
   sealed trait EnergyCard extends Card {
+    def isBasic: Boolean
+    def energyType: EnergyType
+    def energiesProvided: Int
+  }
 
+  object EnergyCard {
+    object EnergyCardType extends Enumeration {
+      type EnergyCardType = Value
+      val basic: Value = Value("Basic")
+      val special: Value = Value("Special")
+
+      implicit val decoder: Decoder[EnergyCardType] = new Decoder[EnergyCardType] {
+        override def apply(c: HCursor): Result[EnergyCardType] =
+          for {
+            t <- c.as[String]
+          } yield {
+            EnergyCardType.withName(t)
+          }
+      }
+    }
+
+    def apply(imageId: String, energyType: EnergyType, energyCardType: EnergyCardType): EnergyCard =
+      EnergyCardImpl(imageId, energyType, energyCardType)
+
+    implicit val decoder: Decoder[EnergyCard] = new Decoder[EnergyCard] {
+      override def apply(c: HCursor): Result[EnergyCard] =
+        for {
+          _id <- c.downField("id").as[String]
+          _energyType <- c.downField("type").as[EnergyType]
+          _energyCardType <- c.downField("subtype").as[EnergyCardType]
+        } yield {
+          val imageId = _id.replace(c.downField("setCode").as[String].getOrElse("") + "-", "")
+          EnergyCard(imageId, _energyType, _energyCardType)
+        }
+    }
+
+    case class EnergyCardImpl(override val imageId: String,
+                              override val energyType: EnergyType,
+                              private val energyCardType: EnergyCardType) extends EnergyCard {
+      override def isBasic: Boolean = energyCardType match {
+        case EnergyCardType.basic => true
+        case _ => false
+      }
+
+      override def energiesProvided: Int = energyCardType match {
+        case EnergyCardType.basic => 1
+        case _ => 2
+      }
+    }
   }
 
   // + a trait for TrainerCard
-
-  case class EnergyCardImpl(override val imageId: String) extends EnergyCard
-
   // + a case class for TrainerCardImpl
-
 }

@@ -19,12 +19,12 @@ object Weakness {
   implicit val decoder: Decoder[Weakness] = new Decoder[Weakness] {
     override def apply(c: HCursor): Result[Weakness] =
       for {
-        t <- c.downField("type").as[String]
-        value <- c.downField("value").as[String]
+        _type <- c.downField("type").as[String]
+        _value <- c.downField("value").as[String]
       } yield {
         new Weakness {
-          override def energyType: EnergyType = EnergyType.withName(t)
-          override def operation: Operation = Operation.withName(value)
+          override def energyType: EnergyType = EnergyType.withName(_type)
+          override def operation: Operation = Operation.withName(_value)
         }
       }
   }

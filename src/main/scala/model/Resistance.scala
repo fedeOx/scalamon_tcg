@@ -12,12 +12,12 @@ object Resistance {
   implicit val decoder: Decoder[Resistance] = new Decoder[Resistance] {
     override def apply(c: HCursor): Result[Resistance] =
       for {
-        t <- c.downField("type").as[String]
-        value <- c.downField("value").as[String]
+        _type <- c.downField("type").as[String]
+        _value <- c.downField("value").as[String]
       } yield {
         new Resistance {
-          override def energyType: EnergyType = EnergyType.withName(t)
-          override def reduction: Int = value.toInt.abs
+          override def energyType: EnergyType = EnergyType.withName(_type)
+          override def reduction: Int = _value.toInt.abs
         }
       }
   }
