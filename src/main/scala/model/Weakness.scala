@@ -12,8 +12,7 @@ trait Weakness {
 object Weakness {
   object Operation extends Enumeration {
     type Operation = Value
-    val multiply: Value = Value("x2")
-    val subtract: Value = Value("-30")
+    val multiply2: Value = Value("×2")
   }
 
   implicit val decoder: Decoder[Weakness] = new Decoder[Weakness] {

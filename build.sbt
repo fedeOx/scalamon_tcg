@@ -18,3 +18,5 @@ lazy val root = (project in file("."))
     crossPaths := false, // https://github.com/sbt/junit-interface/issues/35
     Test / parallelExecution := false
   )
+
+coverageEnabled := true

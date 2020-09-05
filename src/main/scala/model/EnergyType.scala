@@ -3,7 +3,6 @@ package model
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
 
-
 object EnergyType extends Enumeration {
   type EnergyType = Value
   val water: Value = Value("Water")

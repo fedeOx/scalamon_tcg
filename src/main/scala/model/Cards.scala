@@ -18,18 +18,22 @@ object Cards {
     def pokemonTypes: Seq[EnergyType]
     def name: String
     def initialHp: Int
+    def actualHp: Int
+    def actualHp_=(value: Int): Unit
     def weaknesses: Seq[Weakness]
     def resistances: Seq[Resistance]
     def retreatCost: Seq[EnergyType]
     def evolvesFrom: String
     def attacks: Seq[Attack]
 
-    def addEnergy(energy: EnergyType): Unit
+    def addEnergy(energyCard: EnergyCard): Unit
 
     @throws(classOf[MissingEnergyException])
     def removeEnergy(energy: EnergyType): Unit
 
     def hasEnergies(energies: Seq[EnergyType]): Boolean
+
+    def totalEnergiesStored: Int
 
     def addDamage(damage: Int, opponentTypes: Seq[EnergyType]): Unit
 
@@ -39,7 +43,7 @@ object Cards {
   object PokemonCard {
     def apply(imageId: String, pokemonTypes: Seq[EnergyType], name: String, initialHp: Int, weaknesses: Seq[Weakness],
               resistances: Seq[Resistance], retreatCost: Seq[EnergyType], evolvesFrom: String, attacks: Seq[Attack]): PokemonCard =
-      PokemonCardImpl(imageId, pokemonTypes, name, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks)
+      PokemonCardImpl(imageId, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks)
 
     implicit val decoder: Decoder[PokemonCard] = new Decoder[PokemonCard] {
       override def apply(c: HCursor): Result[PokemonCard] =
@@ -63,17 +67,17 @@ object Cards {
                                override val pokemonTypes: Seq[EnergyType],
                                override val name: String,
                                override val initialHp: Int,
+                               override var actualHp: Int,
                                override val weaknesses: Seq[Weakness],
                                override val resistances: Seq[Resistance],
                                override val retreatCost: Seq[EnergyType],
                                override val evolvesFrom: String,
                                override val attacks: Seq[Attack],
                                private val energiesMap: mutable.Map[EnergyType, Int] = mutable.Map()) extends PokemonCard {
-      private var actualHp: Int = initialHp
 
-      override def addEnergy(energy: EnergyType): Unit = energiesMap.get(energy) match {
-        case Some(_) => energiesMap(energy) += 1
-        case None => energiesMap += (energy -> 1)
+      override def addEnergy(energyCard: EnergyCard): Unit = energiesMap.get(energyCard.energyType) match {
+        case Some(_) => energiesMap(energyCard.energyType) += energyCard.energiesProvided
+        case None => energiesMap += (energyCard.energyType -> energyCard.energiesProvided)
       }
 
       @throws(classOf[MissingEnergyException])
@@ -88,28 +92,15 @@ object Cards {
           (map, energy) => map(energy) += 1; map
         }.exists(t => !energiesMap.contains(t._1) || (energiesMap.contains(t._1) && energiesMap(t._1) < t._2))
 
-      /*
-      override def addDamage(damage: Int, opponentTypes: Seq[EnergyType]): Unit = {
-        var realDamage = damage
-        weaknesses.filter(w => opponentTypes.contains(w.energyType)).foreach(w => w.operation match {
-          case Operation.multiply => realDamage = realDamage * 2
-          case Operation.subtract => realDamage = realDamage + 30
-        })
-        resistances.filter(r => opponentTypes.contains(r.energyType)).foreach(r => realDamage = realDamage - r.reduction)
-        if (realDamage < 0) realDamage = 0
-        actualHp = actualHp - realDamage;
-        if (actualHp < 0) actualHp = 0
-      }
-      */
+      def totalEnergiesStored: Int = energiesMap.values.sum
 
       override def addDamage(damage: Int, opponentTypes: Seq[EnergyType]): Unit = {
         import Weakness.Operation
         @scala.annotation.tailrec
-        def weaknessDamage(damage: Int, weakSeq: Seq[Weakness]): Int = weakSeq match {
-          case h :: t if opponentTypes.contains(h.energyType) && h.operation == Operation.multiply => weaknessDamage(damage*2, t)
-          case h :: t if opponentTypes.contains(h.energyType) && h.operation == Operation.subtract => weaknessDamage(damage-30, t)
-          case _ :: t => weaknessDamage(damage, t)
-          case _ => damage
+        def weaknessLoss(loss: Int, weakSeq: Seq[Weakness]): Int = weakSeq match {
+          case h :: t if opponentTypes.contains(h.energyType) && h.operation == Operation.multiply2 => weaknessLoss(damage, t)
+          case _ :: t => weaknessLoss(loss, t)
+          case _ => loss
         }
         @scala.annotation.tailrec
         def resistanceGain(reduction: Int, resSeq: Seq[Resistance]): Int = resSeq match {
@@ -117,8 +108,11 @@ object Cards {
           case _ :: t => resistanceGain(reduction, t)
           case _ => reduction
         }
-        actualHp = actualHp - damage - weaknessDamage(damage, weaknesses) + resistanceGain(0, resistances)
-        if (actualHp < 0) actualHp = 0
+        if (!this.isKO) {
+          actualHp = actualHp - damage - weaknessLoss(0, weaknesses) + resistanceGain(0, resistances)
+          if (actualHp < 0) actualHp = 0
+          if (actualHp > initialHp) actualHp = initialHp
+        }
       }
 
       override def isKO: Boolean = actualHp == 0

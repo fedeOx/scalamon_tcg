@@ -8,7 +8,7 @@ import scala.util.Try
 
 trait Attack {
   def name: String
-  def costMap: Seq[EnergyType]
+  def cost: Seq[EnergyType]
   def damage: Option[Int]
   // def effect: Effect // TODO
 }
@@ -22,7 +22,7 @@ object Attack {
       } yield {
         new Attack {
           override def name: String = _name
-          override def costMap: Seq[EnergyType] = _costs
+          override def cost: Seq[EnergyType] = _costs
           override def damage: Option[Int] = Try(_damage.replaceAll("[^0-9.]", "").toInt).toOption
         }
       }
