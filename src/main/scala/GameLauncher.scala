@@ -1,3 +1,5 @@
-object GameLauncher extends App {
+import scalafx.application.JFXApp
+
+object GameLauncher extends JFXApp {
 
 }
