@@ -6,7 +6,7 @@ import scalafx.Includes._
 import scalafx.beans.property.{IntegerProperty, ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Pos
-import scalafx.scene.Scene
+import scalafx.scene.{Scene, SceneAntialiasing}
 import scalafx.scene.control.TableColumn._
 import scalafx.scene.control.{Button, TableCell, TableColumn, TableView}
 import scalafx.scene.layout.{BorderPane, GridPane}
@@ -52,6 +52,8 @@ object DeckSelection extends Scene {
       onAction = _=> {
         //go to game
         println("INVIO IL DECK "+ getChosenDeck)
+        StartGameGui.getPrimaryStage().close()
+        new GameBoardView
       }}
   }
 

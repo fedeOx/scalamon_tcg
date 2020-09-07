@@ -11,7 +11,7 @@ object StartGameGui extends JFXApp {
     scene = StartGameScene
   }
 
-  def getPrimaryStage(): PrimaryStage = {
+  def getPrimaryStage: PrimaryStage = {
     stage
   }
 }

@@ -1,12 +1,12 @@
-.body {
-    -fx-background-image: url("/assets/playmat.png");
+.root {
+    -fx-background-image: url("/assets/woodTable.jpg");
     -fx-background-repeat: stretch;
-    -fx-background-size: 1600 900;
+    -fx-background-size: 1600 1000;
     -fx-background-position: center center;
 }
 
-.prizeCards {
-    /*-fx-background-color: gold;*/
+.zz {
+    -fx-background-color: gold;
 }
 
 .humanPB {
