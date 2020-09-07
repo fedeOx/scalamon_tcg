@@ -1,8 +1,8 @@
 package model
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class DataLoaderTest extends FlatSpec {
+class DataLoaderTest extends AnyFlatSpec {
   behavior of "A DataLoader"
 
   it must "load a not empy list" in {

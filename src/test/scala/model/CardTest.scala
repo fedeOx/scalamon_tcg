@@ -2,9 +2,10 @@ package model
 
 import model.Cards.{EnergyCard, PokemonCard}
 import model.exception.MissingEnergyException
-import org.scalatest.{FlatSpec, GivenWhenThen}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.GivenWhenThen
 
-class CardTest extends FlatSpec with GivenWhenThen {
+class CardTest extends AnyFlatSpec with GivenWhenThen {
   val pokemonCardList: Seq[PokemonCard] = DataLoader.loadData(SetType.base)
     .filter(c => c.isInstanceOf[PokemonCard])
     .map(c => c.asInstanceOf[PokemonCard])
