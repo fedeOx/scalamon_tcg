@@ -52,7 +52,7 @@ object DeckSelection extends Scene {
       onAction = _=> {
         //go to game
         println("INVIO IL DECK "+ getChosenDeck)
-        StartGameGui.getPrimaryStage().close()
+        StartGameGui.getPrimaryStage.close()
         new GameBoardView
       }}
   }

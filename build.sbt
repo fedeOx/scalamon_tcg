@@ -27,17 +27,17 @@ lazy val root = (project in file("."))
       "org.openjfx" % s"javafx-media" % "12.0.1" classifier osName,
       "org.openjfx" % s"javafx-swing" % "12.0.1" classifier osName,
       "org.openjfx" % s"javafx-web" % "12.0.1" classifier osName,
-
-      "io.circe" %% "circe-core"% "0.13.0",
-      "io.circe" %% "circe-generic"  % "0.13.0",
+      "io.circe" %% "circe-core" % "0.13.0",
+      "io.circe" %% "circe-generic" % "0.13.0",
       "io.circe" %% "circe-parser" % "0.13.0",
+      "io.circe" %% "circe-optics" % "0.13.0",
       "io.iteratee" %% "iteratee-files" % "0.19.0"
     ),
     crossPaths := false, // https://github.com/sbt/junit-interface/issues/35
     Test / parallelExecution := false
   )
 
-
+coverageEnabled := true
 
 // Add dependency on JavaFX libraries, OS dependent
 lazy val javaFXModules = Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
