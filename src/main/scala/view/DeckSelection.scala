@@ -13,7 +13,7 @@ import scalafx.scene.layout.{BorderPane, GridPane}
 
 import scala.io.Source
 
-case class Deck(id: String, name: String, types: Seq[String], cards: ObservableBuffer[Cards])
+case class Deck(name: String, cards: ObservableBuffer[Cards])
 
 case class Cards(id: String, name: String, rarity: String, count: Int) {
   val idCard = new StringProperty(this, "id", id)
