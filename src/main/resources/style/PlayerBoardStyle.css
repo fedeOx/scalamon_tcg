@@ -1,0 +1,20 @@
+.root {
+    -fx-background-image: url("/assets/woodTable.jpg");
+    -fx-background-repeat: stretch;
+    -fx-background-size: 1600 1000;
+    -fx-background-position: center center;
+}
+
+.zz {
+    -fx-background-color: gold;
+}
+
+.humanPB {
+    -fx-background-color: transparent;
+}
+
+ImageView {
+    -fx-border-radius: 5px;
+    -fx-border-style: solid;
+    -fx-border-width: 5px;
+}

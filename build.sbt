@@ -10,14 +10,14 @@ lazy val osName = System.getProperty("os.name") match {
   case n if n.startsWith("Windows") => "win"
   case _ => throw new Exception("Unknown platform!")
 }
-val circeVersion = "0.12.3"
+
 
 lazy val root = (project in file("."))
   .settings(
     libraryDependencies ++= Seq(
+      "org.scalafx" %% "scalafx" % "12.0.1-R17",
       "junit" % "junit" % "4.12" % Test,
       "com.novocode" % "junit-interface" % "0.11" % Test,
-      "org.scalafx" %% "scalafx" % "12.0.1-R17",
       "io.github.typhon0" % "AnimateFX" % "1.2.1",
       "org.scalatest" %% "scalatest" % "3.1.1" % "test",
       "org.openjfx" % s"javafx-base" % "12.0.1" classifier osName,

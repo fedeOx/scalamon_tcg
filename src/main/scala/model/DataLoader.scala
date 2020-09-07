@@ -11,7 +11,7 @@ import scala.io.Source
 object DataLoader {
 
   def loadData(setType: SetType): Seq[Card] = {
-    val inputFile = getClass.getResourceAsStream("/" + setType + ".json")
+    val inputFile = getClass.getResourceAsStream("/jsons/" + setType + ".json")
     val source = Source.fromInputStream(inputFile)
     val lines = try source.getLines() mkString "\n" finally source.close()
     val parseResult: Json = parse(lines).getOrElse(Json.Null)
