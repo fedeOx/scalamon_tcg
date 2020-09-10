@@ -11,7 +11,7 @@ import scalafx.scene.shape.Box
 import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing}
 
-/***
+/** *
  * Stage that contains the game scene
  */
 class GameBoardView extends JFXApp.PrimaryStage {
@@ -26,11 +26,10 @@ class GameBoardView extends JFXApp.PrimaryStage {
     camera = new PerspectiveCamera(true) {
       transforms += (
         new Rotate(50, Rotate.XAxis),
-        new Translate(0, 5, -75))//-75))
+        new Translate(0, 5, -75)) //-75))
     }
-    val imgPlayMat: Image = new Image("/assets/playmat.png")
     val playMatMaterial = new PhongMaterial()
-    playMatMaterial.diffuseMap = imgPlayMat
+    playMatMaterial.diffuseMap = new Image("/assets/playmat.png")
     val zoomZone = new ZoomZone
     fill = new ImagePattern(new Image("/assets/woodTable.png"))
     content = new Group {
@@ -43,17 +42,15 @@ class GameBoardView extends JFXApp.PrimaryStage {
         translateX = -27.5
         translateY = -25
         minHeight = 50
-        minWidth= 55
+        minWidth = 55
         alignment = Pos.TopCenter
-        children = Seq(new PlayerBoard(false,zoomZone),
+        children = Seq(new PlayerBoard(false, zoomZone),
           new PlayerBoard(true, zoomZone))
       }, zoomZone)
     }
-
-
   }
 
-  resizable = false
+  resizable = true
   sizeToScene()
   show()
 }
