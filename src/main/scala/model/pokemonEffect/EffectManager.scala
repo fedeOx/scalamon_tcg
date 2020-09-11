@@ -25,7 +25,6 @@ object EffectManager {
 
     def resolveAttack(attackEffect: Seq[Effect]): Unit = attackEffect match {
       case h :: t if h.name == EffectType.doesNdmg && t.isEmpty => {
-
         if (basicCoinSide != "") {
           //do dmg according to Coin Value (es. Beedrill)
           var newBasicDmgToDo = 0
@@ -47,7 +46,11 @@ object EffectManager {
       }
       //Blastoise (atk) , //MewTwo (def)
       case h :: t if h.name == EffectType.eachEnergy && t.isEmpty => {
-        returnedAttack = returnedEffect(new DoesNDmgForEachEnergyAttachedTo(basicDmgToDo), "dmgCount" -> h.params.head.toInt, "atk_or_def" -> h.params(1))
+        returnedAttack = returnedEffect(new DoesNDmgForEachEnergyAttachedTo(basicDmgToDo),
+          "dmgCount" -> h.params.head.toInt,
+          "atk_or_def" -> h.params(1) ,
+          "limited" -> Some(h.params(2)).getOrElse(0) ,
+          "attackPosition"-> Some(h.params(3)).getOrElse(0))
       }
       case h :: t if h.name == EffectType.eachDmg && t.isEmpty => {
         returnedAttack = returnedEffect(new DoesNDmgForEachDamageCount(basicDmgToDo))

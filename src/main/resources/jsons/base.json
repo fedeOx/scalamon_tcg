@@ -97,7 +97,7 @@
           },
           {
             "name" : "EachEnergy",
-            "params":["10","atk"]
+            "params":["10","atk","2","1"]
           }
         ]
       }
@@ -571,7 +571,7 @@
           },
           {
             "name" : "EachEnergy",
-            "params":["10","def"]
+            "params":["10","def","0","0"]
           }
         ]
       },
