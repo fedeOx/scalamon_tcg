@@ -89,7 +89,17 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "40+",
-        "text": "Does 40 damage plus 10 more damage for each Water energy attached to Blastoise but not used to pay for this attack's Energy cost. Extra Water Energy after the 2nd doesn't count."
+        "text": "Does 40 damage plus 10 more damage for each Water energy attached to Blastoise but not used to pay for this attack's Energy cost. Extra Water Energy after the 2nd doesn't count.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["40","1",""]
+          },
+          {
+            "name" : "EachEnergy",
+            "params":["10","atk"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -496,7 +506,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "80",
-        "text": "Does 20 damage to each Pokémon on each player's Bench. (Don't apply Weakness and Resistance for Benched Pokémon.) Magneton does 80 damage to itself."
+        "text": "Does 20 damage to each Pokémon on each player's Bench. (Don't apply Weakness and Resistance for Benched Pokémon.) Magneton does 80 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1",""]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself",
+            "params":["80"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -543,7 +563,17 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "10+",
-        "text": "Does 10 damage plus 10 more damage for each Energy card attached to the Defending Pokémon."
+        "text": "Does 10 damage plus 10 more damage for each Energy card attached to the Defending Pokémon.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1",""]
+          },
+          {
+            "name" : "EachEnergy",
+            "params":["10","def"]
+          }
+        ]
       },
       {
         "name": "Barrier",
@@ -599,7 +629,18 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "30+",
-        "text": "Flip a coin. If heads, this attack does 30 damage plus 10 more damage; if tails, this attack does 30 damage and Nidoking does 10 damage to itself."
+        "text": "Flip a coin. If heads, this attack does 30 damage plus 10 more damage; if tails, this attack does 30 damage and Nidoking does 10 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1",""]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
+            "params":["10","10"]
+          }
+        ]
+
       },
       {
         "name": "Toxic",
@@ -876,7 +917,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "60",
-        "text": "Flip a coin. If tails, Zapdos does 30 damage to itself."
+        "text": "Flip a coin. If tails, Zapdos does 30 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["60","1",""]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
+            "params":["30","0"]
+          }
+        ]
       },
       {
         "name": "Thunderbolt",
@@ -928,7 +979,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "30×",
-        "text": "Flip 2 coins. This attack does 30 damage times the number of heads."
+        "text": "Flip 2 coins. This attack does 30 damage times the number of heads.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","2","head"]
+          }
+        ]
       },
       {
         "name": "Poison Sting",
