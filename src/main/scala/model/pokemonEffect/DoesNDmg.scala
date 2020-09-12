@@ -2,68 +2,150 @@ package model.pokemonEffect
 
 import model.Cards.PokemonCard
 import model.EnergyType
+import model.EnergyType.EnergyType
+import model.pokemonEffect.staticMethod.{atkTo, getAtkOrDef}
 
 
-case class DoesNDmg(baseDmgCount: Int) extends AttackEffect {
-  override def useEffect(defendingPokemons: Seq[PokemonCard], attackingPokemon: PokemonCard): Unit = defendingPokemons.size match {
-    case 1 => defendingPokemons.head.addDamage(totalDmg,attackingPokemon.pokemonTypes)
-    case _ => defendingPokemons.foreach(pkm => pkm.addDamage(totalDmg,Seq(EnergyType.colorless)))
+case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEffect {
+  override def useEffect(enemyPokemon: Seq[PokemonCard], myBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): Unit = {
+    atkTo(pokemonToApply, defendingPokemon, myBench, enemyPokemon).foreach(pkm =>
+      if (pkm == defendingPokemon)
+        pkm.addDamage(totalDmgToEnemyPkm, attackingPokemon.pokemonTypes)
+      else
+        pkm.addDamage(totalDmgToEnemyPkm, Seq(EnergyType.colorless)))
   }
 
   override var args: Map[String, Any] = Map.empty[String, Any]
-  override var totalDmg: Int = totalDmg + baseDmgCount
+  override var totalDmgToEnemyPkm: Int = totalDmgToEnemyPkm + baseDmgCount
 }
 
-//es. Blastoise (atk)
-//es. MewTwo    (def)
-trait ForEachEnergyAttachedTo extends AttackEffect{
-  abstract override def useEffect(defendingPokemons: Seq[PokemonCard], attackingPokemon: PokemonCard): Unit = {
-    var pokemonToApply : PokemonCard = null
+sealed trait ForEachEnergyAttachedTo extends AttackEffect {
+  abstract override def useEffect(enemyBench: Seq[PokemonCard], myBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): Unit = {
+    val pokemonToApply: PokemonCard = getAtkOrDef(getStringArgFromMap("atk_or_def"), attackingPokemon, defendingPokemon)
     val limitedTo = getStringArgFromMap("limited").toInt
-    getStringArgFromMap("atk_or_def") match {
-       case "atk" => pokemonToApply = attackingPokemon
-       case "def" => pokemonToApply = defendingPokemons.head
-     }
     var dmgToAdd = pokemonToApply.totalEnergiesStored
-
     //es. Blastoise / Poliwrath
-    if(limitedTo > 0) {
-      dmgToAdd = pokemonToApply.totalEnergiesStored - pokemonToApply.attacks(getStringArgFromMap("attackPosition").toInt-1).cost.size
-      if(dmgToAdd > limitedTo )
+    if (limitedTo > 0) {
+      dmgToAdd = pokemonToApply.totalEnergiesStored - pokemonToApply.attacks(getStringArgFromMap("attackPosition").toInt - 1).cost.size
+      if (dmgToAdd > limitedTo)
         dmgToAdd = limitedTo
     }
 
-    totalDmg += getIntArgFromMap("dmgCount") * dmgToAdd
+    totalDmgToEnemyPkm += getIntArgFromMap("dmgCount") * dmgToAdd
 
-    super.useEffect(defendingPokemons: Seq[PokemonCard], attackingPokemon: PokemonCard)
+    super.useEffect(enemyBench, myBench, attackingPokemon, defendingPokemon)
+
   }
 }
 
-trait ForEachDamageCount extends AttackEffect {
-  abstract override def useEffect(defendingPokemons: Seq[PokemonCard], attackingPokemon: PokemonCard): Unit = {
-    totalDmg +=  (-(attackingPokemon.actualHp - attackingPokemon.initialHp))
-    super.useEffect(defendingPokemons: Seq[PokemonCard], attackingPokemon: PokemonCard)
+sealed trait ForEachDamageCount extends AttackEffect {
+  abstract override def useEffect(enemyBench: Seq[PokemonCard], myBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): Unit = {
+    val pokemonSelected = getAtkOrDef(getStringArgFromMap("atk_or_def"), attackingPokemon, defendingPokemon)
+    val dmgCount = pokemonSelected.initialHp - pokemonSelected.actualHp
+    if (getStringArgFromMap("pluseOrMinus") == "+")
+      totalDmgToEnemyPkm += dmgCount
+    else
+      totalDmgToEnemyPkm -= dmgCount
+    super.useEffect(enemyBench, myBench, attackingPokemon, defendingPokemon)
   }
 }
 
-//es. Magneton
-trait DmgMySelf extends AttackEffect {
-  abstract override def useEffect(defendingPokemons: Seq[PokemonCard], attackingPokemon: PokemonCard): Unit = {
-   attackingPokemon.actualHp = attackingPokemon.actualHp- getIntArgFromMap("DmgMyself")
-    super.useEffect(defendingPokemons: Seq[PokemonCard], attackingPokemon: PokemonCard)
+sealed trait DiscardEnergy extends AttackEffect {
+  abstract override def useEffect(enemyBench: Seq[PokemonCard], myBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): Unit = {
+    val pokemonToApply: PokemonCard = getAtkOrDef(getStringArgFromMap("atk_or_def"), attackingPokemon, defendingPokemon)
+    var energyCount = getIntArgFromMap("energyCount")
+
+    if (energyCount == -1)
+      energyCount = pokemonToApply.totalEnergiesStored
+
+    getStringArgFromMap("energyType") match {
+      case "Colorless" => pokemonToApply.removeFirstNEnergy(getIntArgFromMap("energyCount"))
+      case specificEnergy =>
+        for (_ <- 1 to energyCount)
+          try {
+            pokemonToApply.removeEnergy(EnergyType.withNameWithDefault(specificEnergy))
+          }
+    }
+    super.useEffect(enemyBench, myBench, attackingPokemon, defendingPokemon)
   }
 }
 
+sealed trait RecoverLife extends AttackEffect {
+  abstract override def useEffect(enemyBench: Seq[PokemonCard], myBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): Unit = {
+    var recoveryAmount = getIntArgFromMap("recoveryAmount")
+    if (recoveryAmount == -1)
+      recoveryAmount = attackingPokemon.initialHp - attackingPokemon.actualHp
+    val pokemonToApply = getStringArgFromMap("recoveryApplyTo")
+    attackingPokemon.actualHp += recoveryAmount
+
+    super.useEffect(enemyBench, myBench, attackingPokemon, defendingPokemon)
+  }
+}
+
+sealed trait SetImmunity extends AttackEffect {
+  abstract override def useEffect(enemyBench: Seq[PokemonCard], myBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): Unit = {
+    attackingPokemon.immune = true
+    super.useEffect(enemyBench, myBench, attackingPokemon, defendingPokemon)
+  }
+}
+
+sealed trait MultipleTargetDmg extends AttackEffect {
+  abstract override def useEffect(enemyBench: Seq[PokemonCard], myBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): Unit = {
+    val pokemonToApply = getStringArgFromMap("target")
+    val dmgToDo = getIntArgFromMap("dmgToMultiple")
+
+    atkTo(pokemonToApply, defendingPokemon, myBench, enemyBench).foreach(pkm => pkm.addDamage(dmgToDo, Seq(EnergyType.colorless)))
+
+    super.useEffect(enemyBench, myBench, attackingPokemon, defendingPokemon)
+  }
+}
+
+sealed trait DmgMySelf extends AttackEffect {
+  abstract override def useEffect(benchPokemon: Seq[PokemonCard], MyBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): Unit = {
+    attackingPokemon.actualHp = attackingPokemon.actualHp - getIntArgFromMap("DmgMyself")
+    super.useEffect(benchPokemon: Seq[PokemonCard], MyBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard)
+  }
+
+}
+
+class DoesNDmgForEachEnergyAttachedTo(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with ForEachEnergyAttachedTo
+
+class DoesNDmgForEachDamageCount(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with ForEachDamageCount
+
+class DoesNDmgAndDmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with DmgMySelf
+
+class DoesNDmgAndDiscardEnergy(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with DiscardEnergy
+
+class DiscardEnergyAndRecover(dmgCount: Int, pokemonToApply: String) extends DoesNDmgAndDiscardEnergy(dmgCount, pokemonToApply) with RecoverLife
+
+class DoesNDmgAndSetImmunity(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with SetImmunity
+
+class DiscardEnergyAndSetImmunity(dmgCount: Int, pokemonToApply: String) extends DoesNDmgAndDiscardEnergy(dmgCount, pokemonToApply) with SetImmunity
+
+class DoesDmgToMultipleTarget(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with MultipleTargetDmg
+
+class DoesDmgToMultipleTarget_AND_DmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesDmgToMultipleTarget(dmgCount, pokemonToApply) with DmgMySelf
 
 
+private object staticMethod {
 
+  def getAtkOrDef(string: String, attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): PokemonCard = {
+    string match {
+      case "atk" => attackingPokemon
+      case "def" => defendingPokemon
+    }
+  }
 
-class DoesNDmgForEachEnergyAttachedTo(dmgCount: Int) extends DoesNDmg(dmgCount) with ForEachEnergyAttachedTo
-class DoesNDmgForEachDamageCount(dmgCount: Int) extends DoesNDmg(dmgCount) with ForEachDamageCount
-class DoesNDmgAndDmgMyself(dmgCount: Int) extends DoesNDmg(dmgCount) with DmgMySelf
-
-
-
-
-
-
+  def atkTo(string: String, defendingPokemon: PokemonCard, myBench: Seq[PokemonCard], enemyBench: Seq[PokemonCard]): Seq[PokemonCard] = {
+    var seq: Seq[PokemonCard] = Seq()
+    string match {
+      case "myBench" => myBench
+      case "enemyBench" => enemyBench
+      case "single" => Seq(defendingPokemon)
+      case "bothBench" => {
+        seq = seq ++ enemyBench ++ myBench
+        seq
+      }
+    }
+  }
+}

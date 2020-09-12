@@ -21,4 +21,6 @@ object EnergyType extends Enumeration {
         EnergyType.withName(t)
       }
   }
+  def withNameWithDefault(name: String): Value =
+    values.find(_.toString.toLowerCase == name.toLowerCase()).getOrElse(EnergyType.colorless)
 }

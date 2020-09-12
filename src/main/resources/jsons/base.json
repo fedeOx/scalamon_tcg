@@ -93,7 +93,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1",""]
+            "params":["40","1","","single"]
           },
           {
             "name" : "EachEnergy",
@@ -141,7 +141,17 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "",
-        "text": "Flip a coin. If heads, prevent all damage done to Chansey during your opponent's next turn. (Any other effects of attacks still happen.)"
+        "text": "Flip a coin. If heads, prevent all damage done to Chansey during your opponent's next turn. (Any other effects of attacks still happen.)",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "doesNDmgAndSetImmunity",
+            "params":["","true"]
+          }
+        ]
       },
       {
         "name": "Double-edge",
@@ -153,7 +163,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "80",
-        "text": "Chansey does 80 damage to itself."
+        "text": "Chansey does 80 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["80","1","","single"]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself",
+            "params":["80"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -214,7 +234,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "100",
-        "text": "Discard 2 Energy cards attached to Charizard in order to use this attack."
+        "text": "Discard 2 Energy cards attached to Charizard in order to use this attack.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["100","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["2","Colorless","atk"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -327,7 +357,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "50",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["50","1","","single"]
+          }
+        ]
       },
       {
         "name": "Bubblebeam",
@@ -387,7 +423,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "20",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          }
+        ]
       },
       {
         "name": "Special Punch",
@@ -398,7 +440,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "40",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["40","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -450,7 +498,13 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "60",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["60","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -510,7 +564,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1",""]
+            "params":["80","1","","single"]
+          },
+          {
+            "name": "ndmg",
+            "params":["20","1","","bothBench"]
           },
           {
             "name" : "DoesNDmgAndDmgMyself",
@@ -567,7 +625,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1",""]
+            "params":["10","1","","single"]
           },
           {
             "name" : "EachEnergy",
@@ -583,7 +641,21 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "",
-        "text": "Discard 1 Psychic Energy card attached to Mewtwo in order to use this attack. During your opponent's next turn, prevent all effects of attacks, including damage, done to Mewtwo."
+        "text": "Discard 1 Psychic Energy card attached to Mewtwo in order to use this attack. During your opponent's next turn, prevent all effects of attacks, including damage, done to Mewtwo.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Psychic","atk"]
+          },
+          {
+            "name" : "doesNDmgAndSetImmunity",
+            "params":["",""]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -633,7 +705,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1",""]
+            "params":["30","1","","single"]
           },
           {
             "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
@@ -706,7 +778,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "80",
-        "text": "Discard 1 Fire Energy card attached to Ninetales in order to use this attack."
+        "text": "Discard 1 Fire Energy card attached to Ninetales in order to use this attack.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["80","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Fire","atk"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -752,7 +834,17 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "30+",
-        "text": "Does 30 damage plus 10 more damage for each Water Energy attached to Poliwrath but not used to pay for this attack's Energy cost. Extra Water Energy after the 2nd doesn't count."
+        "text": "Does 30 damage plus 10 more damage for each Water Energy attached to Poliwrath but not used to pay for this attack's Energy cost. Extra Water Energy after the 2nd doesn't count.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          },
+          {
+            "name" : "EachEnergy",
+            "params":["10","atk","2","1"]
+          }
+        ]
       },
       {
         "name": "Whirlpool",
@@ -764,7 +856,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "40",
-        "text": "If the Defending Pokémon has any Energy cards attached to it, choose 1 and discard it."
+        "text": "If the Defending Pokémon has any Energy cards attached to it, choose 1 and discard it.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["40","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Colorless","def"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -808,7 +910,17 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "20",
-        "text": "Flip a coin. If heads, during your opponent's next turn, prevent all effects of attacks, including damage, done to Raichu."
+        "text": "Flip a coin. If heads, during your opponent's next turn, prevent all effects of attacks, including damage, done to Raichu.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          },
+          {
+            "name" : "doesNDmgAndSetImmunity",
+            "params":["","true"]
+          }
+        ]
       },
       {
         "name": "Thunder",
@@ -820,7 +932,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "60",
-        "text": "Flip a coin. If tails, Raichu does 30 damage to itself."
+        "text": "Flip a coin. If tails, Raichu does 30 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["60","1","","single"]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
+            "params":["30","0"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -871,7 +993,13 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "60",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["60","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -921,7 +1049,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["60","1",""]
+            "params":["60","1","","single"]
           },
           {
             "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
@@ -939,7 +1067,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "100",
-        "text": "Discard all Energy cards attached to Zapdos in order to use this attack."
+        "text": "Discard all Energy cards attached to Zapdos in order to use this attack.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["100","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["-1","Colorless","atk"]
+          }
+        ]
       }
     ],
     "resistances": [
@@ -983,7 +1121,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","2","head"]
+            "params":["30","2","head","single"]
           }
         ]
       },
@@ -1047,7 +1185,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "30×",
-        "text": "Flip 2 coins. This attack does 30 damage times the number of heads."
+        "text": "Flip 2 coins. This attack does 30 damage times the number of heads.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","2","head","single"]
+          }
+        ]
       },
       {
         "name": "Hyper Beam",
@@ -1059,7 +1203,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "20",
-        "text": "If the Defending Pokémon has any Energy cards attached to it, choose 1 of them and discard it."
+        "text": "If the Defending Pokémon has any Energy cards attached to it, choose 1 of them and discard it.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Colorless","def"]
+          }
+        ]
       }
     ],
     "resistances": [
@@ -1107,7 +1261,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "40",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["40","1","","single"]
+          }
+        ]
       },
       {
         "name": "Earthquake",
@@ -1119,7 +1279,18 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "70",
-        "text": "Does 10 damage to each of your own Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)"
+        "text": "Does 10 damage to each of your own Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["70","1","","single"]
+          },
+          {
+            "name": "ndmg",
+            "params":["10","1","","myBench"]
+          }
+        ]
+
       }
     ],
     "weaknesses": [
@@ -1177,7 +1348,17 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "30+",
-        "text": "Flip a coin. If heads, this attack does 30 damage plus 10 more damage; if tails, this attack does 30 damage and Electabuzz does 10 damage to itself."
+        "text": "Flip a coin. If heads, this attack does 30 damage plus 10 more damage; if tails, this attack does 30 damage and Electabuzz does 10 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
+            "params":["10","10"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -1229,7 +1410,17 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "50",
-        "text": "Flip a coin. If tails, Electrode does 10 damage to itself."
+        "text": "Flip a coin. If tails, Electrode does 10 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["50","1","","single"]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
+            "params":["10","0"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -1338,7 +1529,17 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "50",
-        "text": "Discard 1 Fire Energy card attached to Arcanine in order to use this attack."
+        "text": "Discard 1 Fire Energy card attached to Arcanine in order to use this attack.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["50","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Fire","atk"]
+          }
+        ]
       },
       {
         "name": "Take Down",
@@ -1350,7 +1551,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "80",
-        "text": "Arcanine does 30 damage to itself."
+        "text": "Arcanine does 30 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["80","1","","single"]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself",
+            "params":["30","0"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -1394,7 +1605,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "30",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          }
+        ]
       },
       {
         "name": "Flamethrower",
@@ -1405,7 +1622,17 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "50",
-        "text": "Discard 1 Fire Energy card attached to Charmeleon in order to use this attack."
+        "text": "Discard 1 Fire Energy card attached to Charmeleon in order to use this attack.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["50","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Fire","atk"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -1454,7 +1681,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "50",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["50","1","","single"]
+          }
+        ]
       },
       {
         "name": "Ice Beam",
@@ -1507,7 +1740,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1","","single"]
+          }
+        ]
       }
     ],
     "resistances": [
@@ -1562,7 +1801,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "30",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -1613,7 +1858,13 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "20",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -1715,7 +1966,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "30",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          }
+        ]
       },
       {
         "name": "Poisonpowder",
@@ -1771,7 +2028,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10×",
-        "text": "Flip 2 coins. This attack does 10 damage times the number of heads."
+        "text": "Flip 2 coins. This attack does 10 damage times the number of heads.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","2","head","single"]
+          }
+        ]
       },
       {
         "name": "Meditate",
@@ -1782,7 +2045,17 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "20+",
-        "text": "Does 20 damage plus 10 more damage for each damage counter on the Defending Pokémon."
+        "text": "Does 20 damage plus 10 more damage for each damage counter on the Defending Pokémon.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          },
+          {
+            "name" : "EachDmg",
+            "params":["10","def","+"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -1827,7 +2100,21 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "",
-        "text": "Discard 1 Psychic Energy card attached to Kadabra in order use this attack. Remove all damage counters from Kadabra."
+        "text": "Discard 1 Psychic Energy card attached to Kadabra in order use this attack. Remove all damage counters from Kadabra.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Psychic","atk"]
+          },
+          {
+            "name" : "recovery",
+            "params":["-1","atk"]
+          }
+        ]
       },
       {
         "name": "Super Psy",
@@ -1838,7 +2125,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "50",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["50","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -1885,7 +2178,17 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "",
-        "text": "Flip a coin. If heads, prevent all damage done to Kakuna during your opponent's next turn. (Any other effects of attacks still happen.)"
+        "text": "Flip a coin. If heads, prevent all damage done to Kakuna during your opponent's next turn. (Any other effects of attacks still happen.)",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "doesNDmgAndSetImmunity",
+            "params":["","true"]
+          }
+        ]
       },
       {
         "name": "Poisonpowder",
@@ -1944,7 +2247,17 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "50-",
-        "text": "Does 50 damage minus 10 for each damage counter on Machoke."
+        "text": "Does 50 damage minus 10 for each damage counter on Machoke.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["50","1","","single"]
+          },
+          {
+            "name" : "EachDmg",
+            "params":["10","atk","-"]
+          }
+        ]
       },
       {
         "name": "Submission",
@@ -1956,7 +2269,17 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "60",
-        "text": "Machoke does 20 damage to itself."
+        "text": "Machoke does 20 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["60","1","","single"]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself",
+            "params":["20"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -2000,7 +2323,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          }
+        ]
       },
       {
         "name": "Flail",
@@ -2009,7 +2338,17 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10×",
-        "text": "Does 10 damage times number of damage counters on Magikarp."
+        "text": "Does 10 damage times number of damage counters on Magikarp.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "EachDmg",
+            "params":["10","atk","+"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -2055,7 +2394,13 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "30",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          }
+        ]
       },
       {
         "name": "Flamethrower",
@@ -2066,7 +2411,17 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "50",
-        "text": "Discard 1 Fire Energy card attached to Magmar in order to use this attack."
+        "text": "Discard 1 Fire Energy card attached to Magmar in order to use this attack.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["50","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Fire","atk"]
+          }
+        ]
       }
     ],
     "weaknesses": [

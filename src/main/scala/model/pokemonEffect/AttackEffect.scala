@@ -2,14 +2,13 @@ package model.pokemonEffect
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
-import model.Attack
 import model.Cards.PokemonCard
 import model.pokemonEffect.EffectType.effectType
 
 trait AttackEffect {
-  def useEffect(defPokemons:Seq[PokemonCard] = Seq(), atkPokemon:PokemonCard =null ): Unit
+  def useEffect(EnemyPokemonBench:Seq[PokemonCard],MyBench:Seq[PokemonCard], atkPokemon:PokemonCard, enemyPokemon : PokemonCard): Unit
   var args: Map[String,Any]
-  var totalDmg :Int
+  var totalDmgToEnemyPkm :Int
 
   def getIntArgFromMap(keyToFind : String):Int =  args.get(keyToFind).head.asInstanceOf[Int]
   def getStringArgFromMap(keyToFind : String):String =  args.get(keyToFind).head.asInstanceOf[String]
