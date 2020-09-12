@@ -2468,7 +2468,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "30×",
-        "text": "Flip 2 coins. This attack does 30 damage times the number of heads."
+        "text": "Flip 2 coins. This attack does 30 damage times the number of heads.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","2","head","single"]
+          }
+        ]
       },
       {
         "name": "Horn Drill",
@@ -2480,7 +2486,13 @@
         ],
         "convertedEnergyCost": 4,
         "damage": "50",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["50","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -2537,7 +2549,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "30×",
-        "text": "Flip 2 coins. This attack does 30 damage times number of heads."
+        "text": "Flip 2 coins. This attack does 30 damage times number of heads.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","2","head","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -2643,7 +2661,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "20",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          }
+        ]
       },
       {
         "name": "Super Fang",
@@ -2701,7 +2725,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -2747,7 +2777,17 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "",
-        "text": "Flip a coin. If heads, prevent all damage done to Wartortle during your opponent's next turn. (Any other effects of attacks still happen.)"
+        "text": "Flip a coin. If heads, prevent all damage done to Wartortle during your opponent's next turn. (Any other effects of attacks still happen.)",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "doesNDmgAndSetImmunity",
+            "params":["","true"]
+          }
+        ]
       },
       {
         "name": "Bite",
@@ -2758,7 +2798,13 @@
         ],
         "convertedEnergyCost": 3,
         "damage": "40",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["40","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -2843,7 +2889,12 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "20",
-        "text": "Unless all damage from this attack is prevented, you may remove 1 damage counter from Bulbasaur."
+        "text": "Unless all damage from this attack is prevented, you may remove 1 damage counter from Bulbasaur.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          },
       }
     ],
     "weaknesses": [
@@ -2931,7 +2982,12 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1","","single"]
+          },
       },
       {
         "name": "Ember",
@@ -2941,7 +2997,17 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "30",
-        "text": "Discard 1 Fire Energy card attached to Charmander in order to use this attack."
+        "text": "Discard 1 Fire Energy card attached to Charmander in order to use this attack.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Fire","atk"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -2981,7 +3047,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1","","single"]
+          }
+        ]
       },
       {
         "name": "Mud Slap",
@@ -2991,7 +3063,13 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "30",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3037,7 +3115,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10×",
-        "text": "Flip 2 coins. This attack does 10 damage times the number of heads."
+        "text": "Flip 2 coins. This attack does 10 damage times the number of heads.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","2","head","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3083,7 +3167,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1","","single"]
+          }
+        ]
       },
       {
         "name": "Confuse Ray",
@@ -3232,7 +3322,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "20",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3286,7 +3382,21 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "40",
-        "text": "Does 10 damage to each Pokémon on each player's Bench. (Don't apply Weakness and Resistance for Benched Pokémon.) Magnemite does 40 damage to itself."
+        "text": "Does 10 damage to each Pokémon on each player's Bench. (Don't apply Weakness and Resistance for Benched Pokémon.) Magnemite does 40 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["40","1","","single"]
+          },
+          {
+            "name": "ndmg",
+            "params":["10","1","","bothBench"]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself",
+            "params":["40"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3333,7 +3443,17 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "",
-        "text": "Flip a coin. If heads, prevent all damage done to Metapod during your opponent's next turn. (Any other effects of attacks still happen.)"
+        "text": "Flip a coin. If heads, prevent all damage done to Metapod during your opponent's next turn. (Any other effects of attacks still happen.)",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "doesNDmgAndSetImmunity",
+            "params":["","true"]
+          }
+        ]
       },
       {
         "name": "Stun Spore",
@@ -3387,7 +3507,17 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "30",
-        "text": "Flip a coin. If tails, this attack does nothing."
+        "text": "Flip a coin. If tails, this attack does nothing.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
+            "params":["0","30"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3433,7 +3563,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1","","single"]
+          }
+        ]
       },
       {
         "name": "Harden",
@@ -3538,7 +3674,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1","","single"]
+          }
+        ]
       },
       {
         "name": "Thunder Jolt",
@@ -3548,7 +3690,17 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "30",
-        "text": "Flip a coin. If tails, Pikachu does 10 damage to itself."
+        "text": "Flip a coin. If tails, Pikachu does 10 damage to itself.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          },
+          {
+            "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
+            "params":["10","0"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3592,7 +3744,17 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10+",
-        "text": "Does 10 damage plus 10 damage for each Energy attached to Poliwag but not used to pay for this attack's Energy cost. Extra Energy after the end don't count."
+        "text": "Does 10 damage plus 10 damage for each Energy attached to Poliwag but not used to pay for this attack's Energy cost. Extra Energy after the end don't count.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1","","single"]
+          },
+          {
+            "name" : "EachEnergy",
+            "params":["10","atk","2","1"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3637,7 +3799,13 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "20",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          }
+        ]
       },
       {
         "name": "Flame Tail",
@@ -3647,7 +3815,13 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "30",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["30","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3687,7 +3861,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "20",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3797,7 +3977,17 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "",
-        "text": "Flip a coin. If heads, prevent all damage done to Squirtle during your opponent's next turn. (Any other effects of attacks still happen.)"
+        "text": "Flip a coin. If heads, prevent all damage done to Squirtle during your opponent's next turn. (Any other effects of attacks still happen.)",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "doesNDmgAndSetImmunity",
+            "params":["","true"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3843,7 +4033,21 @@
         ],
         "convertedEnergyCost": 2,
         "damage": "",
-        "text": "Discard 1 Water Energy card to Starmie in order to use this attack. Remove all damage counters from Starmie."
+        "text": "Discard 1 Water Energy card to Starmie in order to use this attack. Remove all damage counters from Starmie.",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["0","1","","single"]
+          },
+          {
+            "name" : "DiscardEnergy",
+            "params":["1","Water","atk"]
+          },
+          {
+            "name" : "recovery",
+            "params":["-1","atk"]
+          }
+        ]
       },
       {
         "name": "Star Freeze",
@@ -3895,7 +4099,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "20",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["20","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
@@ -3996,7 +4206,13 @@
         ],
         "convertedEnergyCost": 1,
         "damage": "10",
-        "text": ""
+        "text": "",
+        "effect": [
+          {
+            "name": "ndmg",
+            "params":["10","1","","single"]
+          }
+        ]
       }
     ],
     "weaknesses": [
