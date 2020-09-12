@@ -158,6 +158,15 @@ class EffectTest extends FlatSpec with GivenWhenThen {
     assert(enemyPokemon.actualHp == enemyPokemon.initialHp-30)
   }
 
+  it should "confuse the enemy if head" in {
+    Given("a pokemon with this effect")
+    activePokemon = getSpecificPokemon("Alakazam")
+    Then("apply effect")
+    And("the attacking pokemon should confuse enemy")
+    activePokemon.attacks.head.effect.get.useEffect(enemyBench, myBench, activePokemon, enemyPokemon)
+    assert(enemyPokemon.status == StatusType.noStatus || enemyPokemon.status == StatusType.confused)
+  }
+
   def getSpecificPokemon(_name: String): PokemonCard = {
     val pokemonCard = pokemonCards.find(pkm => pkm.asInstanceOf[PokemonCard].name == _name).get.asInstanceOf[PokemonCard]
     pokemonCard

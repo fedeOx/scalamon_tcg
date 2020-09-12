@@ -62,9 +62,9 @@ object EffectManager {
       }
       //base Atk dmg + plus Dmg foreach dmg
       case h :: t if h.name == EffectType.eachDmg => {
-        effectArgs += ("PlusDmg"-> h.params.head.toInt)
-        effectArgs += ("atk_or_def"-> h.params(1))
-        effectArgs += ("pluseOrMinus"-> h.params(2))
+        effectArgs += ("PlusDmg" -> h.params.head.toInt)
+        effectArgs += ("atk_or_def" -> h.params(1))
+        effectArgs += ("pluseOrMinus" -> h.params(2))
         returnedAttack = returnedEffect(new DoesNDmgForEachDamageCount(basicDmgToDo, basicEnemyToAtk), effectArgs)
         if (t.nonEmpty)
           resolveAttack(t)
@@ -124,6 +124,20 @@ object EffectManager {
         effectArgs += ("dmgToMultiple" -> t.head.params.head.toInt)
         effectArgs += ("target" -> t.head.params(3))
         returnedAttack = returnedEffect(new DoesDmgToMultipleTarget(basicDmgToDo, basicEnemyToAtk), effectArgs)
+        if (t.nonEmpty)
+          resolveAttack(t)
+      }
+      //Status
+      case h :: t if h.name == EffectType.status => {
+        val isCoinNeeded = h.params(2) != "" || h.params(3) != ""
+        effectArgs += ("atk_or_def" -> h.params.head)
+        effectArgs += ("status" -> h.params(1))
+        if (isCoinNeeded)
+          if (getCoinFlipValue == "tail")
+            effectArgs += ("status" -> h.params(4))
+
+
+        returnedAttack = returnedEffect(new DoesDmgAndApplyStatus(basicDmgToDo, basicEnemyToAtk), effectArgs)
         if (t.nonEmpty)
           resolveAttack(t)
       }

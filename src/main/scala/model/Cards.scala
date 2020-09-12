@@ -4,6 +4,7 @@ import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
 import model.Cards.EnergyCard.EnergyCardType.EnergyCardType
 import model.EnergyType.EnergyType
+import model.StatusType.statusType
 import model.exception.MissingEnergyException
 
 import scala.collection.mutable
@@ -22,6 +23,8 @@ object Cards {
     def actualHp_=(value: Int): Unit
     def immune: Boolean
     def immune_=(value: Boolean): Unit
+    def status: statusType
+    def status_=(value: statusType): Unit
     def weaknesses: Seq[Weakness]
     def resistances: Seq[Resistance]
     def retreatCost: Seq[EnergyType]
@@ -46,7 +49,7 @@ object Cards {
   object PokemonCard {
     def apply(imageId: String, pokemonTypes: Seq[EnergyType], name: String, initialHp: Int, weaknesses: Seq[Weakness],
               resistances: Seq[Resistance], retreatCost: Seq[EnergyType], evolvesFrom: String, attacks: Seq[Attack]): PokemonCard =
-      PokemonCardImpl(imageId, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks,false)
+      PokemonCardImpl(imageId, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks,false,StatusType.noStatus)
 
     implicit val decoder: Decoder[PokemonCard] = new Decoder[PokemonCard] {
       override def apply(c: HCursor): Result[PokemonCard] =
@@ -77,6 +80,7 @@ object Cards {
                                override val evolvesFrom: String,
                                override val attacks: Seq[Attack],
                                override var immune: Boolean,
+                               override var status : statusType,
                                private val energiesMap: mutable.Map[EnergyType, Int] = mutable.Map()
                                ) extends PokemonCard {
 
@@ -130,7 +134,6 @@ object Cards {
         }
         remove(nEnergies)
       }
-
     }
   }
 

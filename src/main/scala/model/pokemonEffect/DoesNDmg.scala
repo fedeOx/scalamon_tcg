@@ -1,8 +1,9 @@
 package model.pokemonEffect
 
 import model.Cards.PokemonCard
-import model.EnergyType
+import model.{EnergyType, StatusType}
 import model.EnergyType.EnergyType
+import model.StatusType.statusType
 import model.pokemonEffect.staticMethod.{atkTo, getAtkOrDef}
 
 
@@ -105,7 +106,16 @@ sealed trait DmgMySelf extends AttackEffect {
     attackingPokemon.actualHp = attackingPokemon.actualHp - getIntArgFromMap("DmgMyself")
     super.useEffect(benchPokemon: Seq[PokemonCard], MyBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard)
   }
+}
 
+sealed trait addStatus extends AttackEffect {
+  abstract override def useEffect(benchPokemon: Seq[PokemonCard], MyBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard): Unit = {
+    val statusToApply: statusType = StatusType.withNameWithDefault(getStringArgFromMap("status"))
+    val pokemonToApply = getAtkOrDef(getStringArgFromMap("atk_or_def"), attackingPokemon, defendingPokemon)
+    if (pokemonToApply.status == StatusType.noStatus)
+      pokemonToApply.status = statusToApply
+    super.useEffect(benchPokemon: Seq[PokemonCard], MyBench: Seq[PokemonCard], attackingPokemon: PokemonCard, defendingPokemon: PokemonCard)
+  }
 }
 
 class DoesNDmgForEachEnergyAttachedTo(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with ForEachEnergyAttachedTo
@@ -123,6 +133,8 @@ class DoesNDmgAndSetImmunity(dmgCount: Int, pokemonToApply: String) extends Does
 class DiscardEnergyAndSetImmunity(dmgCount: Int, pokemonToApply: String) extends DoesNDmgAndDiscardEnergy(dmgCount, pokemonToApply) with SetImmunity
 
 class DoesDmgToMultipleTarget(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with MultipleTargetDmg
+
+class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply)
 
 class DoesDmgToMultipleTarget_AND_DmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesDmgToMultipleTarget(dmgCount, pokemonToApply) with DmgMySelf
 
