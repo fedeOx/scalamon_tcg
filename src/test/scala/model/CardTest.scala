@@ -1,12 +1,14 @@
 package model
 
-import model.Cards.{EnergyCard, PokemonCard}
+import model.game.Cards.{EnergyCard, PokemonCard}
 import model.exception.MissingEnergyException
+import model.game.{EnergyType, SetType}
+import model.core.DataLoader
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.GivenWhenThen
 
 class CardTest extends AnyFlatSpec with GivenWhenThen {
-  val pokemonCardList: Seq[PokemonCard] = DataLoader.loadData(SetType.base)
+  val pokemonCardList: Seq[PokemonCard] = DataLoader.loadSet(SetType.Base)
     .filter(c => c.isInstanceOf[PokemonCard])
     .map(c => c.asInstanceOf[PokemonCard])
 
@@ -20,7 +22,7 @@ class CardTest extends AnyFlatSpec with GivenWhenThen {
 
   it should "throw MissingEnergyException trying to remove a non-assigned EnergyCard" in {
     intercept[MissingEnergyException] {
-      pokemonCard.removeEnergy(EnergyType.grass)
+      pokemonCard.removeEnergy(EnergyType.Grass)
     }
   }
 
@@ -44,7 +46,7 @@ class CardTest extends AnyFlatSpec with GivenWhenThen {
     otherPokemonCard = pokemonCardList(2)
 
     When("it attacks the other")
-    otherPokemonCard.addDamage(damage, pokemonCard.pokemonTypes ++ Seq(EnergyType.grass))
+    otherPokemonCard.addDamage(damage, pokemonCard.pokemonTypes ++ Seq(EnergyType.Grass))
 
     Then("the damage is reduced (-30 points)")
     var expectedHp = otherPokemonCard.initialHp - (damage - 30)
@@ -65,7 +67,7 @@ class CardTest extends AnyFlatSpec with GivenWhenThen {
 
   behavior of "A EnergyCard"
 
-  val energyCardList: Seq[EnergyCard] = DataLoader.loadData(SetType.base)
+  val energyCardList: Seq[EnergyCard] = DataLoader.loadSet(SetType.Base)
     .filter(c => c.isInstanceOf[EnergyCard])
     .map(c => c.asInstanceOf[EnergyCard])
   val energyCard: EnergyCard = energyCardList(1)

@@ -1,10 +1,10 @@
-package model
+package model.game
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
-import model.Cards.EnergyCard.EnergyCardType.EnergyCardType
-import model.EnergyType.EnergyType
 import model.exception.MissingEnergyException
+import model.game.Cards.EnergyCard.EnergyCardType.EnergyCardType
+import model.game.EnergyType.EnergyType
 
 import scala.collection.mutable
 
@@ -84,7 +84,7 @@ object Cards {
       override def removeEnergy(energy: EnergyType): Unit = energiesMap.get(energy) match {
         case Some(e) if e>1 => energiesMap(energy) -= 1
         case Some(_) => energiesMap.remove(energy)
-        case None => throw new MissingEnergyException()
+        case None => throw new MissingEnergyException("There is not an energy of the specified type that can be removed")
       }
 
       override def hasEnergies(energies: Seq[EnergyType]): Boolean =
