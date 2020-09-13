@@ -1,99 +1,33 @@
 package view
 
-import javafx.geometry.Insets
 import scalafx.Includes._
-import scalafx.geometry.Pos
-import scalafx.scene.layout.{GridPane, HBox, VBox}
-import scalafx.scene.shape.Box
-import scala.collection.mutable
-import scala.collection.mutable._
+import scalafx.scene.Group
+import scalafx.scene.layout.HBox
+import scalafx.stage.Window
 
-/** *
+/***
  * Player board component for the player
  * isHumans: true if it's the board of the human player
  * zoom: the zone in which the zoomed cards are generated
+ *
+ * @param isHumans : true if it's the human's board
+ * @param zoom : the zone for the zoomed cards
  */
-class PlayerBoard(isHumans: Boolean, zoom: ZoomZone) extends GridPane {
+class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) extends Group {
+  private val WIDTH = 55
+  private val HEIGHT = 25
   styleClass += "humanPB"
-
-  val zoomZone = zoom
-  add(new PrizeCardsZone, 0, 0, 1, 2)
-  add(new ActivePkmnZone(zoomZone, isHumans), 1, 0, 1, 1)
-  add(new BenchZone(zoomZone, isHumans), 1, 1, 1, 1)
-  add(new DeckDiscardZone, 2, 0, 1, 2)
+  children = List(new PrizeCardsZone, new ActivePkmnZone(zoom, isHumans, this, parentWindow), new BenchZone(zoom, isHumans),new DeckDiscardZone)
   if (isHumans)
-    add(new HandZone(zoomZone),0,3,3,1)
+    children += new HandZone(zoom, isHumans)
 
+  minWidth(WIDTH)
+  minHeight(HEIGHT)
 
-  minWidth = 55
-  minHeight = 25
+  maxWidth(WIDTH)
+  maxHeight(HEIGHT)
 
-  maxWidth = 55
-  maxHeight = 25
-
-  if (!isHumans)
-    rotate = 180
-
-}
-
-class PrizeCardsZone extends VBox {
-  children = List(new CardComponent("/assets/cardBack.jpg").card)
-  alignment = Pos.Center
-  minHeight = 25
-  maxHeight = 25
-  minWidth = 10
-  maxWidth = 10
-  styleClass += "prizeCards"
-}
-
-class DeckDiscardZone extends VBox {
-  private val discardStack = mutable.Stack("/assets/1.jpg", "/assets/4.jpg")
-  children = List(new CardComponent("/assets/cardBack.jpg").card,
-    new CardComponent(discardStack.top).card)
-
-  alignment = Pos.Center
-  maxWidth = 10
-  maxHeight = 25
-  styleClass += "deckDiscard"
-}
-
-class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean) extends HBox {
-  maxWidth = 35
-  maxHeight = 15
-  styleClass += "active"
-
-  alignment = Pos.BottomCenter
-  children = new CardComponent("/assets/4.jpg", Some(zone), isActive = true).card
-}
-
-class BenchZone(zone: ZoomZone, isHumans: Boolean) extends HBox {
-  private var bench : Seq[Box] = Seq()
-
-  for (pippo <- 0 to 4) {
-    bench = bench :+ new CardComponent("/assets/1.jpg", Some(zone), 0.6*pippo ).card
-  }
-
-  children = bench
-  spacing = 0.5
-  minWidth = 35
-  maxWidth = 35
-  minHeight = 10
-  maxHeight = 10
-  alignment = Pos.BottomLeft
-
-}
-
-class HandZone(zone: ZoomZone) extends HBox {
-  private var hand : Seq[Box] = Seq()
-  for (pippo <- 0 to 7) {
-     hand = hand :+ new CardComponent("/assets/4.jpg", Some(zone), 0.6*pippo ).card
-  }
-  children = hand
-  alignment = Pos.BottomCenter
-  maxWidth = 60
-  minHeight = 10
-  maxHeight = 20
-  margin = new Insets(0, 0,0,5)
+  if (!isHumans) rotate = 180 else translateY = 25
 }
 
 class ZoomZone extends HBox {
@@ -101,7 +35,7 @@ class ZoomZone extends HBox {
   maxHeight = 18.2
   translateX = -27
   translateY = 0
-  translateZ = -5
+  translateZ = -9
 }
 
 
