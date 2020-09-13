@@ -6,12 +6,11 @@ import scala.util.Random
 object EffectManager {
 
   def convertJsonEffectToAttackEffect(jsonEffect: Option[Seq[Effect]]): Option[AttackEffect] = {
-
     val mainEffect: Effect = jsonEffect.get.head
     mainEffect.name match {
       case EffectType.doesNdmg => Some(doesNDmgEffectSpecialize(jsonEffect.get))
-      case EffectType.discardEnergy => None
-      case EffectType.status => None
+      case EffectType.trainer => None
+      case EffectType.pokePower => None
       case _ => None
     }
   }
@@ -30,9 +29,8 @@ object EffectManager {
       //base Atk dmg
       case h :: t if h.name == EffectType.doesNdmg && t.isEmpty => {
         if (basicCoinSide != "") {
-          //do dmg according to Coin Value (es. Beedrill)
+          //do dmg according to Coin Value
           var newBasicDmgToDo = 0
-
           @scala.annotation.tailrec
           def modifyDmgCount(iterationLeft: Int): Int = iterationLeft match {
             case 0 => newBasicDmgToDo
@@ -64,14 +62,13 @@ object EffectManager {
       case h :: t if h.name == EffectType.eachDmg => {
         effectArgs += ("PlusDmg" -> h.params.head.toInt)
         effectArgs += ("atk_or_def" -> h.params(1))
-        effectArgs += ("pluseOrMinus" -> h.params(2))
+        effectArgs += ("plusOrMinus" -> h.params(2))
         returnedAttack = returnedEffect(new DoesNDmgForEachDamageCount(basicDmgToDo, basicEnemyToAtk), effectArgs)
         if (t.nonEmpty)
           resolveAttack(t)
       }
       //Base Atk dmg + dmg Myself or Use CoinFlip for decide it
       case h :: t if (h.name == EffectType.doesNDmgAndHitMyself_OR_doesNdmg || h.name == EffectType.doesNDmgAndHitMyself) && t.isEmpty => {
-
         if (returnedAttack == null) {
           //default tail -> dmgMyself
           effectArgs += ("DmgMyself" -> h.params.head.toInt)
@@ -110,7 +107,6 @@ object EffectManager {
           else
             returnedAttack = returnedEffect(DoesNDmg(basicDmgToDo, basicEnemyToAtk), effectArgs)
         } else {
-          //es. MewTwo Barrier
           effectArgs += ("energyCount" -> t.head.params.head.toInt)
           effectArgs += ("energyType" -> t.head.params(1))
           effectArgs += ("atk_or_def" -> t.head.params(2))
@@ -124,8 +120,7 @@ object EffectManager {
         effectArgs += ("dmgToMultiple" -> t.head.params.head.toInt)
         effectArgs += ("target" -> t.head.params(3))
         returnedAttack = returnedEffect(new DoesDmgToMultipleTarget(basicDmgToDo, basicEnemyToAtk), effectArgs)
-        if (t.nonEmpty)
-          resolveAttack(t)
+          resolveAttack(t.tail)
       }
       //Status
       case h :: t if h.name == EffectType.status => {
@@ -155,9 +150,10 @@ object EffectManager {
 
 
   private def getCoinFlipValue: String = {
-    if (Random.nextInt(99) + 1 < 50)
-      return "head"
-    "tail"
+    Random.nextInt(99) + 1 match {
+      case n if n<= 50 => "head"
+      case _ => "tail"
+    }
   }
 
 

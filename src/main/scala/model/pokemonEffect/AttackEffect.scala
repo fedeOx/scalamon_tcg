@@ -6,7 +6,7 @@ import model.Cards.PokemonCard
 import model.pokemonEffect.EffectType.effectType
 
 trait AttackEffect {
-  def useEffect(EnemyPokemonBench:Seq[PokemonCard],MyBench:Seq[PokemonCard], atkPokemon:PokemonCard, enemyPokemon : PokemonCard): Unit
+  def useEffect(): Unit
   var args: Map[String,Any]
   var totalDmgToEnemyPkm :Int
 

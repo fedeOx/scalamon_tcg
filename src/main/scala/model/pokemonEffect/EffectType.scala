@@ -7,6 +7,8 @@ import model.pokemonEffect.EffectType.effectType
 object EffectType extends Enumeration {
   type effectType = Value
   val doesNdmg: Value = Value("ndmg")
+  val trainer : Value = Value("trainer")
+  val pokePower: Value = Value("pokePower")
   val discardEnergy: Value = Value("DiscardEnergy")
   val status:Value = Value("status")
   val eachEnergy: Value = Value("EachEnergy")
