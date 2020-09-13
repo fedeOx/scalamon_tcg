@@ -25,7 +25,7 @@ case class Cards(id: String, name: String, rarity: String, count: Int) {
 object DeckSelection extends Scene {
 
   val cssStyle = getClass.getResource("/style/deckSelection.css").toExternalForm
-  val input = Source.fromFile(getClass.getResource("/jsons/BaseDeck.json").getFile).getLines().mkString.stripMargin
+  val input = Source.fromFile(getClass.getResource("/jsons/d_testbase.json").getFile).getLines().mkString.stripMargin
   var decks: Set[Deck] = Set.empty[Deck]
 
 

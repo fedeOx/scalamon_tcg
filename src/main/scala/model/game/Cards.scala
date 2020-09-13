@@ -1,10 +1,10 @@
-package model
+package model.game
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
-import model.Cards.EnergyCard.EnergyCardType.EnergyCardType
-import model.EnergyType.EnergyType
 import model.exception.MissingEnergyException
+import model.game.Cards.EnergyCard.EnergyCardType.EnergyCardType
+import model.game.EnergyType.EnergyType
 
 import scala.collection.mutable
 
@@ -84,7 +84,7 @@ object Cards {
       override def removeEnergy(energy: EnergyType): Unit = energiesMap.get(energy) match {
         case Some(e) if e>1 => energiesMap(energy) -= 1
         case Some(_) => energiesMap.remove(energy)
-        case None => throw new MissingEnergyException()
+        case None => throw new MissingEnergyException("There is not an energy of the specified type that can be removed")
       }
 
       override def hasEnergies(energies: Seq[EnergyType]): Boolean =
@@ -97,21 +97,22 @@ object Cards {
       override def addDamage(damage: Int, opponentTypes: Seq[EnergyType]): Unit = {
         import Weakness.Operation
         @scala.annotation.tailrec
-        def weaknessLoss(loss: Int, weakSeq: Seq[Weakness]): Int = weakSeq match {
-          case h :: t if opponentTypes.contains(h.energyType) && h.operation == Operation.multiply2 => weaknessLoss(damage, t)
-          case _ :: t => weaknessLoss(loss, t)
-          case _ => loss
+        def damageWithWeaknesses(damage: Int, weakSeq: Seq[Weakness]): Int = weakSeq match {
+          case h :: t if opponentTypes.contains(h.energyType) && h.operation == Operation.multiply2 => damageWithWeaknesses(damage*2, t)
+          case _ :: t => damageWithWeaknesses(damage, t)
+          case _ => damage
         }
         @scala.annotation.tailrec
-        def resistanceGain(reduction: Int, resSeq: Seq[Resistance]): Int = resSeq match {
-          case h :: t if opponentTypes.contains(h.energyType) => resistanceGain(reduction + h.reduction, t)
-          case _ :: t => resistanceGain(reduction, t)
-          case _ => reduction
+        def damageWithResistances(damage: Int, resSeq: Seq[Resistance]): Int = resSeq match {
+          case h :: t if opponentTypes.contains(h.energyType) => damageWithResistances(damage - h.reduction, t)
+          case _ :: t => damageWithResistances(damage, t)
+          case _ => damage
         }
         if (!this.isKO) {
-          actualHp = actualHp - damage - weaknessLoss(0, weaknesses) + resistanceGain(0, resistances)
+          var realDamage = damageWithResistances(damageWithWeaknesses(damage, weaknesses), resistances)
+          if (realDamage < 0) realDamage = 0
+          actualHp = actualHp - realDamage
           if (actualHp < 0) actualHp = 0
-          if (actualHp > initialHp) actualHp = initialHp
         }
       }
 
