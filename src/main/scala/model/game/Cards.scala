@@ -2,10 +2,11 @@ package model.game
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
+
+import StatusType.StatusType
 import model.exception.MissingEnergyException
 import model.game.Cards.EnergyCard.EnergyCardType.EnergyCardType
 import model.game.EnergyType.EnergyType
-
 import scala.collection.mutable
 
 object Cards {
@@ -20,6 +21,10 @@ object Cards {
     def initialHp: Int
     def actualHp: Int
     def actualHp_=(value: Int): Unit
+    def immune: Boolean
+    def immune_=(value: Boolean): Unit
+    def status: StatusType
+    def status_=(value: StatusType): Unit
     def weaknesses: Seq[Weakness]
     def resistances: Seq[Resistance]
     def retreatCost: Seq[EnergyType]
@@ -30,6 +35,7 @@ object Cards {
 
     @throws(classOf[MissingEnergyException])
     def removeEnergy(energy: EnergyType): Unit
+    def removeFirstNEnergy(nEnergies : Int) : Unit
 
     def hasEnergies(energies: Seq[EnergyType]): Boolean
 
@@ -43,7 +49,7 @@ object Cards {
   object PokemonCard {
     def apply(imageId: String, pokemonTypes: Seq[EnergyType], name: String, initialHp: Int, weaknesses: Seq[Weakness],
               resistances: Seq[Resistance], retreatCost: Seq[EnergyType], evolvesFrom: String, attacks: Seq[Attack]): PokemonCard =
-      PokemonCardImpl(imageId, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks)
+      PokemonCardImpl(imageId, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks,false,StatusType.NoStatus)
 
     implicit val decoder: Decoder[PokemonCard] = new Decoder[PokemonCard] {
       override def apply(c: HCursor): Result[PokemonCard] =
@@ -73,7 +79,10 @@ object Cards {
                                override val retreatCost: Seq[EnergyType],
                                override val evolvesFrom: String,
                                override val attacks: Seq[Attack],
-                               private val energiesMap: mutable.Map[EnergyType, Int] = mutable.Map()) extends PokemonCard {
+                               override var immune: Boolean,
+                               override var status : StatusType,
+                               private val energiesMap: mutable.Map[EnergyType, Int] = mutable.Map()
+                               ) extends PokemonCard {
 
       override def addEnergy(energyCard: EnergyCard): Unit = energiesMap.get(energyCard.energyType) match {
         case Some(_) => energiesMap(energyCard.energyType) += energyCard.energiesProvided
@@ -117,6 +126,15 @@ object Cards {
       }
 
       override def isKO: Boolean = actualHp == 0
+
+      override def removeFirstNEnergy(nEnergies: Int): Unit = {
+        @scala.annotation.tailrec
+        def remove(energyLeft : Int) : Unit = energyLeft match {
+          case 0 =>
+          case _ => removeEnergy(energiesMap.head._1)  ;  remove(energyLeft-1)
+        }
+        remove(nEnergies)
+      }
     }
   }
 
