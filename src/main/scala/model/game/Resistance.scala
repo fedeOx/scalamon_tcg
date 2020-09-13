@@ -1,8 +1,8 @@
-package model
+package model.game
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
-import model.EnergyType.EnergyType
+import model.game.EnergyType.EnergyType
 
 trait Resistance {
   def energyType: EnergyType
