@@ -1,6 +1,6 @@
 package model.pokemonEffect
 
-import model.Cards.PokemonCard
+import model.game.Cards.PokemonCard
 
 object BoardTmp {
   var activePokemon: PokemonCard = null

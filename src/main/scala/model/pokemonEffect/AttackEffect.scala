@@ -2,7 +2,7 @@ package model.pokemonEffect
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
-import model.Cards.PokemonCard
+import model.game.Cards.PokemonCard
 import model.pokemonEffect.EffectType.effectType
 
 trait AttackEffect {

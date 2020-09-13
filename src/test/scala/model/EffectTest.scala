@@ -1,9 +1,10 @@
 package model
 
-import model.Cards.EnergyCard.EnergyCardImpl
-import model.Cards.{Card, EnergyCard, PokemonCard}
-import model.EnergyType.EnergyType
-import model.exception.MissingEnergyException
+import model.core.DataLoader
+import model.game.Cards.EnergyCard.EnergyCardImpl
+import model.game.Cards.{Card, EnergyCard, PokemonCard}
+import model.game.EnergyType.EnergyType
+import model.game.{EnergyType, SetType, StatusType}
 import model.pokemonEffect.BoardTmp
 import org.scalatest.{FlatSpec, GivenWhenThen}
 
@@ -11,7 +12,7 @@ import scala.util.Random
 
 class EffectTest extends FlatSpec with GivenWhenThen {
 
-  val cardList: Seq[Card] = DataLoader.loadData(SetType.base)
+  val cardList: Seq[Card] = DataLoader.loadSet(SetType.Base)
     .filter(c => c.isInstanceOf[Card])
   val pokemonCards: Seq[Card] = cardList.filter(p => p.isInstanceOf[PokemonCard])
   val energyCards: Seq[Card] = cardList.filter(p => p.isInstanceOf[EnergyCard])
@@ -24,9 +25,9 @@ class EffectTest extends FlatSpec with GivenWhenThen {
     And(" a pokemon with water weakness ")
     BoardTmp.defendingPokemon = getSpecificPokemon("Charizard")
     When("we add 4 energies to the atker")
-    addEnergiesToPokemon(EnergyType.water, 4, BoardTmp.activePokemon )
+    addEnergiesToPokemon(EnergyType.Water, 4, BoardTmp.activePokemon )
     And("atker do the attack")
-    BoardTmp.activePokemon .attacks.head.effect.get.useEffect()
+    BoardTmp.activePokemon.attacks.head.effect.get.useEffect()
     Then("pokemon with water weakness will take double damage")
     assert(BoardTmp.defendingPokemon.actualHp == BoardTmp.defendingPokemon.initialHp - 100)
 
@@ -38,7 +39,7 @@ class EffectTest extends FlatSpec with GivenWhenThen {
     assert(BoardTmp.defendingPokemon.actualHp == BoardTmp.defendingPokemon.initialHp - 50)
     BoardTmp.defendingPokemon.actualHp = BoardTmp.defendingPokemon.initialHp
     When("i add two more energies to the attacking pokemon")
-    addEnergiesToPokemon(EnergyType.water, 2, BoardTmp.activePokemon )
+    addEnergiesToPokemon(EnergyType.Water, 2, BoardTmp.activePokemon )
     Then("having the attack limited to 2, the attacking pokemon will do maximum 60 damage")
     BoardTmp.activePokemon .attacks.head.effect.get.useEffect()
     assert(BoardTmp.defendingPokemon.actualHp == BoardTmp.defendingPokemon.initialHp - 60)
@@ -51,7 +52,7 @@ class EffectTest extends FlatSpec with GivenWhenThen {
     BoardTmp.activePokemon  = getSpecificPokemon("Mewtwo")
     And("an opponent with 4 energies allotted")
     BoardTmp.defendingPokemon = getSpecificPokemon("Pikachu")
-    addEnergiesToPokemon(EnergyType.lightning, 4, BoardTmp.defendingPokemon)
+    addEnergiesToPokemon(EnergyType.Lightning, 4, BoardTmp.defendingPokemon)
     Then("the attack must take away from the opposing pokemon 10 + 10 for each energy assigned to it")
     BoardTmp.activePokemon .attacks.head.effect.get.useEffect()
     assert(BoardTmp.defendingPokemon.actualHp == BoardTmp.defendingPokemon.initialHp - 10 * BoardTmp.defendingPokemon.totalEnergiesStored)
@@ -105,7 +106,7 @@ class EffectTest extends FlatSpec with GivenWhenThen {
   it should "damage and discard 2 energy " in {
     Given("a pokemon with this effect")
     BoardTmp.activePokemon  = getSpecificPokemon("Charizard")
-    addEnergiesToPokemon(EnergyType.fire, 2, BoardTmp.activePokemon )
+    addEnergiesToPokemon(EnergyType.Fire, 2, BoardTmp.activePokemon )
     BoardTmp.defendingPokemon = getSpecificPokemon("Machamp")
     val initalEnergies = BoardTmp.activePokemon .totalEnergiesStored
     Then("apply effect")
@@ -120,24 +121,24 @@ class EffectTest extends FlatSpec with GivenWhenThen {
     Given("a pokemon with this effect")
     BoardTmp.activePokemon  = getSpecificPokemon("Mewtwo")
     BoardTmp.defendingPokemon = getSpecificPokemon("Machamp")
-    addEnergiesToPokemon(EnergyType.psychic, 2, BoardTmp.activePokemon )
+    addEnergiesToPokemon(EnergyType.Psychic, 2, BoardTmp.activePokemon )
     Then("apply effect")
     And("the attacking pokemon must have 1 less psychic energy")
-    assert(BoardTmp.activePokemon .hasEnergies(Seq(EnergyType.psychic, EnergyType.psychic)))
+    assert(BoardTmp.activePokemon .hasEnergies(Seq(EnergyType.Psychic, EnergyType.Psychic)))
     assert(!BoardTmp.activePokemon .immune)
     BoardTmp.activePokemon .attacks(1).effect.get.useEffect()
     assert(BoardTmp.activePokemon .immune)
-    assert(BoardTmp.activePokemon .hasEnergies(Seq(EnergyType.psychic)))
+    assert(BoardTmp.activePokemon .hasEnergies(Seq(EnergyType.Psychic)))
   }
 
   it should "discard 1 psychic energy and recover all life " in {
     Given("a pokemon with this effect")
     BoardTmp.activePokemon  = getSpecificPokemon("Kadabra")
     BoardTmp.activePokemon .actualHp = 10
-    addEnergiesToPokemon(EnergyType.psychic, 2, BoardTmp.activePokemon )
+    addEnergiesToPokemon(EnergyType.Psychic, 2, BoardTmp.activePokemon )
     Then("apply effect")
     And("the attacking pokemon must have 1 less psychic energy")
-    assert(BoardTmp.activePokemon .hasEnergies(Seq(EnergyType.psychic, EnergyType.psychic)))
+    assert(BoardTmp.activePokemon .hasEnergies(Seq(EnergyType.Psychic, EnergyType.Psychic)))
     BoardTmp.activePokemon .attacks.head.effect.get.useEffect()
     And("have all Hp")
     assert(BoardTmp.activePokemon .actualHp == BoardTmp.activePokemon .initialHp)
@@ -160,7 +161,7 @@ class EffectTest extends FlatSpec with GivenWhenThen {
     Then("apply effect")
     And("the attacking pokemon should confuse enemy")
     BoardTmp.activePokemon .attacks.head.effect.get.useEffect()
-    assert(BoardTmp.defendingPokemon.status == StatusType.noStatus || BoardTmp.defendingPokemon.status == StatusType.confused)
+    assert(BoardTmp.defendingPokemon.status == StatusType.NoStatus || BoardTmp.defendingPokemon.status == StatusType.Confused)
   }
 
   def getSpecificPokemon(_name: String): PokemonCard = {

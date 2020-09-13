@@ -1,9 +1,10 @@
-package model
+package model.game
 
-import io.circe.{Decoder, HCursor}
 import io.circe.Decoder.Result
-import model.EnergyType.EnergyType
+
 import model.pokemonEffect.{AttackEffect, DoesNDmg, Effect, EffectManager}
+import io.circe.{Decoder, HCursor}
+import model.game.EnergyType.EnergyType
 
 import scala.util.Try
 

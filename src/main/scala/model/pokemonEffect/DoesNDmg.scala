@@ -1,9 +1,9 @@
 package model.pokemonEffect
 
-import model.Cards.PokemonCard
-import model.{EnergyType, StatusType}
-import model.EnergyType.EnergyType
-import model.StatusType.statusType
+import model.game.Cards.PokemonCard
+import model.game.EnergyType
+import model.game.StatusType
+import model.game.StatusType.StatusType
 import model.pokemonEffect.staticMethod.{atkTo, getAtkOrDef}
 
 
@@ -13,7 +13,7 @@ case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEff
       if (pkm == BoardTmp.defendingPokemon)
         pkm.addDamage(totalDmgToEnemyPkm, BoardTmp.activePokemon.pokemonTypes)
       else
-        pkm.addDamage(totalDmgToEnemyPkm, Seq(EnergyType.colorless)))
+        pkm.addDamage(totalDmgToEnemyPkm, Seq(EnergyType.Colorless)))
   }
   override var args: Map[String, Any] = Map.empty[String, Any]
   override var totalDmgToEnemyPkm: Int = totalDmgToEnemyPkm + baseDmgCount
@@ -88,7 +88,7 @@ sealed trait MultipleTargetDmg extends AttackEffect {
     val pokemonToApply = getStringArgFromMap("target")
     val dmgToDo = getIntArgFromMap("dmgToMultiple")
 
-    atkTo(pokemonToApply, BoardTmp.defendingPokemon, BoardTmp.myBench, BoardTmp.enemyBench).foreach(pkm => pkm.addDamage(dmgToDo, Seq(EnergyType.colorless)))
+    atkTo(pokemonToApply, BoardTmp.defendingPokemon, BoardTmp.myBench, BoardTmp.enemyBench).foreach(pkm => pkm.addDamage(dmgToDo, Seq(EnergyType.Colorless)))
     super.useEffect()
   }
 }
@@ -102,9 +102,9 @@ sealed trait DmgMySelf extends AttackEffect {
 
 sealed trait addStatus extends AttackEffect {
   abstract override def useEffect(): Unit = {
-    val statusToApply: statusType = StatusType.withNameWithDefault(getStringArgFromMap("status"))
+    val statusToApply: StatusType = StatusType.withNameWithDefault(getStringArgFromMap("status"))
     val pokemonToApply = getAtkOrDef(getStringArgFromMap("atk_or_def"), BoardTmp.activePokemon, BoardTmp.defendingPokemon)
-    if (pokemonToApply.status == StatusType.noStatus)
+    if (pokemonToApply.status == StatusType.NoStatus)
       pokemonToApply.status = statusToApply
     super.useEffect()
   }

@@ -2,7 +2,6 @@
     {
         "id": "d-base1-1",
         "name": "Overgrowth",
-        "setCode": "base1",
         "types": [
             "Water",
             "Grass"
@@ -109,7 +108,6 @@
     {
         "id": "d-base1-2",
         "name": "Zap",
-        "setCode": "base1",
         "types": [
             "Lightning",
             "Psychic"
@@ -234,7 +232,6 @@
     {
         "id": "d-base1-3",
         "name": "Brushfire",
-        "setCode": "base1",
         "types": [
             "Fire",
             "Grass"
@@ -353,7 +350,6 @@
     {
         "id": "d-base1-4",
         "name": "Blackout",
-        "setCode": "base1",
         "types": [
             "Water",
             "Fighting"
