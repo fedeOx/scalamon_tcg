@@ -1,9 +1,10 @@
 package model.core
 
-import java.util.Observable
-
+import common.{Observable, TurnOwner}
 import common.TurnOwner.TurnOwner
 import model.core.TurnManager.TurnManagerStatus.TurnManagerStatus
+
+import scala.util.Random
 
 object TurnManager extends Observable {
   object TurnManagerStatus extends Enumeration {
@@ -15,7 +16,14 @@ object TurnManager extends Observable {
   private var status: TurnManagerStatus = TurnManagerStatus.player
   private var turnOwner: TurnOwner = _
 
-  def flipACoin(): TurnOwner = ???
+  def flipACoin(): TurnOwner = {
+    val side = new Random().nextInt(2)
+    if (side == 0)
+      turnOwner = TurnOwner.Opponent
+    else
+      turnOwner = TurnOwner.Player
+    turnOwner
+  }
 
   def playerReady(): Unit = ???
 

@@ -1,9 +1,8 @@
 package model.core
 
 import model.exception.CardNotFoundException
-import model.game.Cards.EnergyCard.EnergyCardType
-import model.game.Cards.{Card, EnergyCard}
-import model.game.{DeckCard, DeckType, EnergyType, GameField, SetType}
+import model.game.Cards.Card
+import model.game.{DeckCard, DeckType, GameField, SetType}
 import org.scalatest.flatspec.AnyFlatSpec
 
 class GameManagerTest extends AnyFlatSpec {

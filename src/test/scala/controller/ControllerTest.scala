@@ -1,9 +1,10 @@
 package controller
 
-import common.Observer
-import model.core.{DataLoader, GameManager}
+import common.{Observer, TurnOwner}
+import common.TurnOwner.TurnOwner
+import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, ShowDeckCards}
+import model.event.Events.Event.{BuildGameField, FlipCoin, ShowDeckCards}
 import model.game.{Board, DeckCard, DeckType, GameField, SetType}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpec
@@ -14,10 +15,11 @@ class ControllerTest extends AnyFlatSpec with MockFactory {
   val observerMock: Observer = mock[Observer]
   DataLoader.addObserver(observerMock)
   GameManager.addObserver(observerMock)
+  TurnManager.addObserver(observerMock)
 
   behavior of "A Controller"
 
-  it must "notify observers when a new deck is loaded" in {
+  it must "make DataLoader notify observers when a new deck is loaded" in {
     (observerMock.update _).expects(where {e: Event => {
       e.isInstanceOf[ShowDeckCards]
       e.asInstanceOf[ShowDeckCards].deckCards.isInstanceOf[Seq[DeckCard]]
@@ -27,14 +29,22 @@ class ControllerTest extends AnyFlatSpec with MockFactory {
     waitForControllerThread()
   }
 
-  it must "notify observers when the GameField is ready" in {
-    (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[BuildGameField]
-      val event: BuildGameField = e.asInstanceOf[BuildGameField]
-      event.gameField.isInstanceOf[GameField]
-      checkBoardCorrectness(event.gameField.playerBoard)
-      checkBoardCorrectness(event.gameField.opponentBoard)
-    }})
+  it must "make GameManager and TurnManager notify observers when the GameField is ready and the starting turn coin is launched" in {
+    inAnyOrder {
+      (observerMock.update _).expects(where {e: Event => {
+        e.isInstanceOf[BuildGameField]
+        val event: BuildGameField = e.asInstanceOf[BuildGameField]
+        event.gameField.isInstanceOf[GameField]
+        checkBoardCorrectness(event.gameField.playerBoard)
+        checkBoardCorrectness(event.gameField.opponentBoard)
+      }})
+      (observerMock.update _).expects(where {e: Event => {
+        e.isInstanceOf[FlipCoin]
+        val event: FlipCoin = e.asInstanceOf[FlipCoin]
+        event.coinValue.isInstanceOf[TurnOwner]
+        TurnOwner.values.contains(event.coinValue)
+      }})
+    }
     val deckCards: Seq[DeckCard] = DataLoader.loadDeck(SetType.Base, DeckType.Base1)
     controller.initGame(deckCards, SetType.Base)
     waitForControllerThread()

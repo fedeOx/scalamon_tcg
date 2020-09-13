@@ -1,6 +1,7 @@
 package controller
 
-import model.core.{DataLoader, GameManager}
+import common.TurnOwner.TurnOwner
+import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
 import model.game.Cards.{Card, PokemonCard}
 import model.game.{DeckCard, DeckType, GameField}
@@ -55,6 +56,8 @@ object Controller {
         // TODO end
         val gameField: GameField = GameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
         GameManager.notifyObservers(Event.buildGameFieldEvent(gameField))
+        val turnOwner: TurnOwner = TurnManager.flipACoin()
+        TurnManager.notifyObservers(Event.flipCoinEvent(turnOwner))
       }
     }.start()
 

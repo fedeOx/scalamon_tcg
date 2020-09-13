@@ -1,13 +1,10 @@
 package model.core
 
-import common.Observer
-import model.event.Events.Event
-import model.event.Events.Event.ShowDeckCards
-import model.game.{DeckCard, DeckType, SetType}
-import org.scalamock.scalatest.MockFactory
+import model.game.{DeckType, SetType}
 import org.scalatest.flatspec.AnyFlatSpec
 
-class DataLoaderTest extends AnyFlatSpec with MockFactory {
+class DataLoaderTest extends AnyFlatSpec {
+
   behavior of "The DataLoader"
 
   it must "load a not empty list when loading a card set" in {
