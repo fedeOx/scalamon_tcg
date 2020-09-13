@@ -12,10 +12,34 @@ import model.game.SetType.SetType
 import scala.util.Random
 
 trait Controller {
+  /**
+   * It makes [[model.core.DataLoader]] loads a list of [[model.game.DeckCard]] and notify them to all observers.
+   * @param set the card set chosen by the user
+   * @param deck the deck chosen by the user
+   */
   def loadDeckCards(set: SetType, deck: DeckType): Unit
+
+  /**
+   * It makes [[model.core.GameManager]] init the game field and [[model.core.TurnManager]] decide who will be the
+   * player that will start the game. The information produced are propagated to all observers.
+   * @param cardList the list of cards composing the deck chosen by the user
+   * @param set the card set to whom `cardList` belongs
+   */
   def initGame(cardList: Seq[DeckCard], set: SetType): Unit
+
+  /**
+   * It makes [[model.core.TurnManager]] propagate event for players cards placing.
+   */
   def startGame(): Unit
+
+  /**
+   * It inform [[model.core.TurnManager]] when the user has finished his placement turn.
+   */
   def playerReady(): Unit
+
+  /**
+   * It inform [[model.core.TurnManager]] when the user ends his turn.
+   */
   def endTurn(): Unit
 
   def addActivePokemon(card: PokemonCard): Unit
@@ -61,11 +85,11 @@ object Controller {
       }
     }.start()
 
-    override def startGame(): Unit = ???
+    override def startGame(): Unit = TurnManager.notifyObservers(Event.placeCardsEvent())
 
-    override def playerReady(): Unit = ???
+    override def playerReady(): Unit = TurnManager.playerReady()
 
-    override def endTurn(): Unit = ???
+    override def endTurn(): Unit = TurnManager.switchTurn()
 
     override def addActivePokemon(card: PokemonCard): Unit = ???
 

@@ -2,19 +2,14 @@ package model.core
 
 import common.{Observable, TurnOwner}
 import common.TurnOwner.TurnOwner
-import model.core.TurnManager.TurnManagerStatus.TurnManagerStatus
+import model.event.Events.Event
 
 import scala.util.Random
 
 object TurnManager extends Observable {
-  object TurnManagerStatus extends Enumeration {
-    type TurnManagerStatus = Value
-    val player: Value = Value("player")
-    val opponent: Value = Value("opponent")
-  }
-
-  private var status: TurnManagerStatus = TurnManagerStatus.player
   private var turnOwner: TurnOwner = _
+  private var acks: Int = 0
+  private val TotalNumberOfAckRequired = 2
 
   def flipACoin(): TurnOwner = {
     val side = new Random().nextInt(2)
@@ -25,10 +20,22 @@ object TurnManager extends Observable {
     turnOwner
   }
 
-  def playerReady(): Unit = ???
+  def playerReady(): Unit = {
+    this.synchronized {
+      acks = acks + 1
+      if (acks == TotalNumberOfAckRequired) {
+        this.notifyObservers(Event.nextTurnEvent(turnOwner))
+      }
+    }
+  }
 
-  def aiReady(): Unit = ???
-
-  def switchTurn(): Unit = ???
+  def switchTurn(): Unit = {
+    if (turnOwner == TurnOwner.Player) {
+      turnOwner = TurnOwner.Opponent
+    } else {
+      turnOwner = TurnOwner.Player
+    }
+    this.notifyObservers(Event.nextTurnEvent(turnOwner))
+  }
 
 }
