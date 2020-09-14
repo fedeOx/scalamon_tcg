@@ -4,13 +4,12 @@ import common.{Observer, TurnOwner}
 import common.TurnOwner.TurnOwner
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, FlipCoin, PlaceCards, ShowDeckCards}
+import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, PlaceCards, ShowDeckCards}
 import model.game.{Board, DeckCard, DeckType, GameField, SetType}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpec
 
 class ControllerTest extends AnyFlatSpec with MockFactory {
-
   val controller: Controller = Controller()
   val observerMock: Observer = mock[Observer]
   DataLoader.addObserver(observerMock)
@@ -56,6 +55,31 @@ class ControllerTest extends AnyFlatSpec with MockFactory {
     }})
     controller.startGame()
     waitForControllerThread()
+  }
+
+  it must "make TurnManager notify observers when both human player and AI player are ready to play" in {
+    TurnManager.flipACoin()
+
+    inAnyOrder {
+      (observerMock.update _).expects(where {e: Event => {
+        e.isInstanceOf[NextTurn]
+        e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
+      }})
+    }
+
+    TurnManager.playerReady() // AI player is ready
+    controller.playerReady()
+  }
+
+  it should "notify observers when a player ends his turn" in {
+    TurnManager.flipACoin()
+
+    (observerMock.update _).expects(where {e: Event => {
+      e.isInstanceOf[NextTurn]
+      e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
+    }})
+
+    controller.endTurn()
   }
 
   def checkBoardCorrectness(board: Board): Boolean = {

@@ -3,39 +3,50 @@ package model.core
 import common.{Observable, TurnOwner}
 import common.TurnOwner.TurnOwner
 import model.event.Events.Event
+import model.exception.CoinNotLaunchedException
 
 import scala.util.Random
 
 object TurnManager extends Observable {
-  private var turnOwner: TurnOwner = _
+  private var turnOwner: Option[TurnOwner] = None
   private var acks: Int = 0
   private val TotalNumberOfAckRequired = 2
 
   def flipACoin(): TurnOwner = {
     val side = new Random().nextInt(2)
     if (side == 0)
-      turnOwner = TurnOwner.Opponent
+      turnOwner = Some(TurnOwner.Opponent)
     else
-      turnOwner = TurnOwner.Player
-    turnOwner
+      turnOwner = Some(TurnOwner.Player)
+    turnOwner.get
   }
 
+  @throws(classOf[CoinNotLaunchedException])
   def playerReady(): Unit = {
-    this.synchronized {
-      acks = acks + 1
-      if (acks == TotalNumberOfAckRequired) {
-        this.notifyObservers(Event.nextTurnEvent(turnOwner))
+    if (turnOwner.nonEmpty) {
+      this.synchronized {
+        acks = acks + 1
+        if (acks == TotalNumberOfAckRequired) {
+          this.notifyObservers(Event.nextTurnEvent(turnOwner.get))
+        }
       }
+    } else {
+      throw new CoinNotLaunchedException("It is required to flip a coin before")
     }
   }
 
+  @throws(classOf[CoinNotLaunchedException])
   def switchTurn(): Unit = {
-    if (turnOwner == TurnOwner.Player) {
-      turnOwner = TurnOwner.Opponent
+    if (turnOwner.nonEmpty) {
+      if (turnOwner.get == TurnOwner.Player) {
+        turnOwner = Some(TurnOwner.Opponent)
+      } else {
+        turnOwner = Some(TurnOwner.Player)
+      }
+      this.notifyObservers(Event.nextTurnEvent(turnOwner.get))
     } else {
-      turnOwner = TurnOwner.Player
+      throw new CoinNotLaunchedException("It is required to flip a coin before")
     }
-    this.notifyObservers(Event.nextTurnEvent(turnOwner))
   }
 
 }
