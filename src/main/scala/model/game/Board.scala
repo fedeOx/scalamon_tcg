@@ -2,6 +2,8 @@ package model.game
 
 import model.game.Cards.{Card, PokemonCard}
 
+import scala.util.Random
+
 trait Board {
   def deck: Seq[Card]
   def activePokemon: Option[PokemonCard]
@@ -19,6 +21,7 @@ trait Board {
   def addPokemonToBench(pokemon: PokemonCard): Unit
   def removePokemonFromBench(pokemon: PokemonCard): Unit
   def popDeck(popNumber: Int): List[Card]
+  def shuffleDeckWithHand(): Unit
   def popPrizeCard(): Card
 }
 
@@ -48,6 +51,11 @@ object Board {
     override def popDeck(popNumber: Int): List[Card] = deck match {
       case h :: t if popNumber > 0 => _deck = t; h :: popDeck(popNumber - 1)
       case _ => Nil
+    }
+    override def shuffleDeckWithHand(): Unit = {
+      _deck = _deck ++ _hand
+      _hand = List()
+      _deck = Random.shuffle(_deck)
     }
     override def popPrizeCard(): Card = ???
   }

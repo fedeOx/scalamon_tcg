@@ -1,7 +1,7 @@
 package model.core
 
 import model.exception.CardNotFoundException
-import model.game.Cards.Card
+import model.game.Cards.{Card, PokemonCard}
 import model.game.{DeckCard, DeckType, GameField, SetType}
 import org.scalatest.flatspec.AnyFlatSpec
 
@@ -22,6 +22,19 @@ class GameManagerTest extends AnyFlatSpec {
     assert(gameField.playerBoard.prizeCards.size == GameManager.InitialPrizeCardNum && gameField.opponentBoard.prizeCards.size == GameManager.InitialPrizeCardNum)
     assert(gameField.playerBoard.discardStack.isEmpty && gameField.opponentBoard.discardStack.isEmpty)
     assert(gameField.playerBoard.pokemonBench.isEmpty && gameField.opponentBoard.pokemonBench.isEmpty)
+  }
+
+  it should "build game field in a way that initially each player must have at least one PokemonCard in their hands" in {
+    for (set <- SetType.values) {
+      for (deck <- DeckType.values
+           if deck.setType == set) {
+        val cardsSet: Seq[Card] = DataLoader.loadSet(set)
+        val playerDeckCards: Seq[DeckCard] = DataLoader.loadDeck(set, deck)
+        val opponentDeckCards: Seq[DeckCard] = DataLoader.loadDeck(set, deck)
+        val gameField: GameField = GameManager.initBoards(playerDeckCards, opponentDeckCards, cardsSet)
+        assert(gameField.playerBoard.hand.exists(c => c.isInstanceOf[PokemonCard]) && gameField.opponentBoard.hand.exists(c => c.isInstanceOf[PokemonCard]))
+      }
+    }
   }
 
   it should "throw CardNotFoundException if a DeckCard does not exists in Cards set" in {
