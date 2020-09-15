@@ -21,7 +21,8 @@ class GameManagerTest extends AnyFlatSpec {
     assert(gameField.playerBoard.hand.size == GameManager.InitialHandCardNum && gameField.opponentBoard.hand.size == GameManager.InitialHandCardNum)
     assert(gameField.playerBoard.prizeCards.size == GameManager.InitialPrizeCardNum && gameField.opponentBoard.prizeCards.size == GameManager.InitialPrizeCardNum)
     assert(gameField.playerBoard.discardStack.isEmpty && gameField.opponentBoard.discardStack.isEmpty)
-    assert(gameField.playerBoard.pokemonBench.isEmpty && gameField.opponentBoard.pokemonBench.isEmpty)
+    gameField.playerBoard.pokemonBench.foreach(c => assert(c.isEmpty))
+    gameField.opponentBoard.pokemonBench.foreach(c => assert(c.isEmpty))
   }
 
   it should "build game field in a way that initially each player must have at least one PokemonCard in their hands" in {
