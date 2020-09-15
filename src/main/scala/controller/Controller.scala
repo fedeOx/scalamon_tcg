@@ -3,6 +3,7 @@ package controller
 import common.TurnOwner.TurnOwner
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
+import model.exception.{ActivePokemonException, BenchPokemonException}
 import model.game.Cards.{Card, PokemonCard}
 import model.game.{DeckCard, DeckType, GameField}
 import model.game.DeckType.DeckType
@@ -42,9 +43,36 @@ trait Controller {
    */
   def endTurn(): Unit
 
+  /**
+   * Tries to set the specified pokemon card as active pokemon on human player board.
+   * @param card the pokemon card to be set ad active pokemon
+   * @throws model.exception.ActivePokemonException if an active pokemon card is already present
+   */
+  @throws(classOf[ActivePokemonException])
   def addActivePokemon(card: PokemonCard): Unit
-  def addPokemonToBench(card: PokemonCard): Unit
+
+  /**
+   * Tries to set the specified pokemon card to the specified position of the bench.
+   * @param card the pokemon card to be set in the bench
+   * @param position the position in which the pokemon card must be placed
+   * @throws model.exception.BenchPokemonException if a pokemon card is already present in the specified position
+   *                                               of the bench or if the specified position is out of bound
+   */
+  @throws(classOf[BenchPokemonException])
+  def addPokemonToBench(card: PokemonCard, position: Int): Unit
+
+  /**
+   * Destroys the active pokemon if present.
+   */
   def destroyActivePokemon(): Unit
+
+  /**
+   * Tries to remove the benched pokemon at the specified position
+   * @param position the position of the benched pokemon to remove
+   * @throws model.exception.BenchPokemonException if the specified position is out of bound
+   */
+  @throws(classOf[BenchPokemonException])
+  def removePokemonFromBench(position: Int): Unit
   def drawACard(): Unit
   def drawAPrizeCard(): Unit
 
@@ -91,11 +119,37 @@ object Controller {
 
     override def endTurn(): Unit = TurnManager.switchTurn()
 
-    override def addActivePokemon(card: PokemonCard): Unit = ???
+    override def addActivePokemon(card: PokemonCard): Unit = {
+      if (GameManager.isPlayerActivePokemonEmpty) {
+        GameManager.addPlayerActivePokemon(card)
+        GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+      } else {
+        throw new ActivePokemonException("An active pokemon is already present on player board")
+      }
+    }
 
-    override def addPokemonToBench(card: PokemonCard): Unit = ???
+    override def addPokemonToBench(card: PokemonCard, position: Int): Unit = {
+      if (GameManager.isPlayerBenchLocationEmpty(position)) {
+        GameManager.addPlayerPokemonToBench(card, position)
+        GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+      } else {
+        throw new BenchPokemonException("A pokemon is already present in position " + position + " of the bench")
+      }
+    }
 
-    override def destroyActivePokemon(): Unit = ???
+    override def destroyActivePokemon(): Unit = {
+      if (!GameManager.isPlayerActivePokemonEmpty) {
+        GameManager.destroyPlayerActivePokemon()
+        GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+      }
+    }
+
+    override def removePokemonFromBench(position: Int): Unit = {
+      if (!GameManager.isPlayerBenchLocationEmpty(position)) {
+        GameManager.removePokemonFromPlayerBench(position)
+        GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+      }
+    }
 
     override def drawACard(): Unit = ???
 

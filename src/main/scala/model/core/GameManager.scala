@@ -1,7 +1,7 @@
 package model.core
 
 import common.Observable
-import model.exception.CardNotFoundException
+import model.exception.{BenchPokemonException, CardNotFoundException}
 import model.game.Cards.{Card, PokemonCard}
 import model.game.{Board, DeckCard, GameField}
 
@@ -21,21 +21,30 @@ object GameManager extends Observable {
     GameField(playerBoard, opponentBoard)
   }
 
-  def addPlayerActivePokemon(pokemon: PokemonCard): Unit = ???
+  def addPlayerActivePokemon(pokemon: PokemonCard): Unit = playerBoard.activePokemon = Some(pokemon)
+
   def addOpponentActivePokemon(pokemon: PokemonCard): Unit = ???
-  def addPlayerPokemonToBench(pokemon: PokemonCard, position: Int): Unit = ???
+
+  @throws(classOf[BenchPokemonException])
+  def addPlayerPokemonToBench(pokemon: PokemonCard, position: Int): Unit = playerBoard.addPokemonToBench(pokemon, position)
+
   def addOpponentPokemonToBench(pokemon: PokemonCard, position: Int): Unit = ???
-  def destroyPlayerActivePokemon(): Unit = ???
+
+  def destroyPlayerActivePokemon(): Unit = playerBoard.activePokemon = None
+
   def destroyOpponentActivePokemon(): Unit = ???
-  def removePokemonFromPlayerBench(pokemon: PokemonCard, position: Int): Unit = ???
+
+  @throws(classOf[BenchPokemonException])
+  def removePokemonFromPlayerBench(position: Int): Unit = playerBoard.removePokemonFromBench(position)
+
   def removePokemonFromOpponentBench(pokemon: PokemonCard, position: Int): Unit = ???
   def drawPlayerCard(): Unit = ???
   def drawOpponentCard(): Unit = ???
   def drawPlayerPrizeCard(): Unit = ???
   def drawOpponentPrizeCard(): Unit = ???
 
-  def isPlayerActivePokemonEmpty: Boolean = ???
-  def isPlayerBenchLocationEmpty(position: Int): Boolean = ???
+  def isPlayerActivePokemonEmpty: Boolean = playerBoard.activePokemon.isEmpty
+  def isPlayerBenchLocationEmpty(position: Int): Boolean = playerBoard.pokemonBench(position).isEmpty
 
   def confirmPlayerAttack(damage: Int): Unit = ???
   def confirmOpponentAttack(damage: Int): Unit = ???
