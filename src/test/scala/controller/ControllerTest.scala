@@ -73,7 +73,7 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen {
     controller.playerReady()
   }
 
-  it should "notify observers when a player ends his turn" in {
+  it should "make TurnManager notify observers when a player ends his turn" in {
     (observerMock.update _).expects(where {e: Event => {
       e.isInstanceOf[NextTurn]
       e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
@@ -133,6 +133,14 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen {
     }}).repeat(BenchSize)
     for (i <- 0 until BenchSize) controller.removePokemonFromBench(i)
     for (i <- 0 until BenchSize) assert(GameManager.isPlayerBenchLocationEmpty(i))
+  }
+
+  it should "make GameManager notify observers when card is draw from deck or prize cards stack" in {
+    (observerMock.update _).expects(where {e: Event => {
+      e.isInstanceOf[UpdatePlayerBoard]
+    }}).twice()
+    controller.drawACard()
+    controller.drawAPrizeCard()
   }
 
   def checkBoardCorrectness(board: Board): Boolean = {

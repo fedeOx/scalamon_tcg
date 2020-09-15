@@ -23,25 +23,29 @@ object GameManager extends Observable {
 
   def addPlayerActivePokemon(pokemon: PokemonCard): Unit = playerBoard.activePokemon = Some(pokemon)
 
-  def addOpponentActivePokemon(pokemon: PokemonCard): Unit = ???
+  def addOpponentActivePokemon(pokemon: PokemonCard): Unit = opponentBoard.activePokemon = Some(pokemon)
 
   @throws(classOf[BenchPokemonException])
   def addPlayerPokemonToBench(pokemon: PokemonCard, position: Int): Unit = playerBoard.addPokemonToBench(pokemon, position)
 
-  def addOpponentPokemonToBench(pokemon: PokemonCard, position: Int): Unit = ???
+  def addOpponentPokemonToBench(pokemon: PokemonCard, position: Int): Unit = opponentBoard.addPokemonToBench(pokemon, position)
 
   def destroyPlayerActivePokemon(): Unit = playerBoard.activePokemon = None
 
-  def destroyOpponentActivePokemon(): Unit = ???
+  def destroyOpponentActivePokemon(): Unit = opponentBoard.activePokemon = None
 
   @throws(classOf[BenchPokemonException])
   def removePokemonFromPlayerBench(position: Int): Unit = playerBoard.removePokemonFromBench(position)
 
-  def removePokemonFromOpponentBench(pokemon: PokemonCard, position: Int): Unit = ???
-  def drawPlayerCard(): Unit = ???
-  def drawOpponentCard(): Unit = ???
-  def drawPlayerPrizeCard(): Unit = ???
-  def drawOpponentPrizeCard(): Unit = ???
+  def removePokemonFromOpponentBench(pokemon: PokemonCard, position: Int): Unit = opponentBoard.removePokemonFromBench(position)
+
+  def drawPlayerCard(): Unit = playerBoard.addCardsToHand(playerBoard.popDeck(1))
+
+  def drawOpponentCard(): Unit = opponentBoard.addCardsToHand(opponentBoard.popDeck(1))
+
+  def drawPlayerPrizeCard(): Unit = playerBoard.addCardsToHand(playerBoard.popPrizeCard(1))
+
+  def drawOpponentPrizeCard(): Unit = opponentBoard.addCardsToHand(opponentBoard.popPrizeCard(1))
 
   def isPlayerActivePokemonEmpty: Boolean = playerBoard.activePokemon.isEmpty
   def isPlayerBenchLocationEmpty(position: Int): Boolean = playerBoard.pokemonBench(position).isEmpty

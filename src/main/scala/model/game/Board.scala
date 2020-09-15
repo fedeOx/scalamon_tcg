@@ -36,7 +36,7 @@ trait Board {
   def removePokemonFromBench(position: Int): Unit
   def popDeck(popNumber: Int): List[Card]
   def shuffleDeckWithHand(): Unit
-  def popPrizeCard(): Card
+  def popPrizeCard(popNumber: Int): List[Card]
 }
 
 object Board {
@@ -65,7 +65,7 @@ object Board {
     override def removePokemonFromBench(position: Int): Unit =
       _pokemonBench = updateBenchPosition(None, _pokemonBench, position)
 
-    override def popDeck(popNumber: Int): List[Card] = deck match {
+    override def popDeck(popNumber: Int): List[Card] = _deck match {
       case h :: t if popNumber > 0 => _deck = t; h :: popDeck(popNumber - 1)
       case _ => Nil
     }
@@ -75,7 +75,10 @@ object Board {
       _hand = List()
       _deck = Random.shuffle(_deck)
     }
-    override def popPrizeCard(): Card = ???
+    override def popPrizeCard(popNumber: Int): List[Card] = _prizeCards match {
+      case h :: t if popNumber > 0 => _prizeCards = t; h :: popPrizeCard(popNumber - 1)
+      case _ => Nil
+    }
 
     private def updateBenchPosition(pokemon: Option[PokemonCard], bench: Seq[Option[PokemonCard]], position: Int): List[Option[PokemonCard]] = bench match {
       case h :: t if position > 0 => h :: updateBenchPosition(pokemon, t, position-1)

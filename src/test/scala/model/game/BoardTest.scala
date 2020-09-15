@@ -4,9 +4,10 @@ import model.core.{DataLoader, GameManager}
 import model.exception.BenchPokemonException
 import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
+import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 
-class BoardTest extends AnyFlatSpec {
+class BoardTest extends AnyFlatSpec with GivenWhenThen {
 
   val cards: Seq[Card] = DataLoader.loadSet(SetType.Base)
   val board: Board = Board(cards)
@@ -23,11 +24,25 @@ class BoardTest extends AnyFlatSpec {
 
   it should "pop cards from deck and add them to prize cards during game initialization" in {
     val TypicalPrizeCardsNumberToPop = 6
-    val initialPrizeCardsNumber = board.prizeCards.size
+    var initialPrizeCardsNumber = board.prizeCards.size
     val initialDeckSize = board.deck.size
     board.addCardsToPrizeCards(board.popDeck(TypicalPrizeCardsNumberToPop))
     assert(board.prizeCards.size == initialPrizeCardsNumber + TypicalPrizeCardsNumberToPop)
     assert(board.deck.size == initialDeckSize - TypicalPrizeCardsNumberToPop)
+
+    val initialHandCardsNumber = board.hand.size
+    initialPrizeCardsNumber = board.prizeCards.size
+    Given("the prize cards list of a player")
+    assert(board.prizeCards.nonEmpty)
+    When("that player makes KO an opponent active pokemon and pop a prize card")
+    board.addCardsToHand(board.popPrizeCard(1))
+    Then("the prize card should be added to the player hand")
+    assert(board.prizeCards.size == initialPrizeCardsNumber - 1)
+    assert(board.hand.size == initialHandCardsNumber + 1)
+  }
+
+  it should "pop a prize card whenever an opponent active pokemon is made KO" in {
+
   }
 
   it should "add/remove pokemon to/from bench if it is possible" in {

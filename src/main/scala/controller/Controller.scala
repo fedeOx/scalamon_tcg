@@ -151,9 +151,15 @@ object Controller {
       }
     }
 
-    override def drawACard(): Unit = ???
+    override def drawACard(): Unit = {
+      GameManager.drawPlayerCard()
+      GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+    }
 
-    override def drawAPrizeCard(): Unit = ???
+    override def drawAPrizeCard(): Unit = {
+      GameManager.drawPlayerPrizeCard()
+      GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+    }
 
     override def selectCardFromHand(card: Card): Unit = ???
 

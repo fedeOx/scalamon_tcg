@@ -31,6 +31,7 @@ object Cards {
     def retreatCost: Seq[EnergyType]
     def evolvesFrom: String
     def attacks: Seq[Attack]
+    def energiesMap: mutable.Map[EnergyType, Int]
 
     def addEnergy(energyCard: EnergyCard): Unit
 
@@ -50,7 +51,7 @@ object Cards {
   object PokemonCard {
     def apply(imageId: String, setCode: String, pokemonTypes: Seq[EnergyType], name: String, initialHp: Int, weaknesses: Seq[Weakness],
               resistances: Seq[Resistance], retreatCost: Seq[EnergyType], evolvesFrom: String, attacks: Seq[Attack]): PokemonCard =
-      PokemonCardImpl(imageId, setCode, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks,false,StatusType.NoStatus)
+      PokemonCardImpl(imageId, setCode, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks, immune = false, StatusType.NoStatus)
 
     implicit val decoder: Decoder[PokemonCard] = new Decoder[PokemonCard] {
       override def apply(c: HCursor): Result[PokemonCard] =
@@ -84,7 +85,7 @@ object Cards {
                                override val attacks: Seq[Attack],
                                override var immune: Boolean,
                                override var status : StatusType,
-                               private val energiesMap: mutable.Map[EnergyType, Int] = mutable.Map()
+                               override val energiesMap: mutable.Map[EnergyType, Int] = mutable.Map()
                                ) extends PokemonCard {
 
       override def addEnergy(energyCard: EnergyCard): Unit = energiesMap.get(energyCard.energyType) match {
