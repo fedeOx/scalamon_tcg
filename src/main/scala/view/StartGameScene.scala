@@ -1,11 +1,13 @@
 package view
 
+import controller.Controller
 import scalafx.scene.Scene
 import scalafx.scene.control.Button
 import scalafx.scene.layout.BorderPane
 
 object StartGameScene extends Scene {
   val cssStyle = List(getClass.getResource("/style/startGameGui.css").toExternalForm)
+  val controller : Controller = Controller()
   stylesheets = cssStyle
 
   root = new BorderPane {

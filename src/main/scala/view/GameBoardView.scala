@@ -1,8 +1,13 @@
 package view
 
+import common.{Observer, TurnOwner}
+import common.TurnOwner.TurnOwner
 import javafx.scene.paint.ImagePattern
+import model.core.{GameManager, TurnManager}
+import model.event.Events
+import model.event.Events.Event.{BuildGameField, FlipCoin}
 import scalafx.Includes._
-import scalafx.application.JFXApp
+import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
 import scalafx.scene.image.Image
 import scalafx.scene.layout._
@@ -15,15 +20,21 @@ import scalafx.stage.Window
 /** *
  * Stage that contains the game scene
  */
-class GameBoardView extends JFXApp.PrimaryStage {
+class GameBoardView extends JFXApp.PrimaryStage with Observer {
   private val WIDTH = 1600
   private val HEIGHT = 1000
   private val TITLE = "Scalamon"
   private val parentWindow : Window = this
+  val zoomZone = new ZoomZone
+  private val opponentBoard = new PlayerBoard(false, zoomZone, parentWindow)
+  private val humanBoard = new PlayerBoard(true, zoomZone, parentWindow)
+  private var turnOwner : TurnOwner = TurnOwner.Player
   title = TITLE
+  GameManager.addObserver(this)
+  TurnManager.addObserver(this)
+  println("sono gameboardview e mi registro")
   scene = new Scene(WIDTH, HEIGHT, true, SceneAntialiasing.Balanced) {
     println(parentWindow)
-    println(DeckSelection.getChosenDeck)
     stylesheets = List("/style/PlayerBoardStyle.css")
     camera = new PerspectiveCamera(true) {
       transforms += (
@@ -32,7 +43,6 @@ class GameBoardView extends JFXApp.PrimaryStage {
     }
     val playMatMaterial = new PhongMaterial()
     playMatMaterial.diffuseMap = new Image("/assets/playmat.png")
-    val zoomZone = new ZoomZone
     fill = new ImagePattern(new Image("/assets/woodTable.png"))
 
     content = List(new Box {
@@ -46,15 +56,26 @@ class GameBoardView extends JFXApp.PrimaryStage {
       minWidth(55)
       minHeight(50)
       alignmentInParent = Pos.Center
-      /*minHeight = 50
-      minWidth = 55
-      alignment = Pos.TopCenter*/
-      children = Seq(new PlayerBoard(false, zoomZone, parentWindow),
-        new PlayerBoard(true, zoomZone, parentWindow))
+      children = Seq(opponentBoard, humanBoard)
     }, zoomZone)
   }
 
   resizable = true
   sizeToScene()
   show()
+
+  override def update(event: Events.Event): Unit = event match {
+    case event if  event.isInstanceOf[BuildGameField] => {
+      val gameField =  event.asInstanceOf[BuildGameField].gameField
+      humanBoard.board = gameField.playerBoard
+      opponentBoard.board = gameField.opponentBoard
+      Platform.runLater(humanBoard.updateHand())
+    }
+    case event if event.isInstanceOf[FlipCoin] =>{
+      turnOwner = event.asInstanceOf[FlipCoin].coinValue
+      println("turno di : "+turnOwner)
+    }
+  }
+
+
 }

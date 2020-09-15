@@ -101,7 +101,7 @@ object Controller {
 
     override def drawAPrizeCard(): Unit = ???
 
-    override def selectCardFromHand(card: Card): Unit = ???
+    override def selectCardFromHand(card: Card): Unit = println(card)
 
     override def selectActivePokemonLocation(): Unit = ???
 

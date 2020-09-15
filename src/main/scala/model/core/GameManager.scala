@@ -5,6 +5,8 @@ import model.exception.CardNotFoundException
 import model.game.Cards.{Card, PokemonCard}
 import model.game.{Board, DeckCard, GameField}
 
+import scala.util.Random
+
 object GameManager extends Observable {
 
   val InitialHandCardNum = 7
@@ -16,8 +18,8 @@ object GameManager extends Observable {
   def initBoards(playerDeckCards: Seq[DeckCard], opponentDeckCards: Seq[DeckCard], cardsSet: Seq[Card]): GameField = {
     val playerCards: Seq[Card] = buildCardList(playerDeckCards, cardsSet)(List())
     val opponentCards: Seq[Card] = buildCardList(opponentDeckCards, cardsSet)(List())
-    playerBoard = buildBoard(playerCards)
-    opponentBoard = buildBoard(opponentCards)
+    playerBoard = buildBoard(Random.shuffle(playerCards))
+    opponentBoard = buildBoard(Random.shuffle(opponentCards))
     GameField(playerBoard, opponentBoard)
   }
 

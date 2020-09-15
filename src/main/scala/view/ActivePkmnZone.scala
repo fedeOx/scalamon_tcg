@@ -1,14 +1,17 @@
 package view
 
 import javafx.geometry.Insets
+import model.game.Cards.PokemonCard
 import scalafx.Includes._
 import scalafx.geometry.Pos
 import scalafx.scene.Scene
 import scalafx.scene.control.Button
 import scalafx.scene.layout.{HBox, VBox}
-import scalafx.scene.paint.Color
+import scalafx.scene.paint.{Color, PhongMaterial}
+import scalafx.scene.shape.Box
 import scalafx.stage.{Modality, Stage, Window}
 import view.CardCreator._
+import _root_.controller.Controller
 
 /***
  * The field zone that contains the active pokemon
@@ -20,11 +23,23 @@ import view.CardCreator._
 case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard, parentWindow: Window) extends HBox{
   private val WIDTH = 35
   private val HEIGHT = 15
-
+  private var isEmpty : Boolean = _
+  private val controller = Controller()
   updateView()
 
-  def updateView(): Unit = {
-    children = createCard("/assets/4.jpg", Some(zone), cardType = CardType.active, isHumans = Some(isHumans), zone = Some(this))
+  def updateView(active: Option[PokemonCard] = Option.empty): Unit = {
+    if (active.isEmpty) {
+      isEmpty = true
+      val cardMaterial = new PhongMaterial()
+      cardMaterial.diffuseColor = Color.Transparent
+      children = new Box {
+        material = cardMaterial
+        depth = 0.5
+      }
+    } else {
+      isEmpty = false
+      children = createCard("/assets/base1"+active.get.imageId+".jpg", Some(zone), cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this))
+    }
   }
 
   def openMenu() : Unit = {
@@ -63,5 +78,12 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
   styleClass += "active"
   translateX = 10
   alignment = Pos.Center
+
+  onMouseClicked = _ => {
+    if (isHumans && isEmpty) {
+      println("activePkmnZone")
+      controller.selectActivePokemonLocation()
+    }
+  }
 
 }
