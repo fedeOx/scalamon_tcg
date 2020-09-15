@@ -101,12 +101,13 @@ object Cards {
       override def energiesMap: Map[EnergyType, Int] = _energiesMap
 
       override def addEnergy(energyCard: EnergyCard): Unit = {
-        def _addEnergy(mutableEnergiesMap: mutable.Map[EnergyType, Int]): mutable.Map[EnergyType, Int] =
-          mutableEnergiesMap.get(energyCard.energyType) match {
-            case Some(_) => mutableEnergiesMap(energyCard.energyType) += energyCard.energiesProvided; mutableEnergiesMap
-            case None => mutableEnergiesMap += (energyCard.energyType -> energyCard.energiesProvided); mutableEnergiesMap
-          }
-        _energiesMap = _addEnergy(_energiesMap.toMutableMap).toImmutableMap
+        val mutableEnergiesMap = _energiesMap.toMutableMap
+        if (_energiesMap.get(energyCard.energyType).nonEmpty) {
+          mutableEnergiesMap(energyCard.energyType) += energyCard.energiesProvided
+        } else {
+          mutableEnergiesMap += (energyCard.energyType -> energyCard.energiesProvided)
+        }
+        _energiesMap = mutableEnergiesMap.toImmutableMap
       }
 
       @throws(classOf[MissingEnergyException])
