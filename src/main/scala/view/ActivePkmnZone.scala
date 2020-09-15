@@ -12,6 +12,10 @@ import scalafx.scene.shape.Box
 import scalafx.stage.{Modality, Stage, Window}
 import view.CardCreator._
 import _root_.controller.Controller
+import model.game.EnergyType.EnergyType
+import model.game.Weakness.Operation
+import model.game.Weakness.Operation.Operation
+import model.game.{EnergyType, Resistance, Weakness}
 
 /***
  * The field zone that contains the active pokemon
@@ -24,8 +28,8 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
   private val WIDTH = 35
   private val HEIGHT = 15
   private var isEmpty : Boolean = _
+  private val parentBoard = board
   private val controller = Controller()
-  updateView()
 
   def updateView(active: Option[PokemonCard] = Option.empty): Unit = {
     if (active.isEmpty) {
@@ -38,7 +42,9 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
       }
     } else {
       isEmpty = false
-      children = createCard("/assets/base1"+active.get.imageId+".jpg", Some(zone), cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this))
+      children = createCard("/assets/base1/"+active.get.imageId+".jpg", Some(zone), cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this),
+        board = Some(board.board))
+      println(active)
     }
   }
 

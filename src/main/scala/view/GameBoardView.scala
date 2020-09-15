@@ -6,6 +6,11 @@ import javafx.scene.paint.ImagePattern
 import model.core.{GameManager, TurnManager}
 import model.event.Events
 import model.event.Events.Event.{BuildGameField, FlipCoin}
+import model.game.Cards.PokemonCard
+import model.game.EnergyType.EnergyType
+import model.game.Weakness.Operation
+import model.game.Weakness.Operation.Operation
+import model.game.{EnergyType, Resistance, Weakness}
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
@@ -70,6 +75,20 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       humanBoard.board = gameField.playerBoard
       opponentBoard.board = gameField.opponentBoard
       Platform.runLater(humanBoard.updateHand())
+      //TODO: togli tutto diomadonna
+      val weakness: Weakness = new Weakness {
+        override def energyType: EnergyType = EnergyType.Fighting
+        override def operation: Operation = Operation.multiply2
+      }
+      val resistance: Resistance = new Resistance {
+        override def energyType: EnergyType = EnergyType.Lightning
+        override def reduction: Int = 30
+      }
+      var carta = PokemonCard("4", Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
+        Seq(resistance), Seq(EnergyType.Colorless, EnergyType.Colorless), "", Nil)
+      carta.actualHp = 90
+      humanBoard.board.activePokemon = Some(carta)
+      Platform.runLater(humanBoard.updateActive())
     }
     case event if event.isInstanceOf[FlipCoin] =>{
       turnOwner = event.asInstanceOf[FlipCoin].coinValue

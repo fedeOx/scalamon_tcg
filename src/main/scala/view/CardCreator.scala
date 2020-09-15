@@ -70,7 +70,7 @@ object CardCreator {
 
       onMouseEntered = _ => {
         if (zoomZone.isDefined) {
-          zoomZone.get.children = new Box {
+          /*zoomZone.get.children = new Box {
             depth = 0.1
             width = 13
             height = 18.2
@@ -78,6 +78,11 @@ object CardCreator {
 
             translateY = -3
             transforms += new Rotate(50, Rotate.XAxis)
+          }*/
+          cardType match {
+            case cardType if cardType.equals(CardType.Hand) => zoomZone.get.showContent(board.get.hand(cardIndex))
+            case cardType if cardType.equals(CardType.Bench) => zoomZone.get.showContent(board.get.pokemonBench(cardIndex))
+            case cardType if cardType.equals(CardType.Active) => zoomZone.get.showContent(board.get.activePokemon.get)
           }
         }
         if (cardType.equals(CardType.Bench)) {
@@ -86,7 +91,7 @@ object CardCreator {
       }
       onMouseExited = _ => {
         if (zoomZone.isDefined)
-          zoomZone.get.children.remove(0)
+          zoomZone.get.children.remove(0,zoomZone.get.children.size())
         if (cardType.equals(CardType.Bench)) {
           zone.get.asInstanceOf[BenchZone].isOverChildren = false
         }
