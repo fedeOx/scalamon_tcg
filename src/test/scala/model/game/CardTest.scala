@@ -75,7 +75,7 @@ class CardTest extends AnyFlatSpec with GivenWhenThen {
     override def energyType: EnergyType = EnergyType.Lightning
     override def reduction: Int = 30
   }
-  val actualPokemonCard: PokemonCard = PokemonCard("123", Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
+  val actualPokemonCard: PokemonCard = PokemonCard("123", "base1", Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
     Seq(resistance), Seq(EnergyType.Colorless, EnergyType.Colorless), "", Nil)
 
   it should "be damaged twice if the attacker has EnergyType that is a Weakness for the actual PokemonCard" in {
