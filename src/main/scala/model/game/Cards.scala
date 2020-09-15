@@ -13,6 +13,7 @@ object Cards {
 
   sealed trait Card {
     def imageId: String
+    def belongingSetCode: String
   }
 
   sealed trait PokemonCard extends Card {
@@ -30,6 +31,7 @@ object Cards {
     def retreatCost: Seq[EnergyType]
     def evolvesFrom: String
     def attacks: Seq[Attack]
+    def energiesMap: mutable.Map[EnergyType, Int]
 
     def addEnergy(energyCard: EnergyCard): Unit
 
@@ -47,14 +49,15 @@ object Cards {
   }
 
   object PokemonCard {
-    def apply(imageId: String, pokemonTypes: Seq[EnergyType], name: String, initialHp: Int, weaknesses: Seq[Weakness],
+    def apply(imageId: String, setCode: String, pokemonTypes: Seq[EnergyType], name: String, initialHp: Int, weaknesses: Seq[Weakness],
               resistances: Seq[Resistance], retreatCost: Seq[EnergyType], evolvesFrom: String, attacks: Seq[Attack]): PokemonCard =
-      PokemonCardImpl(imageId, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks,false,StatusType.NoStatus)
+      PokemonCardImpl(imageId, setCode, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks, immune = false, StatusType.NoStatus)
 
     implicit val decoder: Decoder[PokemonCard] = new Decoder[PokemonCard] {
       override def apply(c: HCursor): Result[PokemonCard] =
         for {
           _id <- c.downField("id").as[String]
+          _setCode <- c.downField("setCode").as[String]
           _pokemonTypes <- c.downField("types").as[Seq[EnergyType]]
           _name <- c.downField("name").as[String]
           _initHp <- c.downField("hp").as[String]
@@ -65,11 +68,12 @@ object Cards {
           _attacks <- c.downField("attacks").as[Seq[Attack]]
         } yield {
           val imageId = _id.replace(c.downField("setCode").as[String].getOrElse("") + "-", "")
-          PokemonCard(imageId, _pokemonTypes, _name, _initHp.toInt, _weaknesses, _resistances, _retreatCost, _evolvesFrom, _attacks)
+          PokemonCard(imageId, _setCode, _pokemonTypes, _name, _initHp.toInt, _weaknesses, _resistances, _retreatCost, _evolvesFrom, _attacks)
         }
     }
 
     case class PokemonCardImpl(override val imageId: String,
+                               override val belongingSetCode: String,
                                override val pokemonTypes: Seq[EnergyType],
                                override val name: String,
                                override val initialHp: Int,
@@ -81,7 +85,7 @@ object Cards {
                                override val attacks: Seq[Attack],
                                override var immune: Boolean,
                                override var status : StatusType,
-                               private val energiesMap: mutable.Map[EnergyType, Int] = mutable.Map()
+                               override val energiesMap: mutable.Map[EnergyType, Int] = mutable.Map()
                                ) extends PokemonCard {
 
       override def addEnergy(energyCard: EnergyCard): Unit = energiesMap.get(energyCard.energyType) match {
@@ -160,22 +164,24 @@ object Cards {
       }
     }
 
-    def apply(imageId: String, energyType: EnergyType, energyCardType: EnergyCardType): EnergyCard =
-      EnergyCardImpl(imageId, energyType, energyCardType)
+    def apply(imageId: String, setCode: String, energyType: EnergyType, energyCardType: EnergyCardType): EnergyCard =
+      EnergyCardImpl(imageId, setCode, energyType, energyCardType)
 
     implicit val decoder: Decoder[EnergyCard] = new Decoder[EnergyCard] {
       override def apply(c: HCursor): Result[EnergyCard] =
         for {
           _id <- c.downField("id").as[String]
+          _setCode <- c.downField("setCode").as[String]
           _energyType <- c.downField("type").as[EnergyType]
           _energyCardType <- c.downField("subtype").as[EnergyCardType]
         } yield {
           val imageId = _id.replace(c.downField("setCode").as[String].getOrElse("") + "-", "")
-          EnergyCard(imageId, _energyType, _energyCardType)
+          EnergyCard(imageId, _setCode, _energyType, _energyCardType)
         }
     }
 
     case class EnergyCardImpl(override val imageId: String,
+                              override val belongingSetCode: String,
                               override val energyType: EnergyType,
                               private val energyCardType: EnergyCardType) extends EnergyCard {
       override def isBasic: Boolean = energyCardType match {

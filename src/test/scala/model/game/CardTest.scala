@@ -1,14 +1,13 @@
-package model
+package model.game
 
-import model.game.Cards.{EnergyCard, PokemonCard}
-import model.exception.MissingEnergyException
-import model.game.{EnergyType, Resistance, SetType, Weakness}
 import model.core.DataLoader
+import model.exception.MissingEnergyException
+import model.game.Cards.{EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.Weakness.Operation
 import model.game.Weakness.Operation.Operation
-import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.GivenWhenThen
+import org.scalatest.flatspec.AnyFlatSpec
 
 class CardTest extends AnyFlatSpec with GivenWhenThen {
   val pokemonCardList: Seq[PokemonCard] = DataLoader.loadSet(SetType.Base)
@@ -76,7 +75,7 @@ class CardTest extends AnyFlatSpec with GivenWhenThen {
     override def energyType: EnergyType = EnergyType.Lightning
     override def reduction: Int = 30
   }
-  val actualPokemonCard: PokemonCard = PokemonCard("123", Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
+  val actualPokemonCard: PokemonCard = PokemonCard("123", "base1", Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
     Seq(resistance), Seq(EnergyType.Colorless, EnergyType.Colorless), "", Nil)
 
   it should "be damaged twice if the attacker has EnergyType that is a Weakness for the actual PokemonCard" in {
