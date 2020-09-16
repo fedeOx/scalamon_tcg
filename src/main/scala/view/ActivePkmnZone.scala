@@ -30,6 +30,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
   private var isEmpty : Boolean = _
   private val parentBoard = board
   private val controller = Controller()
+  updateView()
 
   def updateView(active: Option[PokemonCard] = Option.empty): Unit = {
     if (active.isEmpty) {
@@ -43,7 +44,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
     } else {
       isEmpty = false
       children = createCard("/assets/base1/"+active.get.imageId+".jpg", Some(zone), cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this),
-        board = Some(board.board))
+        board = Some(parentBoard.board))
       println(active)
     }
   }
@@ -88,7 +89,18 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
   onMouseClicked = _ => {
     if (isHumans && isEmpty) {
       println("activePkmnZone")
-      controller.selectActivePokemonLocation()
+      //controller.selectActivePokemonLocation()
+      val weakness: Weakness = new Weakness {
+        override def energyType: EnergyType = EnergyType.Fighting
+        override def operation: Operation = Operation.multiply2
+      }
+      val resistance: Resistance = new Resistance {
+        override def energyType: EnergyType = EnergyType.Lightning
+        override def reduction: Int = 30
+      }
+      var carta = PokemonCard("4", "base1",Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
+        Seq(resistance), Seq(EnergyType.Colorless, EnergyType.Colorless), "", Nil)
+      controller.addActivePokemon(carta)
     }
   }
 

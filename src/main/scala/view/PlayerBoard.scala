@@ -2,11 +2,12 @@ package view
 
 import common.Observer
 import controller.Controller
+import javafx.geometry.Insets
 import model.core.{DataLoader, GameManager}
 import model.event.Events
 import model.event.Events.Event
 import model.event.Events.Event.BuildGameField
-import model.game.{Board, DeckCard, DeckType, SetType}
+import model.game.{Board, DeckCard, DeckType, SetType, StatusType}
 import model.game.Cards.{Card, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.StatusType.StatusType
@@ -86,27 +87,37 @@ class ZoomZone extends HBox {
   private def visualizePokemonInfo(card: PokemonCard): VBox = {
     val infoBox : VBox = new VBox()
     infoBox.alignment = Pos.TopLeft
+    infoBox.translateY = 5//-13
+    infoBox.translateX = 1//-3
+    infoBox.maxHeight = 18.2
+    infoBox.translateZ = -9
     infoBox.transforms += new Rotate(50, Rotate.XAxis)
     if (card.initialHp != card.actualHp)
       infoBox.children += createInfoBox(card.initialHp - card.actualHp)
+    if (!card.status.equals(StatusType.NoStatus))
+      infoBox.children += createInfoBox(card.status)
+    card.energiesMap.foreach(energy => {
+      for (energies <- 0 until energy._2)
+        infoBox.children += createInfoBox(energy._1)
+    })
     infoBox
   }
 
-
   private def createInfoBox(args: Any): Box = args match {
     case damage : Int => generateBox(new Image("/assets/dmg/"+ damage +".png"))
-    case status if args.isInstanceOf[StatusType] => ???
-    case energy if args.isInstanceOf[EnergyType] => ???
+    case status : StatusType => generateBox(new Image("/assets/status/"+status+".png"))
+    case energy : EnergyType => generateBox(new Image("/assets/energy/"+energy+".png"))
   }
 
   private def generateBox(image: Image) : Box = {
     new Box {
       depth = 0.1
-      width = 2
-      height = 2
+      width = 1.4
+      height = 1.4
       val playMatMaterial = new PhongMaterial()
       playMatMaterial.diffuseMap = image
       material = playMatMaterial
+      //margin = new Insets(0,0,0,0)
     }
   }
 }

@@ -20,8 +20,9 @@ object CardCreator {
     case CardType.Active => card.onMouseClicked = _ => {
       println("active")
       //if noCardSelected && active.canDoAction
-        zone.get.asInstanceOf[ActivePkmnZone].openMenu()
-      // else controller.selectActivePokemonLocation()
+        //zone.get.asInstanceOf[ActivePkmnZone].openMenu()
+      // else
+      controller.selectActivePokemonLocation()
     }
     case CardType.Bench => {
       card.onMouseClicked = _ => println("bench " + cardIndex)
@@ -81,7 +82,7 @@ object CardCreator {
           }*/
           cardType match {
             case cardType if cardType.equals(CardType.Hand) => zoomZone.get.showContent(board.get.hand(cardIndex))
-            case cardType if cardType.equals(CardType.Bench) => zoomZone.get.showContent(board.get.pokemonBench(cardIndex))
+            case cardType if cardType.equals(CardType.Bench) => zoomZone.get.showContent(board.get.pokemonBench(cardIndex).get)
             case cardType if cardType.equals(CardType.Active) => zoomZone.get.showContent(board.get.activePokemon.get)
           }
         }

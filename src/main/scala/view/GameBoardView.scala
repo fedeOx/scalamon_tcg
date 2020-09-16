@@ -5,12 +5,13 @@ import common.TurnOwner.TurnOwner
 import javafx.scene.paint.ImagePattern
 import model.core.{GameManager, TurnManager}
 import model.event.Events
-import model.event.Events.Event.{BuildGameField, FlipCoin}
-import model.game.Cards.PokemonCard
+import model.event.Events.Event.{BuildGameField, FlipCoin, UpdatePlayerBoard}
+import model.game.Cards.EnergyCard.EnergyCardType
+import model.game.Cards.{EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.Weakness.Operation
 import model.game.Weakness.Operation.Operation
-import model.game.{EnergyType, Resistance, Weakness}
+import model.game.{EnergyType, Resistance, StatusType, Weakness}
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
@@ -84,15 +85,26 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
         override def energyType: EnergyType = EnergyType.Lightning
         override def reduction: Int = 30
       }
-      var carta = PokemonCard("4", Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
+      var carta = PokemonCard("4", "base1",Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
         Seq(resistance), Seq(EnergyType.Colorless, EnergyType.Colorless), "", Nil)
       carta.actualHp = 90
+      carta.status = StatusType.Poisoned
+      carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
+      carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
+      carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))
+      carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
+      carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
+      carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))
       humanBoard.board.activePokemon = Some(carta)
       Platform.runLater(humanBoard.updateActive())
     }
     case event if event.isInstanceOf[FlipCoin] =>{
       turnOwner = event.asInstanceOf[FlipCoin].coinValue
       println("turno di : "+turnOwner)
+    }
+    case event : UpdatePlayerBoard => {
+      humanBoard.updateActive()
+      humanBoard.updateHand()
     }
   }
 
