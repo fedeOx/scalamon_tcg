@@ -74,7 +74,7 @@ object GameManager extends Observable {
   private def buildBoard(cards: Seq[Card]): Board = {
     val board = Board(cards)
     // A hand must have at least one PokemonCard
-    while (!board.hand.exists(c => c.isInstanceOf[PokemonCard])) {
+    while (!board.hand.exists(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].evolvesFrom.isEmpty)) {
       board.shuffleDeckWithHand()
       board.addCardsToHand(board.popDeck(InitialHandCardNum))
     }

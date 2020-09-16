@@ -73,7 +73,15 @@ trait Controller {
    */
   @throws(classOf[BenchPokemonException])
   def removePokemonFromBench(position: Int): Unit
+
+  /**
+   * Makes the player draw a card from his deck
+   */
   def drawACard(): Unit
+
+  /**
+   * Makes the player draw a card from the prize card stack
+   */
   def drawAPrizeCard(): Unit
 
   def selectCardFromHand(card: Card): Unit

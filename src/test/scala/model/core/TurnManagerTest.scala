@@ -1,13 +1,9 @@
 package model.core
 
-import common.{Observer, TurnOwner}
+import common.TurnOwner
 import common.TurnOwner.TurnOwner
-import controller.Controller
-import model.event.Events.Event
-import model.event.Events.Event.{NextTurn, ShowDeckCards}
 import model.exception.CoinNotLaunchedException
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 
 class TurnManagerTest extends AnyFlatSpec with MockFactory {

@@ -14,8 +14,22 @@ trait Board {
   def discardStack: Seq[Card]
   def pokemonBench: Seq[Option[PokemonCard]]
 
+  /**
+   * Adds the specified sequence of cards to the hand of the player
+   * @param cards the cards to be added
+   */
   def addCardsToHand(cards: Seq[Card])
+
+  /**
+   * Adds the specified sequence of cards to the prize cards stack
+   * @param cards the cards to be added
+   */
   def addCardsToPrizeCards(cards: Seq[Card])
+
+  /**
+   * Adds the specified sequence of card to the discard stack
+   * @param cards the cards to be added
+   */
   def addCardsToDiscardStack(cards: Seq[Card])
 
   /**
@@ -34,8 +48,24 @@ trait Board {
    */
   @throws(classOf[BenchPokemonException])
   def removePokemonFromBench(position: Int): Unit
+
+  /**
+   * Draws the specified number of cards from the deck
+   * @param popNumber the number of card to be draw
+   * @return the list of card draw
+   */
   def popDeck(popNumber: Int): List[Card]
+
+  /**
+   * Adds hand cards to the deck and then shuffles it
+   */
   def shuffleDeckWithHand(): Unit
+
+  /**
+   * Draws the specified number of cards from the prize cards stack
+   * @param popNumber the number of card to be draw
+   * @return the list of card draw
+   */
   def popPrizeCard(popNumber: Int): List[Card]
 }
 
