@@ -32,9 +32,15 @@ object GameManager extends Observable {
 
   def addOpponentPokemonToBench(pokemon: PokemonCard, position: Int): Unit = opponentBoard.addPokemonToBench(pokemon, position)
 
-  def destroyPlayerActivePokemon(): Unit = playerBoard.activePokemon = None
+  def destroyPlayerActivePokemon(): Unit = {
+    playerBoard.addCardsToDiscardStack(playerBoard.activePokemon.get :: Nil)
+    playerBoard.activePokemon = None
+  }
 
-  def destroyOpponentActivePokemon(): Unit = opponentBoard.activePokemon = None
+  def destroyOpponentActivePokemon(): Unit = {
+    opponentBoard.addCardsToDiscardStack(playerBoard.activePokemon.get :: Nil)
+    opponentBoard.activePokemon = None
+  }
 
   @throws(classOf[BenchPokemonException])
   def removePokemonFromPlayerBench(position: Int): Unit = playerBoard.removePokemonFromBench(position)
@@ -70,7 +76,7 @@ object GameManager extends Observable {
   private def buildBoard(cards: Seq[Card]): Board = {
     val board = Board(cards)
     // A hand must have at least one PokemonCard
-    while (!board.hand.exists(c => c.isInstanceOf[PokemonCard])) {
+    while (!board.hand.exists(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].evolvesFrom.isEmpty)) {
       board.shuffleDeckWithHand()
       board.addCardsToHand(board.popDeck(InitialHandCardNum))
     }

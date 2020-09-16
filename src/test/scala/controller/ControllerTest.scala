@@ -5,7 +5,7 @@ import common.TurnOwner.TurnOwner
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
 import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, PlaceCards, ShowDeckCards, UpdatePlayerBoard}
-import model.exception.{ActivePokemonException, BenchPokemonException}
+import model.exception.{ActivePokemonException, BenchPokemonException, CoinNotLaunchedException}
 import model.game.Cards.PokemonCard
 import model.game.{Board, DeckCard, DeckType, EnergyType, GameField, SetType}
 import org.scalamock.scalatest.MockFactory
@@ -18,7 +18,6 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen {
   DataLoader.addObserver(observerMock)
   GameManager.addObserver(observerMock)
   TurnManager.addObserver(observerMock)
-  TurnManager.flipACoin()
 
   behavior of "A Controller"
 
@@ -32,7 +31,20 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen {
     waitForControllerThread()
   }
 
+  it should "make TurnManager launch a CoinNotLaunchedException if a player is ready before the coin is launched" in {
+    intercept[CoinNotLaunchedException] {
+      controller.playerReady()
+    }
+  }
+
+  it should "make TurnManager launch a CoinNotLaunchedException when someone tries to switch turn before the coin is launched" in {
+    intercept[CoinNotLaunchedException] {
+      controller.endTurn()
+    }
+  }
+
   it must "make GameManager and TurnManager notify observers when the GameField is ready and the starting turn coin is launched" in {
+    TurnManager.flipACoin()
     inAnyOrder {
       (observerMock.update _).expects(where {e: Event => {
         e.isInstanceOf[BuildGameField]
