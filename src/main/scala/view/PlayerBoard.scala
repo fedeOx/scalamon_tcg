@@ -17,7 +17,7 @@ import scalafx.geometry.Pos
 import scalafx.scene.Group
 import scalafx.scene.image.Image
 import scalafx.scene.layout.{HBox, VBox}
-import scalafx.scene.paint.PhongMaterial
+import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.Rotate
 import scalafx.stage.Window
@@ -86,10 +86,10 @@ class ZoomZone extends HBox {
 
   private def visualizePokemonInfo(card: PokemonCard): VBox = {
     val infoBox : VBox = new VBox()
-    infoBox.alignment = Pos.TopLeft
-    infoBox.translateY = 5//-13
-    infoBox.translateX = 1//-3
-    infoBox.maxHeight = 18.2
+    infoBox.alignment = Pos.TopCenter
+    infoBox.translateY = 5
+    infoBox.translateX = 1.5
+    infoBox.spacing = 0
     infoBox.translateZ = -9
     infoBox.transforms += new Rotate(50, Rotate.XAxis)
     if (card.initialHp != card.actualHp)
@@ -112,12 +112,12 @@ class ZoomZone extends HBox {
   private def generateBox(image: Image) : Box = {
     new Box {
       depth = 0.1
-      width = 1.4
-      height = 1.4
-      val playMatMaterial = new PhongMaterial()
-      playMatMaterial.diffuseMap = image
-      material = playMatMaterial
-      //margin = new Insets(0,0,0,0)
+      width = 1.2
+      height = 1.2
+      val infoMaterial = new PhongMaterial()
+      infoMaterial.diffuseMap = image
+      material = infoMaterial
+      margin = new Insets(0,0,-0.55,0)
     }
   }
 }

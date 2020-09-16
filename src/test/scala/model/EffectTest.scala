@@ -103,7 +103,10 @@ class EffectTest extends FlatSpec with GivenWhenThen {
 
   }
 
+
   it should "damage and discard 2 energy " in {
+
+
     Given("a pokemon with this effect")
     BoardTmp.activePokemon  = getSpecificPokemon("Charizard")
     addEnergiesToPokemon(EnergyType.Fire, 2, BoardTmp.activePokemon )
