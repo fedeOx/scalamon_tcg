@@ -33,21 +33,13 @@ trait Board {
   def addCardsToDiscardStack(cards: Seq[Card])
 
   /**
-   * Adds the specified pokemon card to the specified bench position
-   * @param pokemon the pokemon card to be added
-   * @param position the bench position
+   * Replace the specified pokemon with the bench pokemon in the specified bench position
+   * @param newPokemon the pokemon to be placed in the bench
+   * @param position the position in the bench
    * @throws model.exception.BenchPokemonException if the specified position is out of bound
    */
   @throws(classOf[BenchPokemonException])
-  def addPokemonToBench(pokemon: PokemonCard, position: Int): Unit
-
-  /**
-   * Removes a pokemon from the specified bench position
-   * @param position the bench position
-   * @throws model.exception.BenchPokemonException if the specified position is out of bound
-   */
-  @throws(classOf[BenchPokemonException])
-  def removePokemonFromBench(position: Int): Unit
+  def putPokemonInBenchPosition(newPokemon: Option[PokemonCard], position: Int): Unit
 
   /**
    * Draws the specified number of cards from the deck
@@ -77,7 +69,7 @@ object Board {
     private var _hand: Seq[Card] = List()
     private var _prizeCards: Seq[Card] = List()
     private var _discardStack: Seq[Card] = List()
-    private var _pokemonBench: Seq[Option[PokemonCard]] = List()
+    private var _pokemonBench: Seq[Option[PokemonCard]] = None :: None :: None :: None :: None :: Nil
 
     override def deck: Seq[Card] = _deck
     override def hand: Seq[Card] = _hand
@@ -89,11 +81,9 @@ object Board {
     override def addCardsToPrizeCards(cards: Seq[Card]): Unit = _prizeCards = _prizeCards ++ cards
     override def addCardsToDiscardStack(cards: Seq[Card]): Unit = _discardStack = _discardStack ++ cards
 
-    override def addPokemonToBench(pokemon: PokemonCard, position: Int): Unit =
-      _pokemonBench = updateBenchPosition(Some(pokemon), _pokemonBench, position)
-
-    override def removePokemonFromBench(position: Int): Unit =
-      _pokemonBench = updateBenchPosition(None, _pokemonBench, position)
+    def putPokemonInBenchPosition(newPokemon: Option[PokemonCard], position: Int): Unit = {
+      _pokemonBench = updateBenchPosition(newPokemon, _pokemonBench, position)
+    }
 
     override def popDeck(popNumber: Int): List[Card] = _deck match {
       case h :: t if popNumber > 0 => _deck = t; h :: popDeck(popNumber - 1)

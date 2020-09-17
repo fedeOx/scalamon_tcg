@@ -3,8 +3,8 @@ package model.core
 import common.Observable
 import model.event.Events.Event
 import model.exception.{BenchPokemonException, CardNotFoundException}
-import model.game.Cards.{Card, PokemonCard}
-import model.game.{Board, DeckCard}
+import model.game.Cards.{Card, EnergyCard, PokemonCard}
+import model.game.{Board, DeckCard, StatusType}
 
 object GameManager extends Observable {
 
@@ -32,24 +32,66 @@ object GameManager extends Observable {
     _opponentBoard.get
   }
 
-  def isPlayerActivePokemonEmpty: Boolean = {
-    playerBoard.activePokemon.isEmpty
+  def isPlayerActivePokemonEmpty: Boolean = playerBoard.activePokemon.isEmpty
+
+  def isPlayerBenchLocationEmpty(position: Int): Boolean = playerBoard.pokemonBench(position).isEmpty
+
+  def playerActivePokemon: Option[PokemonCard] = playerBoard.activePokemon
+
+  def playerActivePokemon_=(pokemonCard: Option[PokemonCard]): Unit = {
+    playerBoard.activePokemon = pokemonCard
+    notifyBoardUpdate()
   }
 
-  def isPlayerBenchLocationEmpty(position: Int): Boolean = {
-    playerBoard.pokemonBench(position).isEmpty
+  def playerPokemonBench: Seq[Option[PokemonCard]] = playerBoard.pokemonBench
+
+  def putPokemonToPlayerBench(pokemonCard: Option[PokemonCard], position: Int): Unit = {
+    playerBoard.putPokemonInBenchPosition(pokemonCard, position)
+    notifyBoardUpdate()
   }
 
   def drawPlayerCard(): Unit = {
     playerBoard.addCardsToHand(playerBoard.popDeck(1))
-    this.notifyObservers(Event.updatePlayerBoardEvent())
+    notifyBoardUpdate()
   }
 
   def drawPlayerPrizeCard(): Unit = {
     playerBoard.addCardsToHand(playerBoard.popPrizeCard(1))
-    this.notifyObservers(Event.updatePlayerBoardEvent())
+    notifyBoardUpdate()
   }
 
+  def destroyPlayerActivePokemon(replacementBenchPosition: Int): Unit = {
+    playerBoard.addCardsToDiscardStack(GameManager.playerBoard.activePokemon.get :: Nil)
+    swap(None, replacementBenchPosition)
+    notifyBoardUpdate()
+  }
+
+  def retreatPlayerActivePokemon(replacementBenchPosition: Int): Unit = {
+    val activePokemon = GameManager.playerBoard.activePokemon.get
+    if (activePokemon.hasEnergies(activePokemon.retreatCost)) {
+      activePokemon.status = StatusType.NoStatus
+      swap(Some(activePokemon), replacementBenchPosition)
+      notifyBoardUpdate()
+    }
+  }
+
+  def addEnergyToPokemon(pokemonCard: PokemonCard, energyCard: EnergyCard): Unit = {
+    pokemonCard.addEnergy(energyCard)
+    notifyBoardUpdate()
+  }
+
+  def evolvePokemon(pokemonCard: PokemonCard, evolution: PokemonCard): Option[PokemonCard] = {
+    evolution.energiesMap = pokemonCard.energiesMap
+    evolution.status = pokemonCard.status
+    evolution.actualHp = pokemonCard.initialHp - (pokemonCard.initialHp - pokemonCard.actualHp)
+    playerBoard.addCardsToDiscardStack(pokemonCard :: Nil)
+    Some(evolution)
+  }
+
+  private def swap(activePokemon: Option[PokemonCard], benchPosition: Int): Unit = {
+    playerBoard.activePokemon = playerBoard.pokemonBench(benchPosition)
+    playerBoard.putPokemonInBenchPosition(activePokemon, benchPosition)
+  }
   /*
   def addOpponentActivePokemon(pokemon: PokemonCard): Unit = {
     checkNonEmpty(opponentBoard)
@@ -111,5 +153,9 @@ object GameManager extends Observable {
 
   private def checkNonEmpty[A](args: Option[A]*): Unit = {
     if (args.exists(x => x.isEmpty)) throw new IllegalStateException()
+  }
+
+  private def notifyBoardUpdate(): Unit = {
+    this.notifyObservers(Event.updatePlayerBoardEvent())
   }
 }
