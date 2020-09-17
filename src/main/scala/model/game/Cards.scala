@@ -29,9 +29,10 @@ object Cards {
     def weaknesses: Seq[Weakness]
     def resistances: Seq[Resistance]
     def retreatCost: Seq[EnergyType]
-    def evolvesFrom: String
+    def evolutionName: String
     def attacks: Seq[Attack]
     def energiesMap: Map[EnergyType, Int]
+    def energiesMap_=(energies: Map[EnergyType, Int]): Unit
 
     def addEnergy(energyCard: EnergyCard): Unit
 
@@ -46,6 +47,8 @@ object Cards {
     def addDamage(damage: Int, opponentTypes: Seq[EnergyType]): Unit
 
     def isKO: Boolean
+
+    def isBase: Boolean
   }
 
   object PokemonCard {
@@ -81,10 +84,11 @@ object Cards {
                                override val weaknesses: Seq[Weakness],
                                override val resistances: Seq[Resistance],
                                override val retreatCost: Seq[EnergyType],
-                               override val evolvesFrom: String,
+                               override val evolutionName: String,
                                override val attacks: Seq[Attack],
                                override var immune: Boolean,
-                               override var status : StatusType) extends PokemonCard {
+                               override var status : StatusType,
+                               override var energiesMap: Map[EnergyType, Int] = Map()) extends PokemonCard {
 
       object MyMapHelpers { // pimp my library to improve cast between mutable and immutable maps
         implicit class MyImmutableMap[A, B](map: Map[A, B]) {
@@ -96,18 +100,14 @@ object Cards {
       }
       import MyMapHelpers._
 
-      private var _energiesMap: Map[EnergyType, Int] = Map()
-
-      override def energiesMap: Map[EnergyType, Int] = _energiesMap
-
       override def addEnergy(energyCard: EnergyCard): Unit = {
-        val mutableEnergiesMap = _energiesMap.toMutableMap
-        if (_energiesMap.get(energyCard.energyType).nonEmpty) {
+        val mutableEnergiesMap = energiesMap.toMutableMap
+        if (energiesMap.get(energyCard.energyType).nonEmpty) {
           mutableEnergiesMap(energyCard.energyType) += energyCard.energiesProvided
         } else {
           mutableEnergiesMap += (energyCard.energyType -> energyCard.energiesProvided)
         }
-        _energiesMap = mutableEnergiesMap.toImmutableMap
+        energiesMap = mutableEnergiesMap.toImmutableMap
       }
 
       @throws(classOf[MissingEnergyException])
@@ -118,7 +118,7 @@ object Cards {
             case Some(_) => mutableEnergiesMap.remove(energy); mutableEnergiesMap
             case None => throw new MissingEnergyException("There is not an energy of the specified type that can be removed")
         }
-        _energiesMap = _removeEnergy(_energiesMap.toMutableMap).toImmutableMap
+        energiesMap = _removeEnergy(energiesMap.toMutableMap).toImmutableMap
       }
 
       override def hasEnergies(energies: Seq[EnergyType]): Boolean =
@@ -160,6 +160,8 @@ object Cards {
         }
         remove(nEnergies)
       }
+
+      override def isBase: Boolean = evolutionName == ""
     }
   }
 

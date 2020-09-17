@@ -1,9 +1,10 @@
 package model.core
 
 import common.Observable
+import model.event.Events.Event
 import model.exception.{BenchPokemonException, CardNotFoundException}
 import model.game.Cards.{Card, PokemonCard}
-import model.game.{Board, DeckCard, GameField}
+import model.game.{Board, DeckCard}
 
 import scala.util.Random
 
@@ -12,57 +13,84 @@ object GameManager extends Observable {
   val InitialHandCardNum = 7
   val InitialPrizeCardNum = 6
 
-  private var playerBoard: Board = _
-  private var opponentBoard: Board = _
+  private var _playerBoard: Option[Board] = None
+  private var _opponentBoard: Option[Board] = None
 
-  def initBoards(playerDeckCards: Seq[DeckCard], opponentDeckCards: Seq[DeckCard], cardsSet: Seq[Card]): GameField = {
+  def initBoards(playerDeckCards: Seq[DeckCard], opponentDeckCards: Seq[DeckCard], cardsSet: Seq[Card]): Unit = {
     val playerCards: Seq[Card] = buildCardList(playerDeckCards, cardsSet)(List())
     val opponentCards: Seq[Card] = buildCardList(opponentDeckCards, cardsSet)(List())
-    playerBoard = buildBoard(Random.shuffle(playerCards))
-    opponentBoard = buildBoard(Random.shuffle(opponentCards))
-    GameField(playerBoard, opponentBoard)
+
+    _playerBoard = Some(buildBoard(playerCards))
+    _opponentBoard = Some(buildBoard(opponentCards))
+    this.notifyObservers(Event.buildGameFieldEvent(_playerBoard.get, _opponentBoard.get))
   }
 
-  def addPlayerActivePokemon(pokemon: PokemonCard): Unit = playerBoard.activePokemon = Some(pokemon)
+  def playerBoard: Board = {
+    checkNonEmpty(_playerBoard)
+    _playerBoard.get
+  }
 
-  def addOpponentActivePokemon(pokemon: PokemonCard): Unit = opponentBoard.activePokemon = Some(pokemon)
+  def opponentBoard: Board = {
+    checkNonEmpty(_opponentBoard)
+    _opponentBoard.get
+  }
 
-  @throws(classOf[BenchPokemonException])
-  def addPlayerPokemonToBench(pokemon: PokemonCard, position: Int): Unit = playerBoard.addPokemonToBench(pokemon, position)
+  def isPlayerActivePokemonEmpty: Boolean = {
+    playerBoard.activePokemon.isEmpty
+  }
 
-  def addOpponentPokemonToBench(pokemon: PokemonCard, position: Int): Unit = opponentBoard.addPokemonToBench(pokemon, position)
+  def isPlayerBenchLocationEmpty(position: Int): Boolean = {
+    playerBoard.pokemonBench(position).isEmpty
+  }
 
-  def destroyPlayerActivePokemon(): Unit = {
-    playerBoard.addCardsToDiscardStack(playerBoard.activePokemon.get :: Nil)
-    playerBoard.activePokemon = None
+  def drawPlayerCard(): Unit = {
+    playerBoard.addCardsToHand(playerBoard.popDeck(1))
+    this.notifyObservers(Event.updatePlayerBoardEvent())
+  }
+
+  def drawPlayerPrizeCard(): Unit = {
+    playerBoard.addCardsToHand(playerBoard.popPrizeCard(1))
+    this.notifyObservers(Event.updatePlayerBoardEvent())
+  }
+
+  /*
+  def addOpponentActivePokemon(pokemon: PokemonCard): Unit = {
+    checkNonEmpty(opponentBoard)
+    opponentBoard.get.activePokemon = Some(pokemon)
+    this.notifyObservers(Event.updateOpponentBoardEvent())
+  }
+
+  def addOpponentPokemonToBench(pokemon: PokemonCard, position: Int): Unit = {
+    checkNonEmpty(opponentBoard)
+    opponentBoard.get.addPokemonToBench(pokemon, position)
+    this.notifyObservers(Event.updateOpponentBoardEvent())
   }
 
   def destroyOpponentActivePokemon(): Unit = {
-    opponentBoard.addCardsToDiscardStack(playerBoard.activePokemon.get :: Nil)
-    opponentBoard.activePokemon = None
+    checkNonEmpty(opponentBoard)
+    opponentBoard.get.addCardsToDiscardStack(opponentBoard.get.activePokemon.get :: Nil)
+    opponentBoard.get.activePokemon = None
+    this.notifyObservers(Event.updateOpponentBoardEvent())
   }
 
-  @throws(classOf[BenchPokemonException])
-  def removePokemonFromPlayerBench(position: Int): Unit = playerBoard.removePokemonFromBench(position)
+  def removePokemonFromOpponentBench(pokemon: PokemonCard, position: Int): Unit = {
+    checkNonEmpty(opponentBoard)
+    opponentBoard.get.removePokemonFromBench(position)
+    this.notifyObservers(Event.updateOpponentBoardEvent())
+  }
 
-  def removePokemonFromOpponentBench(pokemon: PokemonCard, position: Int): Unit = opponentBoard.removePokemonFromBench(position)
+  def drawOpponentCard(): Unit = {
+    checkNonEmpty(opponentBoard)
+    opponentBoard.get.addCardsToHand(opponentBoard.get.popDeck(1))
+    this.notifyObservers(Event.updateOpponentBoardEvent())
+  }
 
-  def drawPlayerCard(): Unit = playerBoard.addCardsToHand(playerBoard.popDeck(1))
-
-  def drawOpponentCard(): Unit = opponentBoard.addCardsToHand(opponentBoard.popDeck(1))
-
-  def drawPlayerPrizeCard(): Unit = playerBoard.addCardsToHand(playerBoard.popPrizeCard(1))
-
-  def drawOpponentPrizeCard(): Unit = opponentBoard.addCardsToHand(opponentBoard.popPrizeCard(1))
-
-  def isPlayerActivePokemonEmpty: Boolean = playerBoard.activePokemon.isEmpty
-  def isPlayerBenchLocationEmpty(position: Int): Boolean = playerBoard.pokemonBench(position).isEmpty
-
-  def confirmPlayerAttack(damage: Int): Unit = ???
-  def confirmOpponentAttack(damage: Int): Unit = ???
-
-  def swapPlayerActivePokemon(benchPosition: Int): Unit = ???
-  def swapOpponentActivePokemon(benchPosition: Int): Unit = ???
+  def drawOpponentPrizeCard(): Unit = {
+    checkNonEmpty(opponentBoard)
+    opponentBoard.get.addCardsToHand(opponentBoard.get.popPrizeCard(1))
+    this.notifyObservers(Event.updateOpponentBoardEvent())
+  }
+  */
 
   @throws(classOf[CardNotFoundException])
   @scala.annotation.tailrec
@@ -76,11 +104,15 @@ object GameManager extends Observable {
   private def buildBoard(cards: Seq[Card]): Board = {
     val board = Board(cards)
     // A hand must have at least one PokemonCard
-    while (!board.hand.exists(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].evolvesFrom.isEmpty)) {
+    while (!board.hand.exists(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase)) {
       board.shuffleDeckWithHand()
       board.addCardsToHand(board.popDeck(InitialHandCardNum))
     }
     board.addCardsToPrizeCards(board.popDeck(InitialPrizeCardNum))
     board
+  }
+
+  private def checkNonEmpty[A](args: Option[A]*): Unit = {
+    if (args.exists(x => x.isEmpty)) throw new IllegalStateException()
   }
 }

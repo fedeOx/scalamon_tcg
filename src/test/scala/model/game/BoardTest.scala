@@ -4,7 +4,7 @@ import model.core.{DataLoader, GameManager}
 import model.exception.BenchPokemonException
 import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import org.scalatest.GivenWhenThen
+import org.scalatest.{GivenWhenThen, OneInstancePerTest}
 import org.scalatest.flatspec.AnyFlatSpec
 
 class BoardTest extends AnyFlatSpec with GivenWhenThen {
