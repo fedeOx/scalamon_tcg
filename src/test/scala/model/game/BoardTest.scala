@@ -45,22 +45,22 @@ class BoardTest extends AnyFlatSpec with GivenWhenThen {
     val pokemonToAdd: PokemonCard = PokemonCard("1", "base1", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
     for (i <- board.pokemonBench.indices) {
       assert(board.pokemonBench(i).isEmpty)
-      board.addPokemonToBench(pokemonToAdd, i)
+      board.putPokemonInBenchPosition(Some(pokemonToAdd), i)
       assert(board.pokemonBench(i).nonEmpty)
     }
 
     for (i <- board.pokemonBench.indices) {
       assert(board.pokemonBench(i).nonEmpty)
-      board.removePokemonFromBench(i)
+      board.putPokemonInBenchPosition(None, i)
       assert(board.pokemonBench(i).isEmpty)
     }
 
     intercept[BenchPokemonException] {
-      board.addPokemonToBench(pokemonToAdd, board.pokemonBench.indices.size)
+      board.putPokemonInBenchPosition(Some(pokemonToAdd), board.pokemonBench.indices.size)
     }
 
     intercept[BenchPokemonException] {
-      board.removePokemonFromBench(board.pokemonBench.indices.size)
+      board.putPokemonInBenchPosition(None, board.pokemonBench.indices.size)
     }
   }
 

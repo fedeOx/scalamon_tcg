@@ -29,7 +29,7 @@ object Ia extends Thread with Observer {
     basePokemons = basePokemons.filter(basepkm => basepkm.imageId != pokemonWithMaxWeight.pokemonCard.imageId)
     opponentBoard.activePokemon = Some(pokemonWithMaxWeight.pokemonCard)
     //populate bench with basePokemon
-    basePokemons.zipWithIndex.foreach { case (pkm, i) => if (i < 5) opponentBoard.addPokemonToBench(pkm, i) }
+    basePokemons.zipWithIndex.foreach { case (pkm, i) => if (i < 5) opponentBoard.putPokemonInBenchPosition(Some(pkm), i) }
 
   }
 
@@ -141,7 +141,7 @@ object Ia extends Thread with Observer {
         case benchPkm :: _ if benchPkm.get.name == evolution.evolutionName => {
           val getbenchedIndex: Int = opponentBoard.pokemonBench.indexWhere(pkm => pkm.get.name == benchPkm.get.name)
           TransferEvolutionInfo(evolution, benchPkm.get)
-          opponentBoard.addPokemonToBench(evolution, getbenchedIndex)
+          opponentBoard.putPokemonInBenchPosition(Some(evolution), getbenchedIndex)
         } //pokemon found in bench
         case _ :: t => evolveBench(t, evolution)
       }
@@ -158,7 +158,7 @@ object Ia extends Thread with Observer {
       val currentActivePkmTmp = opponentBoard.activePokemon
       val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
       opponentBoard.activePokemon = Some(benchPokemonsMaxweight.pokemonCard)
-      opponentBoard.addPokemonToBench(currentActivePkmTmp.get, benchIndex)
+      opponentBoard.putPokemonInBenchPosition(currentActivePkmTmp, benchIndex)
     }
   }
 
