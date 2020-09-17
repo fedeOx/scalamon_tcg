@@ -70,7 +70,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
               disable = true
             onAction = event => {
               println("attacco con " + attack.name)
-              //.effect.get.useEffect()
+              utils.controller.declareAttack(attack)
               event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
               //dialog.close()
             }

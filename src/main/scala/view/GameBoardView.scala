@@ -94,7 +94,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       }
       val cardList: Seq[Card] = DataLoader.loadSet(SetType.Base)
         .filter(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].imageId.equals("6"))
-      println(cardList)
+
       //var carta = PokemonCard("4", "base1",Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
         //Seq(resistance), Seq(EnergyType.Colorless, EnergyType.Colorless), "", Nil)
       var carta = cardList.head.asInstanceOf[PokemonCard]
@@ -118,12 +118,6 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       humanBoard.updateActive()
       humanBoard.updateHand()
       humanBoard.updateBench()
-      //println(opponentBoard.board.activePokemon)
-      //println(opponentBoard.board.pokemonBench)
-      //println(opponentBoard.board.hand)
-      opponentBoard.board.hand.foreach(card => {
-        println(card.imageId)
-      })
       opponentBoard.updateBench()
       opponentBoard.updateActive()
     }
@@ -131,10 +125,11 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       opponentBoard.updateBench()
       opponentBoard.updateActive()
     }
-    case event : Event.NextTurn if event.turnOwner == TurnOwner.Player =>  {
-      /*opponentBoard.updateBench()
-      opponentBoard.updateActive()*/
+    case event : NextTurn if event.turnOwner == TurnOwner.Player =>  {
+
       Platform.runLater({
+        utils.controller.drawACard()
+        humanBoard.updateHand()
         opponentBoard.updateBench()
         opponentBoard.updateActive()
       })

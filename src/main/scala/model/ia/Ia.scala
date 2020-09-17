@@ -10,6 +10,8 @@ import model.event.Events.Event.BuildGameField
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
 
+import scala.None
+
 object Ia extends Thread with Observer {
 
   private val eventQueue: BlockingQueue[Event] = new ArrayBlockingQueue[Event](20)
@@ -23,26 +25,29 @@ object Ia extends Thread with Observer {
 
 
   private def placeCards(hand: Seq[Card]): Unit = {
-    var basePokemons: Seq[PokemonCard] = hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
+    val basePokemons: Seq[PokemonCard] = hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
     val pokemonWithMaxWeight = basePokemons.flatMap(pkm => createWeightedCard(pkm, calculateweightForPlaceCard)).reduceLeft(getMax)
     //drop active pokemon from hand
-    basePokemons = basePokemons.filter(basepkm => basepkm.imageId != pokemonWithMaxWeight.pokemonCard.imageId)
+    opponentBoard.removeCardFromHand(pokemonWithMaxWeight.pokemonCard)
     opponentBoard.activePokemon = Some(pokemonWithMaxWeight.pokemonCard)
     //populate bench with basePokemon
-    basePokemons.zipWithIndex.foreach { case (pkm, i) => if (i < 5) opponentBoard.putPokemonInBenchPosition(Some(pkm), i) }
-
+    populateBench()
   }
 
   private def doTurn(): Unit = {
     //TODO QUI
     //pesco
+    opponentBoard.addCardsToHand(opponentBoard.popDeck(1))
+    myHand =  opponentBoard.hand
     //metto pokemon in panchina
+    populateBench()
+
 
     val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
     //evolve all pkm
     evolveAll()
     //calculate if the retreat of the active pokemon is convenient and Do it
-    if (opponentBoard.pokemonBench.count(c => c.isDefined) > 0)
+    if (opponentBoard.pokemonBench.count(c => c.isDefined) > 0 && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored)
       calculateIfWithdrawAndDo()
     //assignEnergy
     if (getEnergy.nonEmpty)
@@ -54,7 +59,7 @@ object Ia extends Thread with Observer {
       opponentBoard.activePokemon.get.attacks.head.effect.get.useEffect(opponentBoard, playerBoard)
     }
 
-   TurnManager.switchTurn()
+    TurnManager.switchTurn()
   }
 
   override def run() {
@@ -74,6 +79,16 @@ object Ia extends Thread with Observer {
           case event: Event.NextTurn if event.turnOwner == TurnOwner.Opponent => doTurn()
           case _ =>
         }
+      }
+    }
+  }
+
+  private def populateBench(): Unit = {
+    val basePokemons: Seq[PokemonCard] = opponentBoard.hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
+    basePokemons.zipWithIndex.foreach {
+      case (pkm, i) => if (opponentBoard.pokemonBench.count(card => card.nonEmpty ) < 5) {
+        opponentBoard.putPokemonInBenchPosition(Some(pkm), opponentBoard.pokemonBench.count(card => card.nonEmpty ))
+        opponentBoard.removeCardFromHand(pkm)
       }
     }
   }
@@ -103,8 +118,11 @@ object Ia extends Thread with Observer {
     //pokemonDmg = -10 x Dmg
     totalweight -= (pokemon.initialHp - pokemon.actualHp)
     //weakPokemon = -30
-    if (pokemon.weaknesses.head.energyType == playerBoard.activePokemon.get.pokemonTypes.head)
-      totalweight -= WeightIa.WeakPokemon
+    if (pokemon.weaknesses.nonEmpty) {
+      if (pokemon.weaknesses.head.energyType == playerBoard.activePokemon.get.pokemonTypes.head)
+        totalweight -= WeightIa.WeakPokemon
+    }
+
     //15 x energyType
     totalweight += pokemon.totalEnergiesStored * WeightIa.HasEnergy
     //is evolution
@@ -118,7 +136,7 @@ object Ia extends Thread with Observer {
 
   private def evolveAll(): Unit = {
     val evolution: Seq[PokemonCard] = myHand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName != "").asInstanceOf[Seq[PokemonCard]]
-    if (evolution.nonEmpty)
+    if (evolution.size >0)
       evolve(evolution)
 
     //TODO SISTEMARE EVOLUZIONI POKEMON , assegnare energie e danni del pokemon evoluto
@@ -129,21 +147,20 @@ object Ia extends Thread with Observer {
         opponentBoard.activePokemon = Some(evolution.asInstanceOf[PokemonCard])
         evolve(t)
       }
-      case evolution :: _ => evolveBench(opponentBoard.pokemonBench, evolution)
-      case _ :: t if t.nonEmpty => evolve(t)
-      case _ :: _ =>
+      case evolution :: t if opponentBoard.pokemonBench.count(pkm => pkm.isDefined) >0 => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution) ; evolve(t)
+      case List()  =>
     }
 
     @scala.annotation.tailrec
     def evolveBench(bench: Seq[Option[PokemonCard]], evolution: PokemonCard) {
       bench match {
-        case benchPkm :: _ if benchPkm.isEmpty => //emptyBench
+        case List() =>
         case benchPkm :: _ if benchPkm.get.name == evolution.evolutionName => {
           val getbenchedIndex: Int = opponentBoard.pokemonBench.indexWhere(pkm => pkm.get.name == benchPkm.get.name)
           TransferEvolutionInfo(evolution, benchPkm.get)
           opponentBoard.putPokemonInBenchPosition(Some(evolution), getbenchedIndex)
         } //pokemon found in bench
-        case _ :: t => evolveBench(t, evolution)
+        case _ :: t  => evolveBench(t, evolution)
       }
     }
   }
@@ -155,6 +172,7 @@ object Ia extends Thread with Observer {
 
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
       println("Cambio il pokemon attivo")
+      opponentBoard.activePokemon.get.removeFirstNEnergy(opponentBoard.activePokemon.get.retreatCost.size)
       val currentActivePkmTmp = opponentBoard.activePokemon
       val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
       opponentBoard.activePokemon = Some(benchPokemonsMaxweight.pokemonCard)
@@ -176,10 +194,10 @@ object Ia extends Thread with Observer {
 
     def iterateSeqToAssign(seqToIterate: Seq[Option[PokemonCard]]): Int = {
       var index = -1
-        seqToIterate.foreach(pkm => {
-          if (index < 0)
-            index = assignEnergy(pkm.get)
-        })
+      seqToIterate.foreach(pkm => {
+        if (index < 0)
+          index = assignEnergy(pkm.get)
+      })
 
       index
     }
