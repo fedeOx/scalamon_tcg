@@ -1,7 +1,7 @@
 package model.event
 
 import common.TurnOwner.TurnOwner
-import model.game.{DeckCard, GameField}
+import model.game.{Board, DeckCard}
 
 object Events {
   trait Event
@@ -9,7 +9,7 @@ object Events {
   object Event {
     def showDeckCardsEvent(deckCards: Seq[DeckCard]): Event = ShowDeckCards(deckCards)
 
-    def buildGameFieldEvent(gameField: GameField): Event = BuildGameField(gameField)
+    def buildGameFieldEvent(playerBoard: Board, opponentBoard: Board): Event = BuildGameField(playerBoard, opponentBoard)
 
     def flipCoinEvent(coinValue: TurnOwner): Event = FlipCoin(coinValue)
 
@@ -23,14 +23,17 @@ object Events {
 
     def updateBothBoardsEvent(): Event = UpdateBothBoards()
 
+    def pokemonKOEvent(): Event = PokemonKO()
+
     case class ShowDeckCards(deckCards: Seq[DeckCard]) extends Event
-    case class BuildGameField(gameField: GameField) extends Event
+    case class BuildGameField(playerBoard: Board, opponentBoard: Board) extends Event
     case class FlipCoin(coinValue: TurnOwner) extends Event
     case class PlaceCards() extends Event
     case class NextTurn(turnOwner: TurnOwner) extends Event
     case class UpdatePlayerBoard() extends Event
     case class UpdateOpponentBoard() extends Event
     case class UpdateBothBoards() extends Event
+    case class PokemonKO() extends Event
   }
 
 }

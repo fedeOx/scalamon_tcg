@@ -77,7 +77,7 @@ object Board {
     private var _hand: Seq[Card] = List()
     private var _prizeCards: Seq[Card] = List()
     private var _discardStack: Seq[Card] = List()
-    private var _pokemonBench: Seq[Option[PokemonCard]] = None :: None :: None :: None :: None :: Nil
+    private var _pokemonBench: Seq[Option[PokemonCard]] = List()
 
     override def deck: Seq[Card] = _deck
     override def hand: Seq[Card] = _hand

@@ -12,13 +12,13 @@ object TurnManager extends Observable {
   private var acks: Int = 0
   private val TotalNumberOfAckRequired = 2
 
-  def flipACoin(): TurnOwner = {
+  def flipACoin(): Unit = {
     val side = new Random().nextInt(2)
     if (side == 0)
       turnOwner = Some(TurnOwner.Opponent)
     else
       turnOwner = Some(TurnOwner.Player)
-    turnOwner.get
+    this.notifyObservers(Event.flipCoinEvent(turnOwner.get))
   }
 
   @throws(classOf[CoinNotLaunchedException])

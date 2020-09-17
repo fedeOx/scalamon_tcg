@@ -6,7 +6,7 @@ import io.circe.parser.parse
 import io.circe.{HCursor, Json}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.DeckType.DeckType
-import model.game.{DeckCard, GameField}
+import model.game.DeckCard
 import model.game.SetType.SetType
 
 import scala.io.Source

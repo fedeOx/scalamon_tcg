@@ -3,9 +3,9 @@ package controller
 import common.TurnOwner.TurnOwner
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
-import model.exception.{ActivePokemonException, BenchPokemonException}
-import model.game.Cards.{Card, PokemonCard}
-import model.game.{DeckCard, DeckType, GameField}
+import model.exception.{ActivePokemonException, BenchPokemonException, NotEnoughEnergiesException}
+import model.game.Cards.{Card, EnergyCard, PokemonCard}
+import model.game.{Attack, DeckCard, DeckType, StatusType}
 import model.game.DeckType.DeckType
 import model.game.EnergyType.EnergyType
 import model.game.SetType.SetType
@@ -23,6 +23,7 @@ trait Controller {
   /**
    * It makes [[model.core.GameManager]] init the game field and [[model.core.TurnManager]] decide who will be the
    * player that will start the game. The information produced are propagated to all observers.
+   *
    * @param cardList the list of cards composing the deck chosen by the user
    * @param set the card set to whom `cardList` belongs
    */
@@ -44,37 +45,6 @@ trait Controller {
   def endTurn(): Unit
 
   /**
-   * Tries to set the specified pokemon card as active pokemon on human player board.
-   * @param card the pokemon card to be set ad active pokemon
-   * @throws model.exception.ActivePokemonException if an active pokemon card is already present
-   */
-  @throws(classOf[ActivePokemonException])
-  def addActivePokemon(card: PokemonCard): Unit
-
-  /**
-   * Tries to set the specified pokemon card to the specified position of the bench.
-   * @param card the pokemon card to be set in the bench
-   * @param position the position in which the pokemon card must be placed
-   * @throws model.exception.BenchPokemonException if a pokemon card is already present in the specified position
-   *                                               of the bench or if the specified position is out of bound
-   */
-  @throws(classOf[BenchPokemonException])
-  def addPokemonToBench(card: PokemonCard, position: Int): Unit
-
-  /**
-   * Destroys the active pokemon if present.
-   */
-  def destroyActivePokemon(): Unit
-
-  /**
-   * Tries to remove the benched pokemon at the specified position
-   * @param position the position of the benched pokemon to remove
-   * @throws model.exception.BenchPokemonException if the specified position is out of bound
-   */
-  @throws(classOf[BenchPokemonException])
-  def removePokemonFromBench(position: Int): Unit
-
-  /**
    * Makes the player draw a card from his deck
    */
   def drawACard(): Unit
@@ -84,19 +54,25 @@ trait Controller {
    */
   def drawAPrizeCard(): Unit
 
-  def selectCardFromHand(card: Card): Unit
+  def swap(position: Int): Unit
+
+  def handCardSelected: Option[Card]
+
+  def handCardSelected_=(card: Option[Card])
+
+  @throws(classOf[ActivePokemonException])
   def selectActivePokemonLocation(): Unit
-  def selectBenchLocation(index: Int): Unit
 
-  def declareAttack(damage:Int, attackerTypes: Seq[EnergyType], recipient: PokemonCard): Unit
+  @throws(classOf[BenchPokemonException])
+  def selectBenchLocation(position: Int): Unit
 
-  def replaceActivePokemonWith(benchPosition: Int): Unit
+  def declareAttack(attack: Attack): Unit
 }
 
 object Controller {
   def apply(): Controller = ControllerImpl()
 
-  private case class ControllerImpl() extends Controller {
+  private case class ControllerImpl(override var handCardSelected: Option[Card] = None) extends Controller {
 
     override def loadDeckCards(set: SetType, deck: DeckType): Unit = new Thread {
       override def run(): Unit = {
@@ -114,10 +90,8 @@ object Controller {
           .toVector(random.nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
         val opponentDeckCards: Seq[DeckCard] = DataLoader.loadDeck(set, opponentChosenDeckType)
         // TODO end
-        val gameField: GameField = GameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
-        GameManager.notifyObservers(Event.buildGameFieldEvent(gameField))
-        val turnOwner: TurnOwner = TurnManager.flipACoin()
-        TurnManager.notifyObservers(Event.flipCoinEvent(turnOwner))
+        GameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
+        TurnManager.flipACoin()
       }
     }.start()
 
@@ -127,10 +101,11 @@ object Controller {
 
     override def endTurn(): Unit = TurnManager.switchTurn()
 
+    /*
     override def addActivePokemon(card: PokemonCard): Unit = {
       if (GameManager.isPlayerActivePokemonEmpty) {
-        GameManager.addPlayerActivePokemon(card)
-        GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+        GameManager.playerBoard.activePokemon = Some(card)
+        notifyBoardUpdate()
       } else {
         throw new ActivePokemonException("An active pokemon is already present on player board")
       }
@@ -138,45 +113,120 @@ object Controller {
 
     override def addPokemonToBench(card: PokemonCard, position: Int): Unit = {
       if (GameManager.isPlayerBenchLocationEmpty(position)) {
-        GameManager.addPlayerPokemonToBench(card, position)
-        GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+        GameManager.playerBoard.addPokemonToBench(card, position)
+        notifyBoardUpdate()
       } else {
         throw new BenchPokemonException("A pokemon is already present in position " + position + " of the bench")
       }
     }
+     */
 
-    override def destroyActivePokemon(): Unit = {
+    // Chiamato ogni volta che un pokemon viene messo KO o ritirato (la position è = a quella scelta dall'utente)
+    def swap(position: Int): Unit = {
+      if (GameManager.playerBoard.activePokemon.nonEmpty && GameManager.playerBoard.pokemonBench(position).nonEmpty) {
+        if (GameManager.playerBoard.activePokemon.get.isKO) {
+          val playerBoard = GameManager.playerBoard
+          playerBoard.addCardsToDiscardStack(GameManager.playerBoard.activePokemon.get :: Nil)
+          playerBoard.activePokemon = playerBoard.pokemonBench(position)
+          playerBoard.removePokemonFromBench(position)
+          notifyBoardUpdate()
+        } else {
+          val activePokemon = GameManager.playerBoard.activePokemon.get
+          if (activePokemon.hasEnergies(activePokemon.retreatCost)) {
+            activePokemon.status = StatusType.NoStatus
+            GameManager.playerBoard.activePokemon = GameManager.playerBoard.pokemonBench(position)
+            GameManager.playerBoard.addPokemonToBench(activePokemon, position)
+            notifyBoardUpdate()
+          }
+        }
+      }
+    }
+
+    /*
+    private def destroyActivePokemon(position: Int): Unit = {
       if (!GameManager.isPlayerActivePokemonEmpty) {
-        GameManager.destroyPlayerActivePokemon()
-        GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+        val playerBoard = GameManager.playerBoard
+        playerBoard.addCardsToDiscardStack(GameManager.playerBoard.activePokemon.get :: Nil)
+        playerBoard.activePokemon = playerBoard.pokemonBench.head
+        notifyBoardUpdate()
       }
     }
 
-    override def removePokemonFromBench(position: Int): Unit = {
+    override def destroyPokemonFromBench(position: Int): Unit = {
       if (!GameManager.isPlayerBenchLocationEmpty(position)) {
-        GameManager.removePokemonFromPlayerBench(position)
-        GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+        val benchedPokemon = GameManager.playerBoard.pokemonBench(position).get
+        GameManager.playerBoard.removePokemonFromBench(position)
+        GameManager.playerBoard.addCardsToDiscardStack(benchedPokemon :: Nil)
+        notifyBoardUpdate()
       }
     }
+     */
 
-    override def drawACard(): Unit = {
-      GameManager.drawPlayerCard()
-      GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+    override def drawACard(): Unit = GameManager.drawPlayerCard()
+
+    override def drawAPrizeCard(): Unit = GameManager.drawPlayerPrizeCard()
+
+    override def selectActivePokemonLocation(): Unit = handCardSelected match {
+      case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerActivePokemonEmpty => // Add energy card
+        GameManager.playerBoard.activePokemon.get.addEnergy(c.asInstanceOf[EnergyCard]); notifyBoardUpdate()
+      case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerActivePokemonEmpty => // Place active pokemon
+        GameManager.playerBoard.activePokemon = Some(c.asInstanceOf[PokemonCard]); notifyBoardUpdate()
+      case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerActivePokemonEmpty  // Evolve active pokemon
+        && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerBoard.activePokemon.get.name =>
+        val handPokemonCard: PokemonCard = c.asInstanceOf[PokemonCard]
+        val activePokemonCard: PokemonCard = GameManager.playerBoard.activePokemon.get
+        handPokemonCard.energiesMap = activePokemonCard.energiesMap
+        handPokemonCard.status = activePokemonCard.status
+        handPokemonCard.actualHp = handPokemonCard.initialHp - (activePokemonCard.initialHp - activePokemonCard.actualHp)
+        GameManager.playerBoard.addCardsToDiscardStack(activePokemonCard :: Nil)
+        GameManager.playerBoard.activePokemon = Some(handPokemonCard)
+        notifyBoardUpdate()
+      case _ => throw new ActivePokemonException()
     }
 
-    override def drawAPrizeCard(): Unit = {
-      GameManager.drawPlayerPrizeCard()
-      GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+    override def selectBenchLocation(position: Int): Unit = handCardSelected match {
+      case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerBenchLocationEmpty(position) => // Add energy card
+        GameManager.playerBoard.pokemonBench(position).get.addEnergy(c.asInstanceOf[EnergyCard]); notifyBoardUpdate()
+      case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerBenchLocationEmpty(position) => // Place bench pokemon
+        GameManager.playerBoard.addPokemonToBench(c.asInstanceOf[PokemonCard], position); notifyBoardUpdate()
+      case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerBenchLocationEmpty(position)  // Evolve bench pokemon
+        && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerBoard.pokemonBench(position).get.name =>
+        val handPokemonCard: PokemonCard = c.asInstanceOf[PokemonCard]
+        val benchPokemonCard: PokemonCard = GameManager.playerBoard.pokemonBench(position).get
+        handPokemonCard.energiesMap = benchPokemonCard.energiesMap
+        handPokemonCard.status = benchPokemonCard.status
+        handPokemonCard.actualHp = handPokemonCard.initialHp - (benchPokemonCard.initialHp - benchPokemonCard.actualHp)
+        GameManager.playerBoard.addCardsToDiscardStack(benchPokemonCard :: Nil)
+        GameManager.playerBoard.addPokemonToBench(handPokemonCard, position)
+        notifyBoardUpdate()
+      case _ => throw new BenchPokemonException()
     }
 
-    override def selectCardFromHand(card: Card): Unit = ???
+    override def declareAttack(attack: Attack): Unit = {
+      attack.effect.get.useEffect()
+      // Manca da controllare se qualche pokemon nel campo di gioco è andato KO
+      // se muore il pokemon del giocatore o dell'ia -> GameManager.notifyObservers(Event.pokemonKOEvent())
+      // sempre -> notifyBoardUpdate()
+    };
 
-    override def selectActivePokemonLocation(): Unit = ???
+    /*
+    override def replaceActivePokemonWith(benchPosition: Int): Unit = {
+      if (GameManager.playerBoard.activePokemon.nonEmpty && GameManager.playerBoard.pokemonBench(benchPosition).nonEmpty) {
+        val activePokemon = GameManager.playerBoard.activePokemon.get
+        if (activePokemon.hasEnergies(activePokemon.retreatCost)) {
+          activePokemon.status = StatusType.NoStatus
+          GameManager.playerBoard.activePokemon = GameManager.playerBoard.pokemonBench(benchPosition)
+          GameManager.playerBoard.addPokemonToBench(activePokemon, benchPosition)
+          notifyBoardUpdate()
+        } else {
+          throw new NotEnoughEnergiesException("The active pokemon has not enough energies to make a retreat")
+        }
+      }
+    }
+     */
 
-    override def selectBenchLocation(index: Int): Unit = ???
-
-    override def declareAttack(damage: Int, attackerTypes: Seq[EnergyType], recipient: PokemonCard): Unit = ???
-
-    override def replaceActivePokemonWith(benchPosition: Int): Unit = ???
+    private def notifyBoardUpdate(): Unit = {
+      GameManager.notifyObservers(Event.updatePlayerBoardEvent())
+    }
   }
 }
