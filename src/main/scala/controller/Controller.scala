@@ -168,7 +168,7 @@ object Controller {
 
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
       case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerActivePokemonEmpty => // Add energy card
-        GameManager.playerBoard.activePokemon.get.addEnergy(c.asInstanceOf[EnergyCard]); notifyBoardUpdate()
+        GameManager.playerBoard.activePokemon.get.addEnergy(c.asInstanceOf[EnergyCard]); handCardSelected = Option.empty; notifyBoardUpdate()
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerActivePokemonEmpty => // Place active pokemon
         GameManager.playerBoard.activePokemon = Some(c.asInstanceOf[PokemonCard]); handCardSelected = Option.empty; notifyBoardUpdate()
       case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerActivePokemonEmpty  // Evolve active pokemon
@@ -180,15 +180,16 @@ object Controller {
         handPokemonCard.actualHp = handPokemonCard.initialHp - (activePokemonCard.initialHp - activePokemonCard.actualHp)
         GameManager.playerBoard.addCardsToDiscardStack(activePokemonCard :: Nil)
         GameManager.playerBoard.activePokemon = Some(handPokemonCard)
+        handCardSelected = Option.empty
         notifyBoardUpdate()
       case _ => throw new ActivePokemonException()
     }
 
     override def selectBenchLocation(position: Int): Unit = handCardSelected match {
       case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerBenchLocationEmpty(position) => // Add energy card
-        GameManager.playerBoard.pokemonBench(position).get.addEnergy(c.asInstanceOf[EnergyCard]); notifyBoardUpdate()
+        GameManager.playerBoard.pokemonBench(position).get.addEnergy(c.asInstanceOf[EnergyCard]); handCardSelected = Option.empty; notifyBoardUpdate()
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerBenchLocationEmpty(position) => // Place bench pokemon
-        GameManager.playerBoard.addPokemonToBench(c.asInstanceOf[PokemonCard], position); notifyBoardUpdate()
+        GameManager.playerBoard.addPokemonToBench(c.asInstanceOf[PokemonCard], position); handCardSelected = Option.empty; notifyBoardUpdate()
       case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerBenchLocationEmpty(position)  // Evolve bench pokemon
         && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerBoard.pokemonBench(position).get.name =>
         val handPokemonCard: PokemonCard = c.asInstanceOf[PokemonCard]
@@ -198,6 +199,7 @@ object Controller {
         handPokemonCard.actualHp = handPokemonCard.initialHp - (benchPokemonCard.initialHp - benchPokemonCard.actualHp)
         GameManager.playerBoard.addCardsToDiscardStack(benchPokemonCard :: Nil)
         GameManager.playerBoard.addPokemonToBench(handPokemonCard, position)
+        handCardSelected = Option.empty
         notifyBoardUpdate()
       case _ => throw new BenchPokemonException()
     }

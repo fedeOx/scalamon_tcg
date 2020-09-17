@@ -6,13 +6,14 @@ import controller.Controller
 import javafx.scene.paint.ImagePattern
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events
-import model.event.Events.Event.{BuildGameField, FlipCoin, UpdatePlayerBoard}
+import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, UpdateOpponentBoard, UpdatePlayerBoard}
 import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.Weakness.Operation
 import model.game.Weakness.Operation.Operation
 import model.game.{EnergyType, Resistance, SetType, StatusType, Weakness}
+import model.ia.Ia
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
@@ -37,6 +38,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   private val humanBoard = new PlayerBoard(true, zoomZone, parentWindow)
   private var turnOwner : TurnOwner = TurnOwner.Player
   title = TITLE
+  Ia.start()
   GameManager.addObserver(this)
   TurnManager.addObserver(this)
   x = 0
@@ -72,6 +74,8 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   resizable = true
   sizeToScene()
   show()
+
+  onCloseRequest = _ => Ia.interrupt()
 
   override def update(event: Events.Event): Unit = event match {
     case event if  event.isInstanceOf[BuildGameField] => {
@@ -113,6 +117,22 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       humanBoard.updateActive()
       humanBoard.updateHand()
       humanBoard.updateBench()
+      //println(opponentBoard.board.activePokemon)
+      //println(opponentBoard.board.pokemonBench)
+      //println(opponentBoard.board.hand)
+      opponentBoard.board.hand.foreach(card => {
+        println(card.imageId)
+      })
+      opponentBoard.updateBench()
+      opponentBoard.updateActive()
+    }
+    case event : UpdateOpponentBoard => {
+      opponentBoard.updateBench()
+      opponentBoard.updateActive()
+    }
+    case event : NextTurn => {
+      opponentBoard.updateBench()
+      opponentBoard.updateActive()
     }
   }
 

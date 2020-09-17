@@ -26,7 +26,7 @@ import model.pokemonEffect.Effect
  * @param parentWindow: the parent window of this component
  */
 case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard, parentWindow: Window) extends HBox{
-  private val WIDTH = 35
+  private val WIDTH = 32
   private val HEIGHT = 15
   private var isEmpty : Boolean = _
   private val parentBoard = board

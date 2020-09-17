@@ -19,8 +19,8 @@ object Ia extends Thread with Observer {
   private var playerBoard: Board = _
   private var myHand: Seq[Card] = _
   private var turn: TurnOwner = _
-  private val getPokemonCard = myHand.filter(pkm => pkm.isInstanceOf[PokemonCard])
-  private val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
+  //private val getPokemonCard = myHand.filter(pkm => pkm.isInstanceOf[PokemonCard])
+  //private val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
 
 
   private def placeCards(hand: Seq[Card]): Unit = {
@@ -32,10 +32,11 @@ object Ia extends Thread with Observer {
     //populate bench with basePokemon
     basePokemons.zipWithIndex.foreach { case (pkm, i) => if (i < 5) opponentBoard.addPokemonToBench(pkm, i) }
 
-    TurnManager.playerReady()
+    //TurnManager.playerReady()
   }
 
   private def doTurn(): Unit = {
+    val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
     //evolve all pkm
     evolveAll()
     //calculate if the retreat of the active pokemon is convenient and Do it
@@ -82,6 +83,8 @@ object Ia extends Thread with Observer {
 
   private def calculateweightForPlaceCard(pokemon: PokemonCard): Int = {
     var totalweight = 0
+    val getPokemonCard = myHand.filter(pkm => pkm.isInstanceOf[PokemonCard])
+    val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
     //evolution in Hand
     if (getPokemonCard.exists(pkm => pkm.asInstanceOf[PokemonCard].evolutionName == pokemon.asInstanceOf[PokemonCard].name))
       totalweight += WeightIa.EvolutionInHand
@@ -112,7 +115,8 @@ object Ia extends Thread with Observer {
 
   private def evolveAll(): Unit = {
     val evolution: Seq[PokemonCard] = myHand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName != "").asInstanceOf[Seq[PokemonCard]]
-    evolve(evolution)
+    if(evolution.nonEmpty)
+      evolve(evolution)
 
     //TODO SISTEMARE EVOLUZIONI POKEMON , assegnare energie e danni del pokemon evoluto
     @scala.annotation.tailrec
@@ -143,7 +147,7 @@ object Ia extends Thread with Observer {
 
   private def calculateIfWithdrawAndDo(): Unit = {
     val activePokemonweight: Int = calculateweightForWithdraw(opponentBoard.activePokemon.get)
-    val benchPokemonsMaxweight = opponentBoard.pokemonBench.flatMap(bench => createWeightedCard(bench.get, calculateweightForWithdraw)).reduceLeft(getMax)
+    val benchPokemonsMaxweight = opponentBoard.pokemonBench.filter(c => c.isDefined).flatMap(bench => createWeightedCard(bench.get, calculateweightForWithdraw)).reduceLeft(getMax)
 
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
       println("Cambio il pokemon attivo")
