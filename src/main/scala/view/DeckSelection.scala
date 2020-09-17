@@ -1,45 +1,38 @@
 package view
 
-import io.circe.generic.auto._
-import io.circe.parser
+import animatefx.animation.Flip
+import common.Observer
+import controller.Controller
+import model.core.{DataLoader, GameManager}
+import model.event.Events
+import model.event.Events.Event.{BuildGameField, FlipCoin, ShowDeckCards}
+import model.game.{DeckCard, DeckType, SetType}
 import scalafx.Includes._
-import scalafx.beans.property.{IntegerProperty, ObjectProperty, StringProperty}
+import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Pos
-import scalafx.scene.{Scene, SceneAntialiasing}
+import scalafx.scene.Scene
 import scalafx.scene.control.TableColumn._
-import scalafx.scene.control.{Button, TableCell, TableColumn, TableView}
+import scalafx.scene.control.{Button, TableColumn, TableView}
 import scalafx.scene.layout.{BorderPane, GridPane}
 
-import scala.io.Source
-
-case class Deck(name: String, cards: ObservableBuffer[Cards])
-
-case class Cards(id: String, name: String, rarity: String, count: Int) {
+case class CardView(id: String, name: String, rarity: String, count: Int) {
   val idCard = new StringProperty(this, "id", id)
   val nameCard = new StringProperty(this, "lastName", name)
   val rarityCard = new StringProperty(this, "rarity", rarity)
   val countCard = new ObjectProperty(this, "count", count)
 }
 
-object DeckSelection extends Scene {
-
-  val cssStyle = getClass.getResource("/style/deckSelection.css").toExternalForm
-  val input = Source.fromFile(getClass.getResource("/jsons/d_base.json").getFile).getLines().mkString.stripMargin
-  var decks: Set[Deck] = Set.empty[Deck]
-
-
-  parser.decode[Seq[Deck]](input) match {
-    case Right(deck) => deck.map(d => decks += d)
-    case Left(ex) => println(s"Something wrong ${ex.getMessage}")
-  }
-
-  var cardsTableItem = ObservableBuffer[Cards](decks.head.cards)
-  val tableView = createTableView
-  val deckPane = createDeckPanel
-  var deckSelected = decks.head
-
+object DeckSelection extends Scene with Observer{
+  var cardsTableItem: ObservableBuffer[CardView] = ObservableBuffer[CardView]()
+  val tableView: TableView[CardView] = createTableView
+  val deckPane: GridPane = createDeckPanel
+  val controller:Controller = Controller()
+  val cssStyle: String = getClass.getResource("/style/deckSelection.css").toExternalForm
   stylesheets += cssStyle
+  DataLoader.addObserver(this)
+  controller.loadDeckCards(SetType.Base,DeckType.Base1)
+
   root = new BorderPane {
     id = "deckSelection-pane"
     left = deckPane
@@ -51,51 +44,41 @@ object DeckSelection extends Scene {
       alignmentInParent = Pos.Center
       onAction = _=> {
         //go to game
-        println("INVIO IL DECK "+ getChosenDeck)
         StartGameGui.getPrimaryStage.close()
         new GameBoardView
+
+        var seqDeck:Seq[DeckCard] = Seq()
+        cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id,p.name,p.rarity,p.count))
+        controller.initGame(seqDeck,SetType.Base)
       }}
   }
-
 
   def createDeckButton(deckName: String): Button = {
     val deckButton: Button = new Button(deckName)
     deckButton.onAction = () => {
-      cardsTableItem.clear()
-      deckSelected = decks.filter(deck => deck.name == deckName).head
-      cardsTableItem.addAll(deckSelected.cards)
-      tableView.refresh()
+      controller.loadDeckCards(SetType.Base,DeckType.withNameWithDefault(deckName))
     }
     deckButton.id = deckName
     deckButton.text = ""
     deckButton
   }
 
-  def createTableView: TableView[Cards] = {
-    val table = new TableView[Cards](cardsTableItem) {
+  def createTableView: TableView[CardView] = {
+    val table = new TableView[CardView](cardsTableItem) {
       id = "tableView-Cards"
       alignmentInParent = Pos.Center
       columns ++= List(
-        new TableColumn[Cards, String]() {
+        new TableColumn[CardView, String] {
           text = "Card Name"
-          cellValueFactory = {
-            _.value.nameCard
-          }
-          prefWidth = 100
+          cellValueFactory = {_.value.nameCard}
         },
-        new TableColumn[Cards, String]() {
+        new TableColumn[CardView, String]() {
           text = "Rarity"
-          cellValueFactory = {
-            _.value.rarityCard
-          }
-          prefWidth = 100
+          cellValueFactory = {_.value.rarityCard}
         },
-        new TableColumn[Cards, Int]() {
+        new TableColumn[CardView, Int]() {
           text = "Count"
-          cellValueFactory = {
-            _.value.countCard
-          }
-          prefWidth = 100
+          cellValueFactory = {_.value.countCard}
         }
       )
     }
@@ -110,9 +93,8 @@ object DeckSelection extends Scene {
       alignment = Pos.CenterLeft
       hgap = 10
       vgap = 10
-      //create button for decks
-      decks.foreach(deck => {
-        add(createDeckButton(deck.name.replaceAll("\\s+", "")), columnIndexcnt, rowIndexcnt)
+      DeckType.values.foreach(deck => {
+        add(createDeckButton(deck.name), columnIndexcnt, rowIndexcnt)
         columnIndexcnt += 1
         if (columnIndexcnt > 1) {
           columnIndexcnt = 0
@@ -123,9 +105,17 @@ object DeckSelection extends Scene {
     pane
   }
 
-  def getChosenDeck : Deck ={
-    deckSelected
+  override def update(event: Events.Event): Unit = event match {
+    case event if event.isInstanceOf[ShowDeckCards] =>  {
+      cardsTableItem.clear()
+      event.asInstanceOf[ShowDeckCards].deckCards.foreach(deckCard => {
+        cardsTableItem = cardsTableItem :+ CardView(deckCard.imageId, deckCard.name,
+          deckCard.rarity, deckCard.count)
+      })
+      tableView.setItems(cardsTableItem)
+      tableView.refresh()
+    }
+    case _ =>
   }
 }
-
 

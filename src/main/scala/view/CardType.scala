@@ -8,11 +8,12 @@ object CardType extends Enumeration {
 
   type CardType = String
 
-  val active = "Active"
-  val bench = "Bench"
-  val hand = "Hand"
-  val discardStack = "DiscardStack"
-  val prize = "Prize"
-  val deck = "Deck"
+  val Active = "Active"
+  val Bench = "Bench"
+  val Hand = "Hand"
+  val DiscardStack = "DiscardStack"
+  val Prize = "Prize"
+  val Deck = "Deck"
+  val Placeholder = "Placeholder"
 
 }
