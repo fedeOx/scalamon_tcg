@@ -170,7 +170,7 @@ object Controller {
       case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerActivePokemonEmpty => // Add energy card
         GameManager.playerBoard.activePokemon.get.addEnergy(c.asInstanceOf[EnergyCard]); notifyBoardUpdate()
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerActivePokemonEmpty => // Place active pokemon
-        GameManager.playerBoard.activePokemon = Some(c.asInstanceOf[PokemonCard]); notifyBoardUpdate()
+        GameManager.playerBoard.activePokemon = Some(c.asInstanceOf[PokemonCard]); handCardSelected = Option.empty; notifyBoardUpdate()
       case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerActivePokemonEmpty  // Evolve active pokemon
         && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerBoard.activePokemon.get.name =>
         val handPokemonCard: PokemonCard = c.asInstanceOf[PokemonCard]

@@ -14,6 +14,9 @@ object DeckType extends Enumeration {
 
   implicit def valueToDeckTypeVal(x: Value): Val = x.asInstanceOf[Val]
 
+  def withNameWithDefault(searchedName: String): Value =
+    values.find(name => name.name == searchedName).getOrElse(DeckType.Base1)
+
   implicit val decoder: Decoder[DeckType] = new Decoder[DeckType] {
     override def apply(c: HCursor): Result[DeckType] =
       for {

@@ -11,7 +11,7 @@ case class PrizeCardsZone() extends VBox {
   private val WIDTH = 10
   private val HEIGHT = 25
 
-  children = List(createCard("/assets/cardBack.jpg",cardType = CardType.prize))
+  children = List(createCard("/assets/cardBack.jpg",cardType = CardType.Prize))
   alignment = Pos.Center
   prefWidth = WIDTH
   prefHeight = HEIGHT

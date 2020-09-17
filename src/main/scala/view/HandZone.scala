@@ -7,6 +7,7 @@ import scalafx.scene.layout.HBox
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.Rotate
 import view.CardCreator._
+import model.game.Cards._
 
 import scala.collection.mutable
 
@@ -15,18 +16,19 @@ import scala.collection.mutable
  * @param zone: the zone for the zoomed cards
  * @param isHumans: true if it's the human's board
  */
-case class HandZone(zone: ZoomZone, isHumans: Boolean) extends HBox {
-  private var hand : mutable.Seq[Box] = mutable.Seq()
+case class HandZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) extends HBox {
+  private var hand : Seq[Box] = Seq()
+  private val parentBoard = board
 
-  def updateView() : Unit = {
-    hand = mutable.Seq()
-    for (cardIndex <- 0 to 5) {
-      hand = hand :+ createCard("/assets/4.jpg", Some(zone), CardType.hand, 1*cardIndex, //4.5 for Group
-        cardIndex = cardIndex, isHumans = Some(isHumans), Some(this))
-    }
+  def updateView(cards: Seq[Card]) : Unit = {
+    hand = Seq()
+    cards.zipWithIndex.foreach{case (card,cardIndex) => {
+      hand = hand :+ createCard("/assets/base1/"+card.imageId+".jpg", Some(zone), CardType.Hand, 1*cardIndex, //4.5 for Group
+        cardIndex = cardIndex, isHumans = Some(isHumans), Some(this), Some(parentBoard.board))
+    }}
     children = hand
   }
-  updateView()
+  println(parent)
   alignment = Pos.TopCenter
   minWidth = 60
   maxWidth = 60
