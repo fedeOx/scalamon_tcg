@@ -21,6 +21,12 @@ trait Board {
   def addCardsToHand(cards: Seq[Card])
 
   /**
+   * Removes the specified card from the player hand
+   * @param card the card to be removed
+   */
+  def removeCardFromHand(card: Card): Unit
+
+  /**
    * Adds the specified sequence of cards to the prize cards stack
    * @param cards the cards to be added
    */
@@ -78,6 +84,7 @@ object Board {
     override def pokemonBench: Seq[Option[PokemonCard]] = _pokemonBench
 
     override def addCardsToHand(cards: Seq[Card]): Unit = _hand = _hand ++ cards
+    override def removeCardFromHand(card: Card): Unit = _hand = _hand.filter(c => c.imageId != card.imageId)
     override def addCardsToPrizeCards(cards: Seq[Card]): Unit = _prizeCards = _prizeCards ++ cards
     override def addCardsToDiscardStack(cards: Seq[Card]): Unit = _discardStack = _discardStack ++ cards
 
