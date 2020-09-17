@@ -20,9 +20,9 @@ object CardCreator {
     case CardType.Active => card.onMouseClicked = _ => {
       println("active")
       //if noCardSelected && active.canDoAction
-        //zone.get.asInstanceOf[ActivePkmnZone].openMenu()
+        zone.get.asInstanceOf[ActivePkmnZone].openMenu()
       // else
-      controller.selectActivePokemonLocation()
+      //controller.selectActivePokemonLocation()
     }
     case CardType.Bench => {
       card.onMouseClicked = _ => println("bench " + cardIndex)
@@ -71,15 +71,6 @@ object CardCreator {
 
       onMouseEntered = _ => {
         if (zoomZone.isDefined) {
-          /*zoomZone.get.children = new Box {
-            depth = 0.1
-            width = 13
-            height = 18.2
-            material = cardMaterial
-
-            translateY = -3
-            transforms += new Rotate(50, Rotate.XAxis)
-          }*/
           cardType match {
             case cardType if cardType.equals(CardType.Hand) => zoomZone.get.showContent(board.get.hand(cardIndex))
             case cardType if cardType.equals(CardType.Bench) => zoomZone.get.showContent(board.get.pokemonBench(cardIndex).get)
@@ -97,7 +88,6 @@ object CardCreator {
           zone.get.asInstanceOf[BenchZone].isOverChildren = false
         }
       }
-
       if (isHumans.isDefined && isHumans.get)
         addAction(this, cardType, cardIndex, zone, board)
       drawMode = DrawMode.Fill

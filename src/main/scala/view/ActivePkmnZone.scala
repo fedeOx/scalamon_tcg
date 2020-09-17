@@ -5,7 +5,7 @@ import model.game.Cards.PokemonCard
 import scalafx.Includes._
 import scalafx.geometry.Pos
 import scalafx.scene.Scene
-import scalafx.scene.control.Button
+import scalafx.scene.control.{Button, ButtonType}
 import scalafx.scene.layout.{HBox, VBox}
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
@@ -54,24 +54,36 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
       initOwner(parentWindow)
       initModality(Modality.ApplicationModal)
       scene = new Scene(200,300) {
-        content = new VBox {
+        private var buttonContainer = new VBox {
           prefWidth = 200
           fill = Color.Blue
           alignment = Pos.TopCenter
-          children = List(new Button("Energy Burn") {
-            prefHeight = 50
-            prefWidth = 160
-            margin = new Insets(10,0,0,0)
-          }, new Button("Fire Spin") {
-            prefHeight = 50
-            prefWidth = 160
-            margin = new Insets(10,0,0,0)
-          }, new Button("Retreat") {
-            prefHeight = 50
-            prefWidth = 160
-            margin = new Insets(10,0,0,0)
-          })
         }
+        private var buttons : Seq[Button] = Seq()
+        parentBoard.board.activePokemon.get.attacks.foreach(attack => {
+          buttons = buttons :+ new Button(attack.name) {
+            prefHeight = 50
+            prefWidth = 160
+            margin = new Insets(10,0,0,0)
+            onAction = event => {
+              println("attacco con " + attack.name)
+              import javafx.scene.control.ButtonType
+              event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+              //dialog.close()
+            }
+          }
+        })
+        buttons = buttons :+ new Button("Retreat") {
+          prefHeight = 50
+          prefWidth = 160
+          margin = new Insets(10,0,0,0)
+          onAction = event => {
+            println("ritirata")
+            event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+          }
+        }
+        buttonContainer.children = buttons
+        content = buttonContainer
       }
       sizeToScene()
       x = parentWindow.getX + parentWindow.getWidth / 1.6
