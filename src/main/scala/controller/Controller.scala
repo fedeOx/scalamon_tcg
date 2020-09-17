@@ -205,7 +205,7 @@ object Controller {
     }
 
     override def declareAttack(attack: Attack): Unit = {
-      attack.effect.get.useEffect()
+      //attack.effect.get.useEffect()
       // Manca da controllare se qualche pokemon nel campo di gioco è andato KO
       // se muore il pokemon del giocatore o dell'ia -> GameManager.notifyObservers(Event.pokemonKOEvent())
       // sempre -> notifyBoardUpdate()

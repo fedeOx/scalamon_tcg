@@ -6,6 +6,7 @@ import controller.Controller
 import javafx.scene.paint.ImagePattern
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events
+import model.event.Events.Event
 import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, UpdateOpponentBoard, UpdatePlayerBoard}
 import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
@@ -130,10 +131,15 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       opponentBoard.updateBench()
       opponentBoard.updateActive()
     }
-    case event : NextTurn => {
-      opponentBoard.updateBench()
-      opponentBoard.updateActive()
+    case event : Event.NextTurn if event.turnOwner == TurnOwner.Player =>  {
+      /*opponentBoard.updateBench()
+      opponentBoard.updateActive()*/
+      Platform.runLater({
+        opponentBoard.updateBench()
+        opponentBoard.updateActive()
+      })
     }
+    case _ =>
   }
 
 

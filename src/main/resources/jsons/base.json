@@ -3832,7 +3832,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":["10","1","","single"]
           }
         ]
 

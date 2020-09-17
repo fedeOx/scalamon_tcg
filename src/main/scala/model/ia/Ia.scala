@@ -1,6 +1,7 @@
 package model.ia
 
 import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
+
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import model.core.{GameManager, TurnManager}
@@ -19,8 +20,6 @@ object Ia extends Thread with Observer {
   private var playerBoard: Board = _
   private var myHand: Seq[Card] = _
   private var turn: TurnOwner = _
-  //private val getPokemonCard = myHand.filter(pkm => pkm.isInstanceOf[PokemonCard])
-  //private val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
 
 
   private def placeCards(hand: Seq[Card]): Unit = {
@@ -32,26 +31,30 @@ object Ia extends Thread with Observer {
     //populate bench with basePokemon
     basePokemons.zipWithIndex.foreach { case (pkm, i) => if (i < 5) opponentBoard.addPokemonToBench(pkm, i) }
 
-    //TurnManager.playerReady()
   }
 
   private def doTurn(): Unit = {
+    //TODO QUI
+    //pesco
+    //metto pokemon in panchina
+
     val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
     //evolve all pkm
     evolveAll()
     //calculate if the retreat of the active pokemon is convenient and Do it
-    calculateIfWithdrawAndDo()
+    if (opponentBoard.pokemonBench.count(c => c.isDefined) > 0)
+      calculateIfWithdrawAndDo()
     //assignEnergy
     if (getEnergy.nonEmpty)
       calculateAssignEnergy()
     //attack
     if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
-      opponentBoard.activePokemon.get.attacks.last.effect.get.useEffect()
+      opponentBoard.activePokemon.get.attacks.last.effect.get.useEffect(opponentBoard, playerBoard)
     } else if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.head.cost)) {
-      opponentBoard.activePokemon.get.attacks.head.effect.get.useEffect()
+      opponentBoard.activePokemon.get.attacks.head.effect.get.useEffect(opponentBoard, playerBoard)
     }
 
-    TurnManager.switchTurn()
+   TurnManager.switchTurn()
   }
 
   override def run() {
@@ -100,7 +103,7 @@ object Ia extends Thread with Observer {
     //pokemonDmg = -10 x Dmg
     totalweight -= (pokemon.initialHp - pokemon.actualHp)
     //weakPokemon = -30
-    if (pokemon.weaknesses.head.energyType == playerBoard.activePokemon.get.pokemonTypes)
+    if (pokemon.weaknesses.head.energyType == playerBoard.activePokemon.get.pokemonTypes.head)
       totalweight -= WeightIa.WeakPokemon
     //15 x energyType
     totalweight += pokemon.totalEnergiesStored * WeightIa.HasEnergy
@@ -115,7 +118,7 @@ object Ia extends Thread with Observer {
 
   private def evolveAll(): Unit = {
     val evolution: Seq[PokemonCard] = myHand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName != "").asInstanceOf[Seq[PokemonCard]]
-    if(evolution.nonEmpty)
+    if (evolution.nonEmpty)
       evolve(evolution)
 
     //TODO SISTEMARE EVOLUZIONI POKEMON , assegnare energie e danni del pokemon evoluto
@@ -147,6 +150,7 @@ object Ia extends Thread with Observer {
 
   private def calculateIfWithdrawAndDo(): Unit = {
     val activePokemonweight: Int = calculateweightForWithdraw(opponentBoard.activePokemon.get)
+
     val benchPokemonsMaxweight = opponentBoard.pokemonBench.filter(c => c.isDefined).flatMap(bench => createWeightedCard(bench.get, calculateweightForWithdraw)).reduceLeft(getMax)
 
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
@@ -163,21 +167,20 @@ object Ia extends Thread with Observer {
     //controllo se il pokemon attivo ha bisogno di un energia, in quel caso , cerco nella mano quell'energia e la assegno
     returnedIndex = assignEnergy(opponentBoard.activePokemon.get)
 
-    //se non serve al pokemon attivo o non ho trovato l'energia giusta in mano, la assegno ad un pokemon evoluto
-    val evolutedPkm: Seq[Option[PokemonCard]] = myHand.filter(pkm => pkm.asInstanceOf[PokemonCard].evolutionName != "").asInstanceOf[Seq[Option[PokemonCard]]]
-    returnedIndex = iterateSeqToAssign(returnedIndex, evolutedPkm)
+    if (returnedIndex == -1) {
+      //altrimenti la assegno ad un pokemon in panchina
+      if (opponentBoard.pokemonBench.count(c => c.isDefined) > 0)
+        returnedIndex = iterateSeqToAssign(opponentBoard.pokemonBench.filter(c => c.isDefined))
+    }
 
-    //altrimenti la assegno ad un pokemon in panchina
-    returnedIndex = iterateSeqToAssign(returnedIndex, opponentBoard.pokemonBench)
 
-    def iterateSeqToAssign(returnedIndex: Int, seqToIterate: Seq[Option[PokemonCard]]): Int = {
+    def iterateSeqToAssign(seqToIterate: Seq[Option[PokemonCard]]): Int = {
       var index = -1
-      if (returnedIndex < 0 && seqToIterate.nonEmpty) {
         seqToIterate.foreach(pkm => {
           if (index < 0)
             index = assignEnergy(pkm.get)
         })
-      }
+
       index
     }
   }
@@ -219,10 +222,12 @@ object Ia extends Thread with Observer {
 
 sealed trait PokemonWithWeight {
   def pokemonCard: PokemonCard
+
   def weightValue: Int
 }
 
 case class PokemonWithWeightImpl(_pokemonCard: PokemonCard, weight: Int) extends PokemonWithWeight {
   override def pokemonCard: PokemonCard = _pokemonCard
+
   override def weightValue: Int = weight
 }
