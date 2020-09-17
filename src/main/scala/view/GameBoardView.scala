@@ -2,6 +2,7 @@ package view
 
 import common.{Observer, TurnOwner}
 import common.TurnOwner.TurnOwner
+import controller.Controller
 import javafx.scene.paint.ImagePattern
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events
@@ -74,9 +75,8 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
 
   override def update(event: Events.Event): Unit = event match {
     case event if  event.isInstanceOf[BuildGameField] => {
-      val gameField =  event.asInstanceOf[BuildGameField].gameField
-      humanBoard.board = gameField.playerBoard
-      opponentBoard.board = gameField.opponentBoard
+      humanBoard.board = event.asInstanceOf[BuildGameField].playerBoard
+      opponentBoard.board = event.asInstanceOf[BuildGameField].opponentBoard
       Platform.runLater(humanBoard.updateHand())
       //TODO: togli tutto diomadonna
       val weakness: Weakness = new Weakness {
@@ -95,13 +95,14 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       var carta = cardList.head.asInstanceOf[PokemonCard]
       carta.actualHp = 40
       carta.status = StatusType.Poisoned
-      carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
-      carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
+      carta.addEnergy(EnergyCard("98","base1",EnergyType.Water, EnergyCardType.basic))
+      carta.addEnergy(EnergyCard("98","base1",EnergyType.Water, EnergyCardType.basic))
+      carta.addEnergy(EnergyCard("98","base1",EnergyType.Water, EnergyCardType.basic))
       /*carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))
       carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
       carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
       carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))*/
-      humanBoard.board.activePokemon = Some(carta)
+      //humanBoard.board.activePokemon = Some(carta)
       Platform.runLater(humanBoard.updateActive())
     }
     case event if event.isInstanceOf[FlipCoin] =>{
@@ -111,8 +112,14 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
     case event : UpdatePlayerBoard => {
       humanBoard.updateActive()
       humanBoard.updateHand()
+      humanBoard.updateBench()
     }
   }
 
 
+}
+
+//TODO: orribile
+object utils {
+  var controller = Controller()
 }

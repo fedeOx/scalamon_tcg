@@ -14,18 +14,18 @@ import scalafx.scene.transform.Transform._
  * Object that creates cards
  */
 object CardCreator {
-  private val controller = Controller()
+  private val controller = utils.controller
   private def addAction(card: Box, cardType: String, cardIndex: Int, zone: Option[Node] = Option.empty,
                         board: Option[Board] = Option.empty): Unit = cardType match {
     case CardType.Active => card.onMouseClicked = _ => {
       println("active")
-      //if noCardSelected && active.canDoAction
+      if (controller.handCardSelected.isEmpty)//noCardSelected && active.canDoAction
         zone.get.asInstanceOf[ActivePkmnZone].openMenu()
-      // else
-      //controller.selectActivePokemonLocation()
+      else
+        controller.selectActivePokemonLocation()
     }
     case CardType.Bench => {
-      card.onMouseClicked = _ => println("bench " + cardIndex)
+      card.onMouseClicked = _ => controller.selectBenchLocation(cardIndex)
     }
     case CardType.Hand => card.onMouseClicked = _ => {
       println("hand " + cardIndex)
@@ -39,13 +39,15 @@ object CardCreator {
         card.width = 5.8
         println(card.width.value)
         card.height = 8
-        controller.selectCardFromHand(board.get.hand(cardIndex))
+        controller.handCardSelected = Some(board.get.hand(cardIndex))
+        println(controller.handCardSelected)
       } else if (card.width.value == 5.8) {
         println("to back")
         card.translateZ = 0
         card.width = 5.5
         card.height = 7.7
-        //TODO: controller.deselectCardFromHand(board.get.hand(cardIndex))
+        controller.handCardSelected = Option.empty
+        println(controller.handCardSelected)
       }
     }
     case _ =>

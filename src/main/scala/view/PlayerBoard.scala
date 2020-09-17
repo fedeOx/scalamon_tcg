@@ -36,7 +36,7 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
 
   private var prize = PrizeCardsZone()
   private var active = ActivePkmnZone(zoom, isHumans, this, parentWindow)
-  private var bench = BenchZone(zoom, isHumans)
+  private var bench = BenchZone(zoom, isHumans, this)
   private var deckDiscard = DeckDiscardZone()
   private var hand : HandZone = _
   var board : Board = _
@@ -57,6 +57,7 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
 
   def updateHand() : Unit = hand.updateView(board.hand)
   def updateActive() : Unit = active.updateView(board.activePokemon)
+  def updateBench() : Unit = bench.updateView(board.pokemonBench)
 }
 
 class ZoomZone extends HBox {

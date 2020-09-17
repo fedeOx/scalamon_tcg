@@ -66,6 +66,8 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
             prefHeight = 50
             prefWidth = 160
             margin = new Insets(10,0,0,0)
+            if (!parentBoard.board.activePokemon.get.hasEnergies(attack.cost))
+              disable = true
             onAction = event => {
               println("attacco con " + attack.name)
               //.effect.get.useEffect()
@@ -78,7 +80,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
           prefHeight = 50
           prefWidth = 160
           margin = new Insets(10,0,0,0)
-          if (!parentBoard.board.activePokemon.get.hasEnergies(parentBoard.board.activePokemon.get.retreatCost))
+          if (parentBoard.board.activePokemon.get.totalEnergiesStored < parentBoard.board.activePokemon.get.retreatCost.size)
             disable = true
           onAction = event => {
             println("ritirata")
@@ -97,25 +99,14 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
   }
   prefWidth = WIDTH
   prefHeight = HEIGHT
+  maxHeight = HEIGHT
   styleClass += "active"
   translateX = 10
   alignment = Pos.Center
 
   onMouseClicked = _ => {
     if (isHumans && isEmpty) {
-      println("activePkmnZone")
-      //controller.selectActivePokemonLocation()
-      val weakness: Weakness = new Weakness {
-        override def energyType: EnergyType = EnergyType.Fighting
-        override def operation: Operation = Operation.multiply2
-      }
-      val resistance: Resistance = new Resistance {
-        override def energyType: EnergyType = EnergyType.Lightning
-        override def reduction: Int = 30
-      }
-      var carta = PokemonCard("4", "base1",Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
-        Seq(resistance), Seq(EnergyType.Colorless, EnergyType.Colorless), "", Nil)
-      controller.addActivePokemon(carta)
+      utils.controller.selectActivePokemonLocation()
     }
   }
 

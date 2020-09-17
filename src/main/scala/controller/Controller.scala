@@ -170,7 +170,7 @@ object Controller {
       case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerActivePokemonEmpty => // Add energy card
         GameManager.playerBoard.activePokemon.get.addEnergy(c.asInstanceOf[EnergyCard]); notifyBoardUpdate()
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerActivePokemonEmpty => // Place active pokemon
-        GameManager.playerBoard.activePokemon = Some(c.asInstanceOf[PokemonCard]); notifyBoardUpdate()
+        GameManager.playerBoard.activePokemon = Some(c.asInstanceOf[PokemonCard]); handCardSelected = Option.empty; notifyBoardUpdate()
       case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerActivePokemonEmpty  // Evolve active pokemon
         && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerBoard.activePokemon.get.name =>
         val handPokemonCard: PokemonCard = c.asInstanceOf[PokemonCard]
@@ -202,15 +202,6 @@ object Controller {
       case _ => throw new BenchPokemonException()
     }
 
-<<<<<<< HEAD
-    override def selectCardFromHand(card: Card): Unit = println(card)
-
-    override def selectActivePokemonLocation(): Unit = ???
-
-    override def selectBenchLocation(index: Int): Unit = ???
-
-    override def declareAttack(damage: Int, attackerTypes: Seq[EnergyType], recipient: PokemonCard): Unit = ???
-=======
     override def declareAttack(attack: Attack): Unit = {
       attack.effect.get.useEffect()
       // Manca da controllare se qualche pokemon nel campo di gioco è andato KO
@@ -233,7 +224,6 @@ object Controller {
       }
     }
      */
->>>>>>> 476d139b0c66164af2a8685a5f56593c628833dd
 
     private def notifyBoardUpdate(): Unit = {
       GameManager.notifyObservers(Event.updatePlayerBoardEvent())
