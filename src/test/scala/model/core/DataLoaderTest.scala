@@ -1,9 +1,12 @@
 package model.core
 
+import common.Observer
 import model.game.{DeckType, SetType}
+import org.scalamock.scalatest.MockFactory
+import org.scalatest.OneInstancePerTest
 import org.scalatest.flatspec.AnyFlatSpec
 
-class DataLoaderTest extends AnyFlatSpec {
+class DataLoaderTest extends AnyFlatSpec with MockFactory {
 
   behavior of "The DataLoader"
 

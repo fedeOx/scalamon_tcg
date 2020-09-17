@@ -6,7 +6,7 @@ import model.game.Cards.{EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.Weakness.Operation
 import model.game.Weakness.Operation.Operation
-import org.scalatest.GivenWhenThen
+import org.scalatest.{GivenWhenThen, OneInstancePerTest}
 import org.scalatest.flatspec.AnyFlatSpec
 
 class CardTest extends AnyFlatSpec with GivenWhenThen {
