@@ -38,6 +38,8 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   title = TITLE
   GameManager.addObserver(this)
   TurnManager.addObserver(this)
+  x = 0
+  y = 0
   println("sono gameboardview e mi registro")
   scene = new Scene(WIDTH, HEIGHT, true, SceneAntialiasing.Balanced) {
     println(parentWindow)
@@ -95,10 +97,10 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       carta.status = StatusType.Poisoned
       carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
       carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
-      carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))
+      /*carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))
       carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
       carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
-      carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))
+      carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))*/
       humanBoard.board.activePokemon = Some(carta)
       Platform.runLater(humanBoard.updateActive())
     }

@@ -16,6 +16,7 @@ import model.game.EnergyType.EnergyType
 import model.game.Weakness.Operation
 import model.game.Weakness.Operation.Operation
 import model.game.{EnergyType, Resistance, Weakness}
+import model.pokemonEffect.Effect
 
 /***
  * The field zone that contains the active pokemon
@@ -67,7 +68,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
             margin = new Insets(10,0,0,0)
             onAction = event => {
               println("attacco con " + attack.name)
-              import javafx.scene.control.ButtonType
+              //.effect.get.useEffect()
               event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
               //dialog.close()
             }
@@ -77,6 +78,8 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
           prefHeight = 50
           prefWidth = 160
           margin = new Insets(10,0,0,0)
+          if (!parentBoard.board.activePokemon.get.hasEnergies(parentBoard.board.activePokemon.get.retreatCost))
+            disable = true
           onAction = event => {
             println("ritirata")
             event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
