@@ -2065,7 +2065,7 @@
     "subtype": "Stage 1",
     "supertype": "Pokémon",
     "level": "20",
-    "evolvesFrom": "Barboach",
+    "evolvesFrom": "Bulbasaur",
     "hp": "60",
     "retreatCost": [
       "Colorless"

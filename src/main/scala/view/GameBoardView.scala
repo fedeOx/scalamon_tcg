@@ -126,7 +126,6 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       opponentBoard.updateActive()
     }
     case event : NextTurn if event.turnOwner == TurnOwner.Player =>  {
-
       Platform.runLater({
         utils.controller.drawACard()
         humanBoard.updateHand()

@@ -4,6 +4,7 @@ import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
 
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
+import model.core.GameManager.{collapseToLeft, playerPokemonBench, putPokemonToPlayerBench}
 import model.core.{GameManager, TurnManager}
 import model.event.Events.Event
 import model.event.Events.Event.BuildGameField
@@ -38,11 +39,9 @@ object Ia extends Thread with Observer {
     //TODO QUI
     //pesco
     opponentBoard.addCardsToHand(opponentBoard.popDeck(1))
-    myHand =  opponentBoard.hand
+    myHand = opponentBoard.hand
     //metto pokemon in panchina
     populateBench()
-
-
     val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
     //evolve all pkm
     evolveAll()
@@ -54,9 +53,11 @@ object Ia extends Thread with Observer {
       calculateAssignEnergy()
     //attack
     if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
+      // GameManager.confirmAttack(opponentBoard.activePokemon.get.attacks.last)
       opponentBoard.activePokemon.get.attacks.last.effect.get.useEffect(opponentBoard, playerBoard)
     } else if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.head.cost)) {
       opponentBoard.activePokemon.get.attacks.head.effect.get.useEffect(opponentBoard, playerBoard)
+      // GameManager.confirmAttack(opponentBoard.activePokemon.get.attacks.head)
     }
 
     TurnManager.switchTurn()
@@ -77,17 +78,32 @@ object Ia extends Thread with Observer {
           }
           case event: Event.FlipCoin => turn = event.coinValue
           case event: Event.NextTurn if event.turnOwner == TurnOwner.Opponent => doTurn()
+          case event: Event.PokemonKO => checkForKo()
           case _ =>
         }
       }
     }
   }
 
+  private def checkForKo(): Unit = {
+    if (opponentBoard.activePokemon.get.isKO) {
+      val pokemonKO = opponentBoard.activePokemon.get
+      if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
+        calculateIfWithdrawAndDo()
+        opponentBoard.addCardsToDiscardStack(Seq(pokemonKO))
+        opponentBoard.putPokemonInBenchPosition(None,opponentBoard.pokemonBench.indexWhere(pkm => pkm.get == pokemonKO))
+      }
+      else
+        println("PERSO IA")
+    }
+  }
+
+
   private def populateBench(): Unit = {
     val basePokemons: Seq[PokemonCard] = opponentBoard.hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
     basePokemons.zipWithIndex.foreach {
-      case (pkm, i) => if (opponentBoard.pokemonBench.count(card => card.nonEmpty ) < 5) {
-        opponentBoard.putPokemonInBenchPosition(Some(pkm), opponentBoard.pokemonBench.count(card => card.nonEmpty ))
+      case (pkm, i) => if (opponentBoard.pokemonBench.count(card => card.nonEmpty) < 5) {
+        opponentBoard.putPokemonInBenchPosition(Some(pkm), opponentBoard.pokemonBench.count(card => card.nonEmpty))
         opponentBoard.removeCardFromHand(pkm)
       }
     }
@@ -131,12 +147,13 @@ object Ia extends Thread with Observer {
     if (pokemon == opponentBoard.activePokemon.get) {
       totalweight += pokemon.retreatCost.size * WeightIa.WithdrawCost
     }
+    if (pokemon.isKO) totalweight += WeightIa.KO
     totalweight
   }
 
   private def evolveAll(): Unit = {
     val evolution: Seq[PokemonCard] = myHand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName != "").asInstanceOf[Seq[PokemonCard]]
-    if (evolution.size >0)
+    if (evolution.size > 0)
       evolve(evolution)
 
     //TODO SISTEMARE EVOLUZIONI POKEMON , assegnare energie e danni del pokemon evoluto
@@ -147,8 +164,8 @@ object Ia extends Thread with Observer {
         opponentBoard.activePokemon = Some(evolution.asInstanceOf[PokemonCard])
         evolve(t)
       }
-      case evolution :: t if opponentBoard.pokemonBench.count(pkm => pkm.isDefined) >0 => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution) ; evolve(t)
-      case List()  =>
+      case evolution :: t if opponentBoard.pokemonBench.count(pkm => pkm.isDefined) > 0 => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
+      case List() =>
     }
 
     @scala.annotation.tailrec
@@ -160,7 +177,7 @@ object Ia extends Thread with Observer {
           TransferEvolutionInfo(evolution, benchPkm.get)
           opponentBoard.putPokemonInBenchPosition(Some(evolution), getbenchedIndex)
         } //pokemon found in bench
-        case _ :: t  => evolveBench(t, evolution)
+        case _ :: t => evolveBench(t, evolution)
       }
     }
   }
@@ -171,8 +188,9 @@ object Ia extends Thread with Observer {
     val benchPokemonsMaxweight = opponentBoard.pokemonBench.filter(c => c.isDefined).flatMap(bench => createWeightedCard(bench.get, calculateweightForWithdraw)).reduceLeft(getMax)
 
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
-      println("Cambio il pokemon attivo")
-      opponentBoard.activePokemon.get.removeFirstNEnergy(opponentBoard.activePokemon.get.retreatCost.size)
+      if (!opponentBoard.activePokemon.get.isKO)
+        opponentBoard.activePokemon.get.removeFirstNEnergy(opponentBoard.activePokemon.get.retreatCost.size)
+
       val currentActivePkmTmp = opponentBoard.activePokemon
       val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
       opponentBoard.activePokemon = Some(benchPokemonsMaxweight.pokemonCard)
@@ -208,6 +226,7 @@ object Ia extends Thread with Observer {
     if (!pokemon.hasEnergies(pokemon.attacks.last.cost)) {
       energyIndex = myHand.indexWhere(card => card.isInstanceOf[EnergyCard] && card.asInstanceOf[EnergyCard].energyType == pokemon.attacks.last.cost.head)
       if (energyIndex >= 0) {
+        //TODO Utils.addEnergy?
         pokemon.addEnergy(myHand(energyIndex).asInstanceOf[EnergyCard])
         //remove energy from hand
         opponentBoard.hand.drop(energyIndex)
@@ -219,10 +238,9 @@ object Ia extends Thread with Observer {
   private def TransferEvolutionInfo(evolution: PokemonCard, previousStage: PokemonCard): Unit = {
     evolution.addDamage(previousStage.initialHp - previousStage.actualHp, Seq(EnergyType.Colorless))
     evolution.immune = previousStage.immune
-    //TODO aggiungere energie
-
+    evolution.energiesMap = previousStage.energiesMap
     evolution.status = previousStage.status
-
+    //TODO pila scarti
   }
 
   private def waitForNextEvent(): Event = {

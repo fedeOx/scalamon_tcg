@@ -71,6 +71,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
             onAction = event => {
               println("attacco con " + attack.name)
               utils.controller.declareAttack(attack)
+              utils.controller.endTurn()
               event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
               //dialog.close()
             }
