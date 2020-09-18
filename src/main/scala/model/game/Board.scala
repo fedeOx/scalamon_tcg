@@ -84,7 +84,7 @@ object Board {
     override def pokemonBench: Seq[Option[PokemonCard]] = _pokemonBench
 
     override def addCardsToHand(cards: Seq[Card]): Unit = _hand = _hand ++ cards
-    override def removeCardFromHand(card: Card): Unit = _hand = _hand.filter(c => c.imageId != card.imageId)
+    override def removeCardFromHand(card: Card): Unit = _hand = _hand.filter(c => c != card)
     override def addCardsToPrizeCards(cards: Seq[Card]): Unit = _prizeCards = _prizeCards ++ cards
     override def addCardsToDiscardStack(cards: Seq[Card]): Unit = _discardStack = _discardStack ++ cards
 

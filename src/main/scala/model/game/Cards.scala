@@ -49,6 +49,8 @@ object Cards {
     def isKO: Boolean
 
     def isBase: Boolean
+
+    def clonePokemoCard: PokemonCard
   }
 
   object PokemonCard {
@@ -162,6 +164,9 @@ object Cards {
       }
 
       override def isBase: Boolean = evolutionName == ""
+
+      override def clonePokemoCard: PokemonCard = copy(imageId, belongingSetCode, pokemonTypes, name, initialHp, actualHp, weaknesses,
+        resistances, retreatCost, evolutionName, attacks, immune, status, energiesMap)
     }
   }
 
@@ -169,6 +174,8 @@ object Cards {
     def isBasic: Boolean
     def energyType: EnergyType
     def energiesProvided: Int
+
+    def cloneEnergyCard: EnergyCard
   }
 
   object EnergyCard {
@@ -216,6 +223,8 @@ object Cards {
         case EnergyCardType.basic => 1
         case _ => 2
       }
+
+      override def cloneEnergyCard: EnergyCard = copy(imageId, belongingSetCode, energyType, energyCardType)
     }
   }
 
