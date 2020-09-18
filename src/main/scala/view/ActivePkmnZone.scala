@@ -26,7 +26,7 @@ import model.pokemonEffect.Effect
  * @param parentWindow: the parent window of this component
  */
 case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard, parentWindow: Window) extends HBox{
-  private val WIDTH = 35
+  private val WIDTH = 32
   private val HEIGHT = 15
   private var isEmpty : Boolean = _
   private val parentBoard = board
@@ -70,7 +70,8 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
               disable = true
             onAction = event => {
               println("attacco con " + attack.name)
-              //.effect.get.useEffect()
+              utils.controller.declareAttack(attack)
+              utils.controller.endTurn()
               event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
               //dialog.close()
             }

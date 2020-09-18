@@ -6,13 +6,15 @@ import controller.Controller
 import javafx.scene.paint.ImagePattern
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events
-import model.event.Events.Event.{BuildGameField, FlipCoin, UpdatePlayerBoard}
+import model.event.Events.Event
+import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, UpdateOpponentBoard, UpdatePlayerBoard}
 import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.Weakness.Operation
 import model.game.Weakness.Operation.Operation
 import model.game.{EnergyType, Resistance, SetType, StatusType, Weakness}
+import model.ia.Ia
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
@@ -37,6 +39,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   private val humanBoard = new PlayerBoard(true, zoomZone, parentWindow)
   private var turnOwner : TurnOwner = TurnOwner.Player
   title = TITLE
+  Ia.start()
   GameManager.addObserver(this)
   TurnManager.addObserver(this)
   x = 0
@@ -73,6 +76,8 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   sizeToScene()
   show()
 
+  onCloseRequest = _ => Ia.interrupt()
+
   override def update(event: Events.Event): Unit = event match {
     case event if  event.isInstanceOf[BuildGameField] => {
       humanBoard.board = event.asInstanceOf[BuildGameField].playerBoard
@@ -89,7 +94,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       }
       val cardList: Seq[Card] = DataLoader.loadSet(SetType.Base)
         .filter(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].imageId.equals("6"))
-      println(cardList)
+
       //var carta = PokemonCard("4", "base1",Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
         //Seq(resistance), Seq(EnergyType.Colorless, EnergyType.Colorless), "", Nil)
       var carta = cardList.head.asInstanceOf[PokemonCard]
@@ -113,7 +118,22 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       humanBoard.updateActive()
       humanBoard.updateHand()
       humanBoard.updateBench()
+      opponentBoard.updateBench()
+      opponentBoard.updateActive()
     }
+    case event : UpdateOpponentBoard => {
+      opponentBoard.updateBench()
+      opponentBoard.updateActive()
+    }
+    case event : NextTurn if event.turnOwner == TurnOwner.Player =>  {
+      Platform.runLater({
+        utils.controller.drawACard()
+        humanBoard.updateHand()
+        opponentBoard.updateBench()
+        opponentBoard.updateActive()
+      })
+    }
+    case _ =>
   }
 
 

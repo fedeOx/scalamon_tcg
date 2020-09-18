@@ -1,6 +1,5 @@
 package controller
 
-import common.TurnOwner.TurnOwner
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
 import model.exception.{ActivePokemonException, BenchPokemonException, NotEnoughEnergiesException}
@@ -116,6 +115,7 @@ object Controller {
     override def drawAPrizeCard(): Unit = GameManager.drawPlayerPrizeCard()
 
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
+
       case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerActivePokemonEmpty =>
         GameManager.addEnergyToPokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[EnergyCard])
 
@@ -126,11 +126,11 @@ object Controller {
         && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerActivePokemon.get.name =>
         val evolvedPokemon = GameManager.evolvePokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[PokemonCard])
         GameManager.playerActivePokemon = evolvedPokemon
-
       case _ => throw new ActivePokemonException()
     }
 
     override def selectBenchLocation(position: Int): Unit = handCardSelected match {
+
       case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerBenchLocationEmpty(position) =>
         GameManager.addEnergyToPokemon(GameManager.playerPokemonBench(position).get, c.asInstanceOf[EnergyCard])
 
