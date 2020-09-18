@@ -1,7 +1,9 @@
 package view
 
+import model.game.Cards.Card
 import scalafx.geometry.Pos
 import scalafx.scene.layout.VBox
+import scalafx.scene.shape.Box
 import view.CardCreator.createCard
 
 import scala.collection.mutable
@@ -12,9 +14,10 @@ import scala.collection.mutable
 case class DeckDiscardZone() extends VBox {
   private val WIDTH = 10
   private val HEIGHT = 25
-  private val discardStack = mutable.Stack("/assets/1.jpg", "/assets/4.jpg")
-  children = List(createCard("/assets/cardBack.jpg",cardType = CardType.Deck),
-    createCard(discardStack.top, cardType = CardType.DiscardStack))
+  //private val discardStack = mutable.Stack("/assets/1.jpg", "/assets/4.jpg")
+  private var deck = createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
+  private var discardStack : Box = _
+  children = deck
 
   alignment = Pos.Center
   /*minWidth = 10
@@ -25,4 +28,11 @@ case class DeckDiscardZone() extends VBox {
   prefHeight = HEIGHT
   styleClass += "deckDiscard"
   translateX = 45
+
+  def updateView(card: Option[Card]) : Unit = {
+    if (card.isDefined) {
+      discardStack = createCard(card.get.imageId, cardType = CardType.DiscardStack)
+      children = List(deck, discardStack)
+    }
+  }
 }

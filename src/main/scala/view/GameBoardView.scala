@@ -3,6 +3,7 @@ package view
 import common.{Observer, TurnOwner}
 import common.TurnOwner.TurnOwner
 import controller.Controller
+import javafx.geometry.Insets
 import javafx.scene.paint.ImagePattern
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events
@@ -17,13 +18,14 @@ import model.ia.Ia
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
+import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.Image
 import scalafx.scene.layout._
-import scalafx.scene.paint.PhongMaterial
+import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing}
-import scalafx.stage.Window
+import scalafx.stage.{Modality, Stage, Window}
 
 /** *
  * Stage that contains the game scene
@@ -38,6 +40,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   private val humanBoard = new PlayerBoard(true, zoomZone, parentWindow)
   private var turnOwner : TurnOwner = TurnOwner.Player
   title = TITLE
+  icons += new Image("/assets/icon.png")
   Ia.start()
   GameManager.addObserver(this)
   TurnManager.addObserver(this)
@@ -108,6 +111,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))*/
       //humanBoard.board.activePokemon = Some(carta)
       Platform.runLater(humanBoard.updateActive())
+      Platform.runLater(humanBoard.closeLoadingScreen())
     }
     case event if event.isInstanceOf[FlipCoin] =>{
       turnOwner = event.asInstanceOf[FlipCoin].coinValue
@@ -120,22 +124,18 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       //println(opponentBoard.board.activePokemon)
       //println(opponentBoard.board.pokemonBench)
       //println(opponentBoard.board.hand)
-      opponentBoard.board.hand.foreach(card => {
-        println(card.imageId)
-      })
-      opponentBoard.updateBench()
-      opponentBoard.updateActive()
     }
     case event : UpdateOpponentBoard => {
       opponentBoard.updateBench()
       opponentBoard.updateActive()
     }
     case event : NextTurn => {
+      println(event.turnOwner)
+      humanBoard.disable = !(event.turnOwner == TurnOwner.Player)
       opponentBoard.updateBench()
       opponentBoard.updateActive()
     }
   }
-
 
 }
 

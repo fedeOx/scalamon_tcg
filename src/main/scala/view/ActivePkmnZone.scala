@@ -30,7 +30,6 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
   private val HEIGHT = 15
   private var isEmpty : Boolean = _
   private val parentBoard = board
-  private val controller = Controller()
   updateView()
 
   def updateView(active: Option[PokemonCard] = Option.empty): Unit = {
@@ -71,6 +70,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
             onAction = event => {
               println("attacco con " + attack.name)
               //.effect.get.useEffect()
+              utils.controller.declareAttack(attack)
               event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
               //dialog.close()
             }
