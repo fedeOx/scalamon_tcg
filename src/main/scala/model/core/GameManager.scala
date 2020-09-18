@@ -87,7 +87,7 @@ object GameManager extends Observable {
   def evolvePokemon(pokemonCard: PokemonCard, evolution: PokemonCard): Option[PokemonCard] = {
     evolution.energiesMap = pokemonCard.energiesMap
     evolution.status = pokemonCard.status
-    evolution.actualHp = pokemonCard.initialHp - (pokemonCard.initialHp - pokemonCard.actualHp)
+    evolution.actualHp = evolution.initialHp - (pokemonCard.initialHp - pokemonCard.actualHp)
     playerBoard.addCardsToDiscardStack(pokemonCard :: Nil)
     Some(evolution)
   }
