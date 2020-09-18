@@ -2,11 +2,12 @@ package model.pokemonEffect
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
+import model.game.Board
 import model.game.Cards.PokemonCard
 import model.pokemonEffect.EffectType.effectType
 
 trait AttackEffect {
-  def useEffect(): Unit
+  def useEffect(attackingBoard:Board , defendingBoard:Board): Unit
   var args: Map[String,Any]
   var totalDmgToEnemyPkm :Int
 

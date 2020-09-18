@@ -3,7 +3,7 @@ package view
 import common.Observer
 import controller.Controller
 import javafx.geometry.Insets
-import model.core.{DataLoader, GameManager}
+import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events
 import model.event.Events.Event
 import model.event.Events.Event.BuildGameField
@@ -39,12 +39,32 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
   private var bench = BenchZone(zoom, isHumans, this)
   private var deckDiscard = DeckDiscardZone()
   private var hand : HandZone = _
+  private var isFirstTurn : Boolean = true
   var board : Board = _
   styleClass += "humanPB"
   children = List(prize, active, bench, deckDiscard)
   if (isHumans) {
     hand = HandZone(zoom, isHumans, this)
     children += hand
+    val tasto = new Box{
+      val buttonMaterial = new PhongMaterial()
+      buttonMaterial.diffuseColor = Color.Blue
+      material = buttonMaterial
+      width = 3
+      height = 2
+      translateX = 42
+      translateY = 5
+
+      onMouseClicked = _ => {
+        if(isFirstTurn) {
+          isFirstTurn = false
+          TurnManager.playerReady()
+        } else
+          TurnManager.switchTurn()
+        println("fine turno")
+      }
+    }
+    children += tasto
   }
 
   minWidth(WIDTH)

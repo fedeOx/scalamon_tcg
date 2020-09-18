@@ -10,7 +10,7 @@ import scala.util.Random
 object TurnManager extends Observable {
   private var turnOwner: Option[TurnOwner] = None
   private var acks: Int = 0
-  private val TotalNumberOfAckRequired = 2
+  private val TotalNumberOfAckRequired = 1//2
 
   def flipACoin(): Unit = {
     val side = new Random().nextInt(2)
