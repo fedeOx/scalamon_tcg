@@ -83,8 +83,9 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
   def updateHand() : Unit = hand.updateView(board.hand)
   def updateActive() : Unit = active.updateView(board.activePokemon)
   def updateBench() : Unit = bench.updateView(board.pokemonBench)
-  def updateDiscardStack() : Unit = if (board.discardStack.nonEmpty) deckDiscard.updateView(Some(board.discardStack.last))
+  def updateDiscardStack() : Unit = if (board.discardStack.nonEmpty) deckDiscard.updateView(board.discardStack.last)
 
+  //TODO: spostala in gameBoardView
   def openLoadingScreen(parent: Window) : Stage = {
     val dialog: Stage = new Stage() {
       initOwner(parent)
@@ -93,8 +94,6 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
         content = new Label("Caricamento...")
       }
       sizeToScene()
-      //x = parentWindow.getX + parentWindow.getWidth / 1.6
-      //y = parentWindow.getY + parentWindow.getHeight / 2.8
       resizable = false
       alwaysOnTop = true
     }

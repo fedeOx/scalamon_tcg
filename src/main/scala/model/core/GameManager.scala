@@ -2,9 +2,9 @@ package model.core
 
 import common.Observable
 import model.event.Events.Event
-import model.exception.{BenchPokemonException, CardNotFoundException}
-import model.game.Cards.{Card, PokemonCard}
-import model.game.{Board, DeckCard}
+import model.exception.CardNotFoundException
+import model.game.Cards.{Card, EnergyCard, PokemonCard}
+import model.game.{Attack, Board, DeckCard, StatusType}
 
 import scala.util.Random
 
@@ -35,62 +35,94 @@ object GameManager extends Observable {
     _opponentBoard.get
   }
 
-  def isPlayerActivePokemonEmpty: Boolean = {
-    playerBoard.activePokemon.isEmpty
+  def isPlayerActivePokemonEmpty: Boolean = playerBoard.activePokemon.isEmpty
+
+  def isPlayerBenchLocationEmpty(position: Int): Boolean = playerBoard.pokemonBench(position).isEmpty
+
+  def playerActivePokemon: Option[PokemonCard] = playerBoard.activePokemon
+
+  def playerActivePokemon_=(pokemonCard: Option[PokemonCard]): Unit = {
+    playerBoard.activePokemon = pokemonCard
+    playerBoard.removeCardFromHand(pokemonCard.get)
+    notifyBoardUpdate()
   }
 
-  def isPlayerBenchLocationEmpty(position: Int): Boolean = {
-    playerBoard.pokemonBench(position).isEmpty
+  def playerPokemonBench: Seq[Option[PokemonCard]] = playerBoard.pokemonBench
+
+  def putPokemonToPlayerBench(pokemonCard: Option[PokemonCard], position: Int): Unit = {
+    playerBoard.putPokemonInBenchPosition(pokemonCard, position)
+    playerBoard.removeCardFromHand(pokemonCard.get)
+    notifyBoardUpdate()
   }
 
   def drawPlayerCard(): Unit = {
     playerBoard.addCardsToHand(playerBoard.popDeck(1))
-    this.notifyObservers(Event.updatePlayerBoardEvent())
+    notifyBoardUpdate()
   }
 
   def drawPlayerPrizeCard(): Unit = {
     playerBoard.addCardsToHand(playerBoard.popPrizeCard(1))
-    this.notifyObservers(Event.updatePlayerBoardEvent())
+    notifyBoardUpdate()
   }
 
-  /*
-  def addOpponentActivePokemon(pokemon: PokemonCard): Unit = {
-    checkNonEmpty(opponentBoard)
-    opponentBoard.get.activePokemon = Some(pokemon)
-    this.notifyObservers(Event.updateOpponentBoardEvent())
+  def destroyPlayerActivePokemon(replacementBenchPosition: Int): Unit = {
+    playerBoard.addCardsToDiscardStack(GameManager.playerBoard.activePokemon.get :: Nil)
+    swap(None, replacementBenchPosition)
+    notifyBoardUpdate()
   }
 
-  def addOpponentPokemonToBench(pokemon: PokemonCard, position: Int): Unit = {
-    checkNonEmpty(opponentBoard)
-    opponentBoard.get.addPokemonToBench(pokemon, position)
-    this.notifyObservers(Event.updateOpponentBoardEvent())
+  def retreatPlayerActivePokemon(replacementBenchPosition: Int): Unit = {
+    val activePokemon = GameManager.playerBoard.activePokemon.get
+    if (activePokemon.hasEnergies(activePokemon.retreatCost)) {
+      activePokemon.status = StatusType.NoStatus
+      swap(Some(activePokemon), replacementBenchPosition)
+      notifyBoardUpdate()
+    }
   }
 
-  def destroyOpponentActivePokemon(): Unit = {
-    checkNonEmpty(opponentBoard)
-    opponentBoard.get.addCardsToDiscardStack(opponentBoard.get.activePokemon.get :: Nil)
-    opponentBoard.get.activePokemon = None
-    this.notifyObservers(Event.updateOpponentBoardEvent())
+  def addEnergyToPokemon(pokemonCard: PokemonCard, energyCard: EnergyCard): Unit = {
+    pokemonCard.addEnergy(energyCard)
+    playerBoard.removeCardFromHand(energyCard)
+    notifyBoardUpdate()
   }
 
-  def removePokemonFromOpponentBench(pokemon: PokemonCard, position: Int): Unit = {
-    checkNonEmpty(opponentBoard)
-    opponentBoard.get.removePokemonFromBench(position)
-    this.notifyObservers(Event.updateOpponentBoardEvent())
+  def evolvePokemon(pokemonCard: PokemonCard, evolution: PokemonCard): Option[PokemonCard] = {
+    evolution.energiesMap = pokemonCard.energiesMap
+    evolution.status = pokemonCard.status
+    evolution.actualHp = pokemonCard.initialHp - (pokemonCard.initialHp - pokemonCard.actualHp)
+    playerBoard.addCardsToDiscardStack(pokemonCard :: Nil)
+    Some(evolution)
   }
 
-  def drawOpponentCard(): Unit = {
-    checkNonEmpty(opponentBoard)
-    opponentBoard.get.addCardsToHand(opponentBoard.get.popDeck(1))
-    this.notifyObservers(Event.updateOpponentBoardEvent())
+  def confirmAttack(attack: Attack): Unit ={
+    if (playerActivePokemon.nonEmpty && opponentBoard.activePokemon.nonEmpty) {
+      attack.effect.get.useEffect(GameManager._playerBoard.get,GameManager._opponentBoard.get)
+      if (playerActivePokemon.get.isKO || opponentBoard.activePokemon.get.isKO) {
+        this.notifyObservers(Event.pokemonKOEvent())
+      }
+      if (playerPokemonBench.filter(c => c.nonEmpty).exists(c => c.get.isKO)) {
+        for((c, i) <- collapseToLeft(playerPokemonBench).zipWithIndex) {
+          putPokemonToPlayerBench(c, i)
+        }
+      }
+      notifyBoardUpdate()
+    }
+    //if (playerActivePokemon.get.isKO)
+    // Manca da controllare se qualche pokemon nel campo di gioco è andato KO
+    // se muore il pokemon del giocatore o dell'ia -> GameManager.notifyObservers(Event.pokemonKOEvent())
+    // sempre -> notifyBoardUpdate();
   }
 
-  def drawOpponentPrizeCard(): Unit = {
-    checkNonEmpty(opponentBoard)
-    opponentBoard.get.addCardsToHand(opponentBoard.get.popPrizeCard(1))
-    this.notifyObservers(Event.updateOpponentBoardEvent())
+  private def swap(activePokemon: Option[PokemonCard], benchPosition: Int): Unit = {
+    playerBoard.activePokemon = playerBoard.pokemonBench(benchPosition)
+    playerBoard.putPokemonInBenchPosition(activePokemon, benchPosition)
   }
-  */
+
+  private def collapseToLeft[A](bench: Seq[Option[A]]): List[Option[A]] = bench match {
+    case h :: t if h.isEmpty => collapseToLeft(t) :+ h
+    case h :: t if h.nonEmpty => h :: collapseToLeft(t)
+    case _ => Nil
+  }
 
   @throws(classOf[CardNotFoundException])
   @scala.annotation.tailrec
@@ -103,7 +135,7 @@ object GameManager extends Observable {
 
   private def buildBoard(cards: Seq[Card]): Board = {
     val board = Board(cards)
-    // A hand must have at least one PokemonCard
+    // A hand must have at least one base PokemonCard
     while (!board.hand.exists(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase)) {
       board.shuffleDeckWithHand()
       board.addCardsToHand(board.popDeck(InitialHandCardNum))
@@ -114,5 +146,9 @@ object GameManager extends Observable {
 
   private def checkNonEmpty[A](args: Option[A]*): Unit = {
     if (args.exists(x => x.isEmpty)) throw new IllegalStateException()
+  }
+
+  private def notifyBoardUpdate(): Unit = {
+    this.notifyObservers(Event.updatePlayerBoardEvent())
   }
 }

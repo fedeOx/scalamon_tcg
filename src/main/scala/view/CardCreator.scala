@@ -18,7 +18,6 @@ object CardCreator {
   private def addAction(card: Box, cardType: String, cardIndex: Int, zone: Option[Node] = Option.empty,
                         board: Option[Board] = Option.empty): Unit = cardType match {
     case CardType.Active => card.onMouseClicked = _ => {
-      println("active")
       if (controller.handCardSelected.isEmpty)//noCardSelected && active.canDoAction
         zone.get.asInstanceOf[ActivePkmnZone].openMenu()
       else
@@ -40,14 +39,13 @@ object CardCreator {
         println(card.width.value)
         card.height = 8
         controller.handCardSelected = Some(board.get.hand(cardIndex))
-        println(controller.handCardSelected)
+
       } else if (card.width.value == 5.8) {
         println("to back")
         card.translateZ = 0
         card.width = 5.5
         card.height = 7.7
         controller.handCardSelected = Option.empty
-        println(controller.handCardSelected)
       }
     }
     case _ =>

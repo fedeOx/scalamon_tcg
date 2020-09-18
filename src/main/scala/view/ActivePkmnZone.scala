@@ -45,7 +45,6 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
       isEmpty = false
       children = createCard("/assets/base1/"+active.get.imageId+".jpg", Some(zone), cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this),
         board = Some(parentBoard.board))
-      println(active)
     }
   }
 
@@ -69,8 +68,8 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
               disable = true
             onAction = event => {
               println("attacco con " + attack.name)
-              //.effect.get.useEffect()
               utils.controller.declareAttack(attack)
+              utils.controller.endTurn()
               event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
               //dialog.close()
             }
@@ -84,6 +83,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
             disable = true
           onAction = event => {
             println("ritirata")
+            PopupBuilder.openBenchSelectionScreen(parentWindow,parentBoard.board.pokemonBench)
             event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
           }
         }

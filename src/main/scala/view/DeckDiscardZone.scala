@@ -20,19 +20,13 @@ case class DeckDiscardZone() extends VBox {
   children = deck
 
   alignment = Pos.Center
-  /*minWidth = 10
-  maxWidth = 10
-  minHeight = 25
-  maxHeight = 25*/
   prefWidth = WIDTH
   prefHeight = HEIGHT
   styleClass += "deckDiscard"
   translateX = 45
 
-  def updateView(card: Option[Card]) : Unit = {
-    if (card.isDefined) {
-      discardStack = createCard(card.get.imageId, cardType = CardType.DiscardStack)
-      children = List(deck, discardStack)
-    }
+  def updateView(card: Card) : Unit = {
+    discardStack = createCard("/assets/base1/"+card.imageId+".jpg", cardType = CardType.DiscardStack)
+    children = List(deck, discardStack)
   }
 }

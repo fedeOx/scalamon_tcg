@@ -7,6 +7,7 @@ object WeightIa extends Enumeration {
   val IsEvolution = 30
   val WithdrawCost = 20
   val EvolutionInHand = 20
+  val KO = -300
 
 
 }
