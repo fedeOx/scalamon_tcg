@@ -91,11 +91,25 @@ object Ia extends Thread with Observer {
       if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
         calculateIfWithdrawAndDo()
         opponentBoard.addCardsToDiscardStack(Seq(pokemonKO))
-        opponentBoard.putPokemonInBenchPosition(None,opponentBoard.pokemonBench.indexWhere(pkm => pkm.get == pokemonKO))
+        opponentBoard.putPokemonInBenchPosition(None, opponentBoard.pokemonBench.indexWhere(pkm => pkm.get == pokemonKO))
+        //TODO code Double
+        for ((c, i) <- collapseToLeft(opponentBoard.pokemonBench).zipWithIndex) {
+          opponentBoard.putPokemonInBenchPosition(c, i)
+        }
       }
       else
         println("PERSO IA")
+    } else {
+      println("IA- Pesco carta premio")
+      opponentBoard.addCardsToHand(opponentBoard.popPrizeCard(1))
+      println("IA- Carte Premio Rimaste : "+opponentBoard.prizeCards)
     }
+  }
+
+  private def collapseToLeft[A](bench: Seq[Option[A]]): List[Option[A]] = bench match {
+    case h :: t if h.isEmpty => collapseToLeft(t) :+ h
+    case h :: t if h.nonEmpty => h :: collapseToLeft(t)
+    case _ => Nil
   }
 
 
