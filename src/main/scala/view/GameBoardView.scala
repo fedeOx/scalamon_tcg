@@ -3,11 +3,12 @@ package view
 import common.{Observer, TurnOwner}
 import common.TurnOwner.TurnOwner
 import controller.Controller
+import javafx.geometry.Insets
 import javafx.scene.paint.ImagePattern
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events
 import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, UpdateOpponentBoard, UpdatePlayerBoard}
+import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, PokemonKO, UpdateOpponentBoard, UpdatePlayerBoard}
 import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
@@ -18,13 +19,14 @@ import model.ia.Ia
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
+import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.Image
 import scalafx.scene.layout._
-import scalafx.scene.paint.PhongMaterial
+import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing}
-import scalafx.stage.Window
+import scalafx.stage.{Modality, Stage, Window}
 
 /** *
  * Stage that contains the game scene
@@ -39,6 +41,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   private val humanBoard = new PlayerBoard(true, zoomZone, parentWindow)
   private var turnOwner : TurnOwner = TurnOwner.Player
   title = TITLE
+  icons += new Image("/assets/icon.png")
   Ia.start()
   GameManager.addObserver(this)
   TurnManager.addObserver(this)
@@ -83,32 +86,8 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       humanBoard.board = event.asInstanceOf[BuildGameField].playerBoard
       opponentBoard.board = event.asInstanceOf[BuildGameField].opponentBoard
       Platform.runLater(humanBoard.updateHand())
-      //TODO: togli tutto diomadonna
-      val weakness: Weakness = new Weakness {
-        override def energyType: EnergyType = EnergyType.Fighting
-        override def operation: Operation = Operation.multiply2
-      }
-      val resistance: Resistance = new Resistance {
-        override def energyType: EnergyType = EnergyType.Lightning
-        override def reduction: Int = 30
-      }
-      val cardList: Seq[Card] = DataLoader.loadSet(SetType.Base)
-        .filter(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].imageId.equals("6"))
-
-      //var carta = PokemonCard("4", "base1",Seq(EnergyType.Colorless), "pokemonName", 100, Seq(weakness),
-        //Seq(resistance), Seq(EnergyType.Colorless, EnergyType.Colorless), "", Nil)
-      var carta = cardList.head.asInstanceOf[PokemonCard]
-      carta.actualHp = 40
-      carta.status = StatusType.Poisoned
-      carta.addEnergy(EnergyCard("98","base1",EnergyType.Water, EnergyCardType.basic))
-      carta.addEnergy(EnergyCard("98","base1",EnergyType.Water, EnergyCardType.basic))
-      carta.addEnergy(EnergyCard("98","base1",EnergyType.Water, EnergyCardType.basic))
-      /*carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))
-      carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
-      carta.addEnergy(EnergyCard("98","base1",EnergyType.Fire, EnergyCardType.basic))
-      carta.addEnergy(EnergyCard("99","base1",EnergyType.Grass, EnergyCardType.basic))*/
-      //humanBoard.board.activePokemon = Some(carta)
       Platform.runLater(humanBoard.updateActive())
+      Platform.runLater(humanBoard.closeLoadingScreen())
     }
     case event if event.isInstanceOf[FlipCoin] =>{
       turnOwner = event.asInstanceOf[FlipCoin].coinValue
@@ -118,24 +97,60 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       humanBoard.updateActive()
       humanBoard.updateHand()
       humanBoard.updateBench()
-      opponentBoard.updateBench()
-      opponentBoard.updateActive()
+      humanBoard.updateDiscardStack()
     }
     case event : UpdateOpponentBoard => {
-      opponentBoard.updateBench()
-      opponentBoard.updateActive()
-    }
-    case event : NextTurn if event.turnOwner == TurnOwner.Player =>  {
       Platform.runLater({
-        utils.controller.drawACard()
-        humanBoard.updateHand()
         opponentBoard.updateBench()
         opponentBoard.updateActive()
+        opponentBoard.updateDiscardStack()
       })
+    }
+    case event : NextTurn => {
+      humanBoard.disable = !(event.turnOwner == TurnOwner.Player)
+      if(event.turnOwner == TurnOwner.Player)
+        Platform.runLater({
+          openTurnScreen(this)
+          utils.controller.drawACard()
+          humanBoard.updateHand()
+          //opponentBoard.updateBench()
+          //opponentBoard.updateActive()
+        })
+      Platform.runLater({
+        opponentBoard.updateBench()
+        opponentBoard.updateActive()
+        opponentBoard.updateDiscardStack()
+      })
+
+    }
+    case event : PokemonKO => {
+      println("pokemonKO event")
+      if (humanBoard.board.activePokemon.get.isKO)
+        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.board.pokemonBench))
+      else {
+        utils.controller.drawAPrizeCard()
+      }
     }
     case _ =>
   }
 
+  def openTurnScreen(parent: Window) : Unit = {
+    val dialog: Stage = new Stage() {
+      initOwner(parent)
+      initModality(Modality.ApplicationModal)
+      scene = new Scene(300, 200) {
+        content = new Label("È il tuo turno")
+      }
+      sizeToScene()
+      //x = parentWindow.getX + parentWindow.getWidth / 1.6
+      //y = parentWindow.getY + parentWindow.getHeight / 2.8
+      resizable = false
+      alwaysOnTop = true
+    }
+    dialog.show()
+    Thread.sleep(1000)
+    dialog.close()
+  }
 
 }
 
