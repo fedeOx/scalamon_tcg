@@ -38,7 +38,8 @@ object Cards {
 
     @throws(classOf[MissingEnergyException])
     def removeEnergy(energy: EnergyType): Unit
-    def removeFirstNEnergy(nEnergies : Int) : Unit
+
+    def removeFirstNEnergies(nEnergies : Int) : Unit
 
     def hasEnergies(energies: Seq[EnergyType]): Boolean
 
@@ -50,7 +51,7 @@ object Cards {
 
     def isBase: Boolean
 
-    def clonePokemoCard: PokemonCard
+    def clonePokemonCard: PokemonCard
   }
 
   object PokemonCard {
@@ -123,10 +124,27 @@ object Cards {
         energiesMap = _removeEnergy(energiesMap.toMutableMap).toImmutableMap
       }
 
-      override def hasEnergies(energies: Seq[EnergyType]): Boolean =
-        !energies.foldLeft(mutable.Map[EnergyType, Int]().withDefaultValue(0)) {
+      override def hasEnergies(energies: Seq[EnergyType]): Boolean = {
+        var areEnergiesEnough = true
+        val availableEnergiesMap: mutable.Map[EnergyType, Int] = mutable.Map[EnergyType, Int]() ++= energiesMap
+        val requiredEnergiesMap: mutable.Map[EnergyType, Int] = energies.foldLeft(mutable.Map[EnergyType, Int]().withDefaultValue(0)) {
           (map, energy) => map(energy) += 1; map
-        }.exists(t => !energiesMap.contains(t._1) || (energiesMap.contains(t._1) && energiesMap(t._1) < t._2))
+        }
+
+        for ((k, v) <- requiredEnergiesMap) {
+          if (availableEnergiesMap.get(k).nonEmpty && v > 0) {
+            val tmp = requiredEnergiesMap(k)
+            requiredEnergiesMap(k) = v - availableEnergiesMap.getOrElse(k, 0)
+            availableEnergiesMap(k) = availableEnergiesMap(k) - tmp
+          }
+        }
+        areEnergiesEnough = requiredEnergiesMap.filter(t => t._1 != EnergyType.Colorless).values.sum == 0 // Normal energies are enough
+        if (areEnergiesEnough && requiredEnergiesMap.exists(t => t._1 == EnergyType.Colorless && t._2 > 0) ) {
+          // Colorless check
+          areEnergiesEnough = availableEnergiesMap.values.filter(v => v > 0).sum >= requiredEnergiesMap(EnergyType.Colorless)
+        }
+        areEnergiesEnough
+      }
 
       def totalEnergiesStored: Int = energiesMap.values.sum
 
@@ -154,18 +172,14 @@ object Cards {
 
       override def isKO: Boolean = actualHp == 0
 
-      override def removeFirstNEnergy(nEnergies: Int): Unit = {
-        @scala.annotation.tailrec
-        def remove(energyLeft : Int) : Unit = energyLeft match {
-          case 0 =>
-          case _ => removeEnergy(energiesMap.head._1)  ;  remove(energyLeft-1)
-        }
-        remove(nEnergies)
+      override def removeFirstNEnergies(nEnergies: Int): Unit = nEnergies match {
+        case n if n > 0 => removeEnergy(energiesMap.head._1); removeFirstNEnergies(nEnergies - 1)
+        case _ =>
       }
 
       override def isBase: Boolean = evolutionName == ""
 
-      override def clonePokemoCard: PokemonCard = copy(imageId, belongingSetCode, pokemonTypes, name, initialHp, actualHp, weaknesses,
+      override def clonePokemonCard: PokemonCard = copy(imageId, belongingSetCode, pokemonTypes, name, initialHp, actualHp, weaknesses,
         resistances, retreatCost, evolutionName, attacks, immune, status, energiesMap)
     }
   }

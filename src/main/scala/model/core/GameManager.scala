@@ -6,8 +6,6 @@ import model.exception.CardNotFoundException
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, Board, DeckCard, StatusType}
 
-import scala.util.Random
-
 object GameManager extends Observable {
 
   val InitialHandCardNum = 7
@@ -107,10 +105,6 @@ object GameManager extends Observable {
       }
       notifyBoardUpdate()
     }
-    //if (playerActivePokemon.get.isKO)
-    // Manca da controllare se qualche pokemon nel campo di gioco è andato KO
-    // se muore il pokemon del giocatore o dell'ia -> GameManager.notifyObservers(Event.pokemonKOEvent())
-    // sempre -> notifyBoardUpdate();
   }
 
   private def swap(activePokemon: Option[PokemonCard], benchPosition: Int): Unit = {
@@ -128,17 +122,16 @@ object GameManager extends Observable {
   @scala.annotation.tailrec
   private def buildCardList(deckCards: Seq[DeckCard], setCards: Seq[Card])(cardList: Seq[Card]): Seq[Card] = deckCards match {
     case h :: t if setCards.exists(sc => sc.imageId == h.imageId) =>
-        buildCardList(t, setCards)(cardList ++ List.fill(h.count)(deepCloneCards(setCards).find(sc => sc.imageId == h.imageId).get))
+        buildCardList(t, setCards)(cardList ++ deepCloneCards(List.fill(h.count)(setCards.find(sc => sc.imageId == h.imageId).get)))
     case h :: _ => throw new CardNotFoundException("Card " + h.imageId + " not found in the specified set")
     case _ => cardList
   }
 
   private def deepCloneCards(l: Seq[Card]): Seq[Card] = l match {
-    case h :: t if h.isInstanceOf[PokemonCard] => Seq(h.asInstanceOf[PokemonCard].clonePokemoCard) ++ deepCloneCards(t)
+    case h :: t if h.isInstanceOf[PokemonCard] => Seq(h.asInstanceOf[PokemonCard].clonePokemonCard) ++ deepCloneCards(t)
     case h :: t if h.isInstanceOf[EnergyCard] => Seq(h.asInstanceOf[EnergyCard].cloneEnergyCard) ++ deepCloneCards(t)
     case _ => l
   }
-
 
   private def buildBoard(cards: Seq[Card]): Board = {
     val board = Board(cards)
