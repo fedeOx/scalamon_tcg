@@ -14,13 +14,14 @@ import model.game.StatusType.StatusType
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.geometry.Pos
-import scalafx.scene.Group
+import scalafx.scene.control.Label
+import scalafx.scene.{Group, Scene}
 import scalafx.scene.image.Image
 import scalafx.scene.layout.{HBox, VBox}
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.Rotate
-import scalafx.stage.Window
+import scalafx.stage.{Modality, Stage, Window}
 
 /***
  * Player board component for the player
@@ -40,6 +41,7 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
   private var deckDiscard = DeckDiscardZone()
   private var hand : HandZone = _
   private var isFirstTurn : Boolean = true
+  private var loadingMessage : Stage = _
   var board : Board = _
   styleClass += "humanPB"
   children = List(prize, active, bench, deckDiscard)
@@ -65,19 +67,42 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
       }
     }
     children += tasto
+
+    loadingMessage = openLoadingScreen(parentWindow)
+    loadingMessage.show()
   }
 
   minWidth(WIDTH)
   minHeight(HEIGHT)
-
   maxWidth(WIDTH)
   maxHeight(HEIGHT)
 
   if (!isHumans) rotate = 180 else translateY = 25
 
+
   def updateHand() : Unit = hand.updateView(board.hand)
   def updateActive() : Unit = active.updateView(board.activePokemon)
   def updateBench() : Unit = bench.updateView(board.pokemonBench)
+  def updateDiscardStack() : Unit = if (board.discardStack.nonEmpty) deckDiscard.updateView(board.discardStack.last)
+
+  //TODO: spostala in gameBoardView
+  def openLoadingScreen(parent: Window) : Stage = {
+    val dialog: Stage = new Stage() {
+      initOwner(parent)
+      initModality(Modality.ApplicationModal)
+      scene = new Scene(300, 200) {
+        content = new Label("Caricamento...")
+      }
+      sizeToScene()
+      resizable = false
+      alwaysOnTop = true
+    }
+    dialog
+  }
+
+  def closeLoadingScreen() : Unit = {
+    loadingMessage.close()
+  }
 }
 
 class ZoomZone extends HBox {

@@ -28,7 +28,6 @@ case class HandZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exten
     }}
     children = hand
   }
-  println(parent)
   alignment = Pos.TopCenter
   minWidth = 60
   maxWidth = 60

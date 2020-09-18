@@ -35,6 +35,9 @@ object CardCreator {
         card.width = 5.8
         card.height = 8
         controller.handCardSelected = Some(board.get.hand(cardIndex))
+
+
+
       } else if (card.width.value == 5.8) {
         card.translateZ = 0
         card.width = 5.5

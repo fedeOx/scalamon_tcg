@@ -20,6 +20,24 @@
                 "count": 2
             },
             {
+                "id": "base1-15",
+                "name": "Venusaur",
+                "rarity": "Rare",
+                "count": 2
+            },
+            {
+                "id": "base1-26",
+                "name": "Dratini",
+                "rarity": "Uncommon",
+                "count": 3
+            },
+            {
+                "id": "base1-18",
+                "name": "Dragonair",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
                 "id": "base1-69",
                 "name": "Weedle",
                 "rarity": "Common",
@@ -120,6 +138,42 @@
                 "count": 4
             },
             {
+                "id": "base1-16",
+                "name": "Zapdos",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-21",
+                "name": "Electrode",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-67",
+                "name": "Voltorb",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-20",
+                "name": "Electabuzz",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-9",
+                "name": "Magneton",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-14",
+                "name": "Raichu",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
                 "id": "base1-53",
                 "name": "Magnemite",
                 "rarity": "Common",
@@ -134,6 +188,12 @@
             {
                 "id": "base1-32",
                 "name": "Kadabra",
+                "rarity": "Uncommon",
+                "count": 1
+            },
+            {
+                "id": "base1-1",
+                "name": "Alakazam",
                 "rarity": "Uncommon",
                 "count": 1
             },
@@ -250,6 +310,24 @@
                 "count": 2
             },
             {
+                "id": "base1-4",
+                "name": "Charizard",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-36",
+                "name": "Magmar",
+                "rarity": "Uncommon",
+                "count": 4
+            },
+            {
+                "id": "base1-3",
+                "name": "Chansey",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
                 "id": "base1-68",
                 "name": "Vulpix",
                 "rarity": "Common",
@@ -284,6 +362,18 @@
                 "name": "Nidoran♂",
                 "rarity": "Common",
                 "count": 4
+            },
+            {
+                "id": "base1-37",
+                "name": "Nidorino",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-11",
+                "name": "Nidoking",
+                "rarity": "Uncommon",
+                "count": 2
             },
             {
                 "id": "base1-66",
@@ -374,6 +464,48 @@
                 "count": 2
             },
             {
+                "id": "base1-8",
+                "name": "Machamp",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-2",
+                "name": "Blastoise",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-59",
+                "name": "Poliwag",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-41",
+                "name": "Seal",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-38",
+                "name": "Poliwhirl",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-25",
+                "name": "Dewgong",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-13",
+                "name": "Poliwrath",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
                 "id": "base1-56",
                 "name": "Onix",
                 "rarity": "Common",
@@ -449,7 +581,7 @@
                 "id": "base1-102",
                 "name": "Water Energy",
                 "rarity": "Common",
-                "count": 12
+                "count": 20
             }
         ]
     }

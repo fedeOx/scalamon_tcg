@@ -42,15 +42,21 @@ object Ia extends Thread with Observer {
     myHand = opponentBoard.hand
     //metto pokemon in panchina
     populateBench()
+    Thread.sleep(1500)
+    GameManager.notifyObservers(Event.updateOpponentBoardEvent())
     val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
     //evolve all pkm
     evolveAll()
+    Thread.sleep(1500)
+    GameManager.notifyObservers(Event.updateOpponentBoardEvent())
     //calculate if the retreat of the active pokemon is convenient and Do it
     if (opponentBoard.pokemonBench.count(c => c.isDefined) > 0 && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored)
       calculateIfWithdrawAndDo()
     //assignEnergy
     if (getEnergy.nonEmpty)
       calculateAssignEnergy()
+    Thread.sleep(1500)
+    GameManager.notifyObservers(Event.updateOpponentBoardEvent())
     //attack
     if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
       // GameManager.confirmAttack(opponentBoard.activePokemon.get.attacks.last)
@@ -60,6 +66,8 @@ object Ia extends Thread with Observer {
       // GameManager.confirmAttack(opponentBoard.activePokemon.get.attacks.head)
     }
 
+    if(opponentBoard.activePokemon.get.isKO || playerBoard.activePokemon.get.isKO)
+      GameManager.notifyObservers(Event.pokemonKOEvent())
     TurnManager.switchTurn()
   }
 
@@ -92,10 +100,14 @@ object Ia extends Thread with Observer {
         calculateIfWithdrawAndDo()
         opponentBoard.addCardsToDiscardStack(Seq(pokemonKO))
         opponentBoard.putPokemonInBenchPosition(None, opponentBoard.pokemonBench.indexWhere(pkm => pkm.get == pokemonKO))
-        //TODO code Double
-        for ((c, i) <- collapseToLeft(opponentBoard.pokemonBench).zipWithIndex) {
-          opponentBoard.putPokemonInBenchPosition(c, i)
+
+        if (playerPokemonBench.filter(c => c.nonEmpty).exists(c => c.get.isKO)){
+          for ((c, i) <- collapseToLeft(opponentBoard.pokemonBench).zipWithIndex) {
+            opponentBoard.putPokemonInBenchPosition(c, i)
+          }
         }
+        //TODO code Double
+
       }
       else
         println("PERSO IA")
@@ -111,6 +123,10 @@ object Ia extends Thread with Observer {
     case h :: t if h.nonEmpty => h :: collapseToLeft(t)
     case _ => Nil
   }
+
+
+
+
 
 
   private def populateBench(): Unit = {
@@ -180,6 +196,7 @@ object Ia extends Thread with Observer {
       }
       case evolution :: t if opponentBoard.pokemonBench.count(pkm => pkm.isDefined) > 0 => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
       case List() =>
+      case _ =>
     }
 
     @scala.annotation.tailrec
@@ -187,7 +204,7 @@ object Ia extends Thread with Observer {
       bench match {
         case List() =>
         case benchPkm :: _ if benchPkm.get.name == evolution.evolutionName => {
-          val getbenchedIndex: Int = opponentBoard.pokemonBench.indexWhere(pkm => pkm.get.name == benchPkm.get.name)
+          val getbenchedIndex: Int = opponentBoard.pokemonBench.filter(card => card.isDefined).indexWhere(pkm => pkm.get.name == benchPkm.get.name)
           TransferEvolutionInfo(evolution, benchPkm.get)
           opponentBoard.putPokemonInBenchPosition(Some(evolution), getbenchedIndex)
         } //pokemon found in bench
@@ -203,7 +220,7 @@ object Ia extends Thread with Observer {
 
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
       if (!opponentBoard.activePokemon.get.isKO)
-        opponentBoard.activePokemon.get.removeFirstNEnergy(opponentBoard.activePokemon.get.retreatCost.size)
+        opponentBoard.activePokemon.get.removeFirstNEnergies(opponentBoard.activePokemon.get.retreatCost.size)
 
       val currentActivePkmTmp = opponentBoard.activePokemon
       val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
