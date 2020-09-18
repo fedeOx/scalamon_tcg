@@ -2,11 +2,10 @@ package controller
 
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
-import model.exception.{ActivePokemonException, BenchPokemonException, NotEnoughEnergiesException}
+import model.exception.{ActivePokemonException, BenchPokemonException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.{Attack, DeckCard, DeckType, StatusType}
+import model.game.{Attack, DeckCard, DeckType}
 import model.game.DeckType.DeckType
-import model.game.EnergyType.EnergyType
 import model.game.SetType.SetType
 
 import scala.util.Random
@@ -117,30 +116,32 @@ object Controller {
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
 
       case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerActivePokemonEmpty =>
-        GameManager.addEnergyToPokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[EnergyCard])
+        GameManager.addEnergyToPokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[EnergyCard]); handCardSelected = None
 
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerActivePokemonEmpty =>
-        GameManager.playerActivePokemon = Some(c.asInstanceOf[PokemonCard])
+        GameManager.playerActivePokemon = Some(c.asInstanceOf[PokemonCard]); handCardSelected = None
 
       case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerActivePokemonEmpty
         && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerActivePokemon.get.name =>
         val evolvedPokemon = GameManager.evolvePokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[PokemonCard])
         GameManager.playerActivePokemon = evolvedPokemon
+        handCardSelected = None
       case _ => throw new ActivePokemonException()
     }
 
     override def selectBenchLocation(position: Int): Unit = handCardSelected match {
 
       case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerBenchLocationEmpty(position) =>
-        GameManager.addEnergyToPokemon(GameManager.playerPokemonBench(position).get, c.asInstanceOf[EnergyCard])
+        GameManager.addEnergyToPokemon(GameManager.playerPokemonBench(position).get, c.asInstanceOf[EnergyCard]); handCardSelected = None
 
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerBenchLocationEmpty(position) =>
-        GameManager.putPokemonToPlayerBench(Some(c.asInstanceOf[PokemonCard]), position)
+        GameManager.putPokemonToPlayerBench(Some(c.asInstanceOf[PokemonCard]), position); handCardSelected = None
 
       case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerBenchLocationEmpty(position)
         && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerBoard.pokemonBench(position).get.name =>
         val evolvedPokemon = GameManager.evolvePokemon(GameManager.playerPokemonBench(position).get, c.asInstanceOf[PokemonCard])
         GameManager.putPokemonToPlayerBench(evolvedPokemon, position)
+        handCardSelected = None
 
       case _ => throw new BenchPokemonException()
     }

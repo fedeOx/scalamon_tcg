@@ -216,7 +216,7 @@ object Ia extends Thread with Observer {
 
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
       if (!opponentBoard.activePokemon.get.isKO)
-        opponentBoard.activePokemon.get.removeFirstNEnergy(opponentBoard.activePokemon.get.retreatCost.size)
+        opponentBoard.activePokemon.get.removeFirstNEnergies(opponentBoard.activePokemon.get.retreatCost.size)
 
       val currentActivePkmTmp = opponentBoard.activePokemon
       val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
