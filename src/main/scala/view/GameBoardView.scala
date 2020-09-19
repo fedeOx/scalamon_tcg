@@ -91,10 +91,13 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       turnOwner = event.asInstanceOf[FlipCoin].coinValue
     }
     case event : UpdatePlayerBoard => {
-      humanBoard.updateActive()
-      humanBoard.updateHand()
-      humanBoard.updateBench()
-      humanBoard.updateDiscardStack()
+      Platform.runLater({
+
+        humanBoard.updateActive()
+        humanBoard.updateHand()
+        humanBoard.updateBench()
+        humanBoard.updateDiscardStack()
+      })
     }
     case event : UpdateOpponentBoard => {
       Platform.runLater({

@@ -60,9 +60,12 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
       onMouseClicked = _ => {
         if(isFirstTurn) {
           isFirstTurn = false
-          TurnManager.playerReady()
+          //controller.playerReady
+          utils.controller.playerReady()
+          //TurnManager.playerReady()
         } else
-          TurnManager.switchTurn()
+        utils.controller.endTurn()
+          //TurnManager.switchTurn()
         println("fine turno")
       }
     }
