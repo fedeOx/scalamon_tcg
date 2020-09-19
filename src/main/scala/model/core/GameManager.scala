@@ -66,6 +66,9 @@ object GameManager extends Observable {
   def destroyPlayerActivePokemon(replacementBenchPosition: Int): Unit = {
     playerBoard.addCardsToDiscardStack(GameManager.playerBoard.activePokemon.get :: Nil)
     swap(None, replacementBenchPosition)
+    for((c, i) <- collapseToLeft(playerPokemonBench).zipWithIndex) {
+      playerBoard.putPokemonInBenchPosition(c, i)
+    }
     notifyBoardUpdate()
   }
 
@@ -99,11 +102,13 @@ object GameManager extends Observable {
       if (playerActivePokemon.get.isKO || opponentBoard.activePokemon.get.isKO) {
         this.notifyObservers(Event.pokemonKOEvent())
       }
+      /*
       if (playerPokemonBench.filter(c => c.nonEmpty).exists(c => c.get.isKO)) {
         for((c, i) <- collapseToLeft(playerPokemonBench).zipWithIndex) {
-          putPokemonToPlayerBench(c, i)
+          playerBoard.putPokemonInBenchPosition(c, i)
         }
       }
+      */
       notifyBoardUpdate()
     }
   }
