@@ -59,8 +59,11 @@ trait Controller {
   /**
    * Swap the active pokemon with the benched pokemon in the specified position. If the active pokemon is KO, the benched
    * pokemon takes the active pokemon role. If the active pokemon is not KO, this operation can be considered a retreat.
+   * Note that the retreat operation is allowed only one time per turn.
    * @param position the position of the benched pokemon in the bench
+   * @throws model.exception.InvalidOperationException in case of retreat, if a pekemon is been already retreat in this turn
    */
+  @throws(classOf[InvalidOperationException])
   def swap(position: Int): Unit
 
   def handCardSelected: Option[Card]
@@ -98,6 +101,7 @@ object Controller {
   private case class ControllerImpl(override var handCardSelected: Option[Card] = None) extends Controller {
 
     private var energyCardAlreadyAssigned = false
+    private var pokemonAlreadyRetreated = false
 
     override def loadDeckCards(set: SetType, deck: DeckType): Unit = new Thread {
       override def run(): Unit = {
@@ -126,6 +130,7 @@ object Controller {
 
     override def endTurn(): Unit = {
       energyCardAlreadyAssigned = false
+      pokemonAlreadyRetreated = false
       TurnManager.switchTurn()
     }
 
@@ -133,8 +138,12 @@ object Controller {
       if (!GameManager.isPlayerActivePokemonEmpty && !GameManager.isPlayerBenchLocationEmpty(position)) {
         if (GameManager.playerActivePokemon.get.isKO) {
           GameManager.destroyPlayerActivePokemon(position)
-        } else {
+        } else if (!pokemonAlreadyRetreated) {
+          val oldActivePokemon: PokemonCard = GameManager.playerActivePokemon.get
           GameManager.retreatPlayerActivePokemon(position)
+          pokemonAlreadyRetreated = oldActivePokemon ne GameManager.playerActivePokemon.get
+        } else {
+          throw new InvalidOperationException("You have already retreat a pokemon in this turn")
         }
       }
     }

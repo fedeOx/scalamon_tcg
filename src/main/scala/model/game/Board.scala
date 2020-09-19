@@ -102,6 +102,7 @@ object Board {
       _hand = List()
       _deck = Random.shuffle(_deck)
     }
+
     override def popPrizeCard(popNumber: Int): List[Card] = _prizeCards match {
       case h :: t if popNumber > 0 => _prizeCards = t; h :: popPrizeCard(popNumber - 1)
       case _ => Nil

@@ -73,6 +73,7 @@ object GameManager extends Observable {
     val activePokemon = GameManager.playerBoard.activePokemon.get
     if (activePokemon.hasEnergies(activePokemon.retreatCost)) {
       activePokemon.status = StatusType.NoStatus
+      activePokemon.removeFirstNEnergies(activePokemon.retreatCost.size)
       swap(Some(activePokemon), replacementBenchPosition)
       notifyBoardUpdate()
     }
@@ -94,7 +95,7 @@ object GameManager extends Observable {
 
   def confirmAttack(attack: Attack): Unit ={
     if (playerActivePokemon.nonEmpty && opponentBoard.activePokemon.nonEmpty) {
-      attack.effect.get.useEffect(GameManager._playerBoard.get,GameManager._opponentBoard.get)
+      attack.effect.get.useEffect(playerBoard, opponentBoard)
       if (playerActivePokemon.get.isKO || opponentBoard.activePokemon.get.isKO) {
         this.notifyObservers(Event.pokemonKOEvent())
       }
