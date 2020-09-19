@@ -99,13 +99,15 @@ object Ia extends Thread with Observer {
       if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
         calculateIfWithdrawAndDo()
         opponentBoard.addCardsToDiscardStack(Seq(pokemonKO))
-        opponentBoard.putPokemonInBenchPosition(None, opponentBoard.pokemonBench.indexWhere(pkm => pkm.get == pokemonKO))
+        opponentBoard.putPokemonInBenchPosition(None, opponentBoard.pokemonBench.filter(c => c.nonEmpty).indexWhere(pkm => pkm.get == pokemonKO))
+
         if (playerPokemonBench.filter(c => c.nonEmpty).exists(c => c.get.isKO)){
           for ((c, i) <- collapseToLeft(opponentBoard.pokemonBench).zipWithIndex) {
             opponentBoard.putPokemonInBenchPosition(c, i)
           }
         }
         //TODO code Double
+
       }
       else
         println("PERSO IA")
@@ -121,8 +123,6 @@ object Ia extends Thread with Observer {
     case h :: t if h.nonEmpty => h :: collapseToLeft(t)
     case _ => Nil
   }
-
-
 
 
   private def populateBench(): Unit = {

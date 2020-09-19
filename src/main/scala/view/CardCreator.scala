@@ -27,21 +27,18 @@ object CardCreator {
       card.onMouseClicked = _ => controller.selectBenchLocation(cardIndex)
     }
     case CardType.Hand => card.onMouseClicked = _ => {
-      println("hand " + cardIndex)
       //canBeSelected
       if (card.width.value != 5.8) {
         //zone.get.asInstanceOf[HandZone].updateView()
         card.translateZ = -0.5
-        println("to front")
-        println(card.getParent.getClass.getName)
 
         card.width = 5.8
-        println(card.width.value)
         card.height = 8
         controller.handCardSelected = Some(board.get.hand(cardIndex))
 
+
+
       } else if (card.width.value == 5.8) {
-        println("to back")
         card.translateZ = 0
         card.width = 5.5
         card.height = 7.7

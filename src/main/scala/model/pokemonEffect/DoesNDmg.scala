@@ -87,7 +87,7 @@ sealed trait MultipleTargetDmg extends AttackEffect {
     val pokemonToApply = getStringArgFromMap("target")
     val dmgToDo = getIntArgFromMap("dmgToMultiple")
 
-    atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench, defendingBoard.pokemonBench).foreach(pkm => pkm.get.addDamage(dmgToDo, Seq(EnergyType.Colorless)))
+    atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench).foreach(pkm => pkm.get.addDamage(dmgToDo, Seq(EnergyType.Colorless)))
     super.useEffect(attackingBoard,defendingBoard)
   }
 }

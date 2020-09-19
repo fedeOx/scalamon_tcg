@@ -47,9 +47,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   TurnManager.addObserver(this)
   x = 0
   y = 0
-  println("sono gameboardview e mi registro")
   scene = new Scene(WIDTH, HEIGHT, true, SceneAntialiasing.Balanced) {
-    println(parentWindow)
     stylesheets = List("/style/PlayerBoardStyle.css")
     camera = new PerspectiveCamera(true) {
       transforms += (
@@ -91,13 +89,15 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
     }
     case event if event.isInstanceOf[FlipCoin] =>{
       turnOwner = event.asInstanceOf[FlipCoin].coinValue
-      println("turno di : "+turnOwner)
     }
     case event : UpdatePlayerBoard => {
-      humanBoard.updateActive()
-      humanBoard.updateHand()
-      humanBoard.updateBench()
-      humanBoard.updateDiscardStack()
+      Platform.runLater({
+
+        humanBoard.updateActive()
+        humanBoard.updateHand()
+        humanBoard.updateBench()
+        humanBoard.updateDiscardStack()
+      })
     }
     case event : UpdateOpponentBoard => {
       Platform.runLater({
