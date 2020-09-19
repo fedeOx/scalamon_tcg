@@ -72,6 +72,8 @@ object Controller {
 
   private case class ControllerImpl(override var handCardSelected: Option[Card] = None) extends Controller {
 
+    private var energyCardAlreadyAssigned = false
+
     override def loadDeckCards(set: SetType, deck: DeckType): Unit = new Thread {
       override def run(): Unit = {
         val deckCards: Seq[DeckCard] = DataLoader.loadDeck(set, deck)
@@ -97,7 +99,10 @@ object Controller {
 
     override def playerReady(): Unit = TurnManager.playerReady()
 
-    override def endTurn(): Unit = TurnManager.switchTurn()
+    override def endTurn(): Unit = {
+      energyCardAlreadyAssigned = false
+      TurnManager.switchTurn()
+    }
 
     def swap(position: Int): Unit = {
       if (!GameManager.isPlayerActivePokemonEmpty && !GameManager.isPlayerBenchLocationEmpty(position)) {
@@ -115,8 +120,10 @@ object Controller {
 
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
 
-      case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerActivePokemonEmpty =>
-        GameManager.addEnergyToPokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[EnergyCard]); handCardSelected = None
+      case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerActivePokemonEmpty && !energyCardAlreadyAssigned =>
+        GameManager.addEnergyToPokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[EnergyCard])
+        energyCardAlreadyAssigned = true
+        handCardSelected = None
 
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerActivePokemonEmpty =>
         GameManager.playerActivePokemon = Some(c.asInstanceOf[PokemonCard]); handCardSelected = None
@@ -131,8 +138,10 @@ object Controller {
 
     override def selectBenchLocation(position: Int): Unit = handCardSelected match {
 
-      case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerBenchLocationEmpty(position) =>
-        GameManager.addEnergyToPokemon(GameManager.playerPokemonBench(position).get, c.asInstanceOf[EnergyCard]); handCardSelected = None
+      case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerBenchLocationEmpty(position) && !energyCardAlreadyAssigned =>
+        GameManager.addEnergyToPokemon(GameManager.playerPokemonBench(position).get, c.asInstanceOf[EnergyCard])
+        energyCardAlreadyAssigned = true
+        handCardSelected = None
 
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerBenchLocationEmpty(position) =>
         GameManager.putPokemonToPlayerBench(Some(c.asInstanceOf[PokemonCard]), position); handCardSelected = None
