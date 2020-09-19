@@ -138,7 +138,7 @@ object Cards {
             availableEnergiesMap(k) = availableEnergiesMap(k) - tmp
           }
         }
-        areEnergiesEnough = requiredEnergiesMap.filter(t => t._1 != EnergyType.Colorless).values.sum == 0 // Normal energies are enough
+        areEnergiesEnough = requiredEnergiesMap.filter(t => t._1 != EnergyType.Colorless).values.sum <= 0 // Normal energies are enough
         if (areEnergiesEnough && requiredEnergiesMap.exists(t => t._1 == EnergyType.Colorless && t._2 > 0) ) {
           // Colorless check
           areEnergiesEnough = availableEnergiesMap.values.filter(v => v > 0).sum >= requiredEnergiesMap(EnergyType.Colorless)
