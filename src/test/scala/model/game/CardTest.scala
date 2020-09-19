@@ -1,7 +1,7 @@
 package model.game
 
 import model.core.DataLoader
-import model.exception.MissingEnergyException
+import model.exception.InvalidOperationException
 import model.game.Cards.{EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.Weakness.Operation
@@ -23,7 +23,7 @@ class CardTest extends AnyFlatSpec with GivenWhenThen {
   }
 
   it should "throw MissingEnergyException trying to remove a non-assigned EnergyCard" in {
-    intercept[MissingEnergyException] {
+    intercept[InvalidOperationException] {
       pokemonCard.removeEnergy(EnergyType.Grass)
     }
   }

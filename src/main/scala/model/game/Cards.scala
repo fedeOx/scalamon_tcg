@@ -2,11 +2,11 @@ package model.game
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
-
 import StatusType.StatusType
-import model.exception.MissingEnergyException
+import model.exception.InvalidOperationException
 import model.game.Cards.EnergyCard.EnergyCardType.EnergyCardType
 import model.game.EnergyType.EnergyType
+
 import scala.collection.mutable
 
 object Cards {
@@ -36,7 +36,7 @@ object Cards {
 
     def addEnergy(energyCard: EnergyCard): Unit
 
-    @throws(classOf[MissingEnergyException])
+    @throws(classOf[InvalidOperationException])
     def removeEnergy(energy: EnergyType): Unit
 
     def removeFirstNEnergies(nEnergies : Int) : Unit
@@ -113,13 +113,13 @@ object Cards {
         energiesMap = mutableEnergiesMap.toImmutableMap
       }
 
-      @throws(classOf[MissingEnergyException])
+      @throws(classOf[InvalidOperationException])
       override def removeEnergy(energy: EnergyType): Unit = {
         def _removeEnergy(mutableEnergiesMap: mutable.Map[EnergyType, Int]): mutable.Map[EnergyType, Int] =
           mutableEnergiesMap.get(energy) match {
             case Some(e) if e>1 => mutableEnergiesMap(energy) -= 1; mutableEnergiesMap
             case Some(_) => mutableEnergiesMap.remove(energy); mutableEnergiesMap
-            case None => throw new MissingEnergyException("There is not an energy of the specified type that can be removed")
+            case None => throw new InvalidOperationException("There is not an energy of the specified type that can be removed")
         }
         energiesMap = _removeEnergy(energiesMap.toMutableMap).toImmutableMap
       }

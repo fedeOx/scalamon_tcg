@@ -2,7 +2,7 @@ package controller
 
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
-import model.exception.{ActivePokemonException, BenchPokemonException}
+import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, DeckCard, DeckType}
 import model.game.DeckType.DeckType
@@ -34,12 +34,16 @@ trait Controller {
 
   /**
    * It inform [[model.core.TurnManager]] when the user has finished his placement turn.
+   * @throws model.exception.CoinNotLaunchedException if [[model.core.TurnManager]] has not launched the initial coin yet
    */
+  @throws(classOf[CoinNotLaunchedException])
   def playerReady(): Unit
 
   /**
    * It inform [[model.core.TurnManager]] when the user ends his turn.
+   * @throws model.exception.CoinNotLaunchedException if [[model.core.TurnManager]] has not launched the initial coin yet
    */
+  @throws(classOf[CoinNotLaunchedException])
   def endTurn(): Unit
 
   /**
@@ -52,18 +56,39 @@ trait Controller {
    */
   def drawAPrizeCard(): Unit
 
+  /**
+   * Swap the active pokemon with the benched pokemon in the specified position. If the active pokemon is KO, the benched
+   * pokemon takes the active pokemon role. If the active pokemon is not KO, this operation can be considered a retreat.
+   * @param position the position of the benched pokemon in the bench
+   */
   def swap(position: Int): Unit
 
   def handCardSelected: Option[Card]
 
   def handCardSelected_=(card: Option[Card])
 
-  @throws(classOf[ActivePokemonException])
+  /**
+   * To be called when a user select the active pokemon location. It decides what to do given
+   * [[controller.Controller#handCardSelected]] value.
+   * @throws model.exception.InvalidOperationException if the operation the user tries to do is not allowed
+   */
+  @throws(classOf[InvalidOperationException])
   def selectActivePokemonLocation(): Unit
 
-  @throws(classOf[BenchPokemonException])
+  /**
+   * To be called when a user select the pokemon bench location. It decides what to do given
+   * [[controller.Controller#handCardSelected]] value.
+   * @param position the position selected on the pokemon bench
+   * @throws model.exception.InvalidOperationException if the operation the user tries to do is not allowed
+   */
+  @throws(classOf[InvalidOperationException])
   def selectBenchLocation(position: Int): Unit
 
+  /**
+   * It makes [[model.core.GameManager]] manage the declaration of an attack from player active pokemon to opponent
+   * active pokemon.
+   * @param attack the active pokemon attack selected by the user
+   */
   def declareAttack(attack: Attack): Unit
 }
 
@@ -133,7 +158,8 @@ object Controller {
         val evolvedPokemon = GameManager.evolvePokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[PokemonCard])
         GameManager.playerActivePokemon = evolvedPokemon
         handCardSelected = None
-      case _ => throw new ActivePokemonException()
+
+      case _ => throw new InvalidOperationException("Operation not allowed on active pokemon location")
     }
 
     override def selectBenchLocation(position: Int): Unit = handCardSelected match {
@@ -152,7 +178,7 @@ object Controller {
         GameManager.putPokemonToPlayerBench(evolvedPokemon, position)
         handCardSelected = None
 
-      case _ => throw new BenchPokemonException()
+      case _ => throw new InvalidOperationException("Operation not allowed on pokemon bench location")
     }
 
     override def declareAttack(attack: Attack): Unit = GameManager.confirmAttack(attack)

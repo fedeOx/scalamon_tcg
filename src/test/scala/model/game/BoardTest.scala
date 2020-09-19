@@ -1,10 +1,9 @@
 package model.game
 
-import model.core.{DataLoader, GameManager}
-import model.exception.BenchPokemonException
-import model.game.Cards.EnergyCard.EnergyCardType
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import org.scalatest.{GivenWhenThen, OneInstancePerTest}
+import model.core.DataLoader
+import model.exception.InvalidOperationException
+import model.game.Cards.{Card, PokemonCard}
+import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 
 class BoardTest extends AnyFlatSpec with GivenWhenThen {
@@ -55,11 +54,11 @@ class BoardTest extends AnyFlatSpec with GivenWhenThen {
       assert(board.pokemonBench(i).isEmpty)
     }
 
-    intercept[BenchPokemonException] {
+    intercept[InvalidOperationException] {
       board.putPokemonInBenchPosition(Some(pokemonToAdd), board.pokemonBench.indices.size)
     }
 
-    intercept[BenchPokemonException] {
+    intercept[InvalidOperationException] {
       board.putPokemonInBenchPosition(None, board.pokemonBench.indices.size)
     }
   }
