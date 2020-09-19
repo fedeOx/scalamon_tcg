@@ -100,6 +100,7 @@ object Controller {
 
   private case class ControllerImpl(override var handCardSelected: Option[Card] = None) extends Controller {
 
+    private var isPlayerReady = false
     private var energyCardAlreadyAssigned = false
     private var pokemonAlreadyRetreated = false
 
@@ -126,7 +127,10 @@ object Controller {
 
     override def startGame(): Unit = TurnManager.notifyObservers(Event.placeCardsEvent())
 
-    override def playerReady(): Unit = TurnManager.playerReady()
+    override def playerReady(): Unit = {
+      isPlayerReady = true
+      TurnManager.playerReady()
+    }
 
     override def endTurn(): Unit = {
       energyCardAlreadyAssigned = false
@@ -154,7 +158,7 @@ object Controller {
 
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
 
-      case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerActivePokemonEmpty && !energyCardAlreadyAssigned =>
+      case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !GameManager.isPlayerActivePokemonEmpty && !energyCardAlreadyAssigned =>
         GameManager.addEnergyToPokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[EnergyCard])
         energyCardAlreadyAssigned = true
         handCardSelected = None
@@ -162,7 +166,7 @@ object Controller {
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerActivePokemonEmpty =>
         GameManager.playerActivePokemon = Some(c.asInstanceOf[PokemonCard]); handCardSelected = None
 
-      case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerActivePokemonEmpty
+      case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerActivePokemonEmpty && isPlayerReady
         && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerActivePokemon.get.name =>
         val evolvedPokemon = GameManager.evolvePokemon(GameManager.playerActivePokemon.get, c.asInstanceOf[PokemonCard])
         GameManager.playerActivePokemon = evolvedPokemon
@@ -173,7 +177,7 @@ object Controller {
 
     override def selectBenchLocation(position: Int): Unit = handCardSelected match {
 
-      case Some(c) if c.isInstanceOf[EnergyCard] && !GameManager.isPlayerBenchLocationEmpty(position) && !energyCardAlreadyAssigned =>
+      case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !GameManager.isPlayerBenchLocationEmpty(position) && !energyCardAlreadyAssigned =>
         GameManager.addEnergyToPokemon(GameManager.playerPokemonBench(position).get, c.asInstanceOf[EnergyCard])
         energyCardAlreadyAssigned = true
         handCardSelected = None
@@ -181,7 +185,7 @@ object Controller {
       case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isPlayerBenchLocationEmpty(position) =>
         GameManager.putPokemonToPlayerBench(Some(c.asInstanceOf[PokemonCard]), position); handCardSelected = None
 
-      case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerBenchLocationEmpty(position)
+      case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isPlayerBenchLocationEmpty(position) && isPlayerReady
         && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerBoard.pokemonBench(position).get.name =>
         val evolvedPokemon = GameManager.evolvePokemon(GameManager.playerPokemonBench(position).get, c.asInstanceOf[PokemonCard])
         GameManager.putPokemonToPlayerBench(evolvedPokemon, position)
