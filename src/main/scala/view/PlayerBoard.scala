@@ -40,9 +40,10 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
   private var bench = BenchZone(zoom, isHumans, this)
   private var deckDiscard = DeckDiscardZone()
   private var hand : HandZone = _
-  private var isFirstTurn : Boolean = true
+  var isFirstTurn : Boolean = true
   private var loadingMessage : Stage = _
   var board : Board = _
+  var opponentBoard : Board = _
   styleClass += "humanPB"
   children = List(prize, active, bench, deckDiscard)
   if (isHumans) {

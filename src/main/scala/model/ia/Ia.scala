@@ -4,7 +4,7 @@ import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
 
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
-import model.core.GameManager.{collapseToLeft, playerPokemonBench, putPokemonToPlayerBench}
+import model.core.GameManager.{collapseToLeft, putPokemonToBench}
 import model.core.{GameManager, TurnManager}
 import model.event.Events.Event
 import model.event.Events.Event.BuildGameField
@@ -33,6 +33,8 @@ object Ia extends Thread with Observer {
     opponentBoard.activePokemon = Some(pokemonWithMaxWeight.pokemonCard)
     //populate bench with basePokemon
     populateBench()
+    Thread.sleep(1000)
+    TurnManager.playerReady()
   }
 
   private def doTurn(): Unit = {
@@ -43,12 +45,12 @@ object Ia extends Thread with Observer {
     //metto pokemon in panchina
     populateBench()
     Thread.sleep(1500)
-    GameManager.notifyObservers(Event.updateOpponentBoardEvent())
+    GameManager.notifyObservers(Event.updateBoardsEvent())
     val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
     //evolve all pkm
     evolveAll()
     Thread.sleep(1500)
-    GameManager.notifyObservers(Event.updateOpponentBoardEvent())
+    GameManager.notifyObservers(Event.updateBoardsEvent())
     //calculate if the retreat of the active pokemon is convenient and Do it
     if (opponentBoard.pokemonBench.count(c => c.isDefined) > 0 && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored)
       calculateIfWithdrawAndDo()
@@ -56,7 +58,7 @@ object Ia extends Thread with Observer {
     if (getEnergy.nonEmpty)
       calculateAssignEnergy()
     Thread.sleep(1500)
-    GameManager.notifyObservers(Event.updateOpponentBoardEvent())
+    GameManager.notifyObservers(Event.updateBoardsEvent())
     //attack
     if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
       // GameManager.confirmAttack(opponentBoard.activePokemon.get.attacks.last)
@@ -101,7 +103,7 @@ object Ia extends Thread with Observer {
         opponentBoard.addCardsToDiscardStack(Seq(pokemonKO))
         opponentBoard.putPokemonInBenchPosition(None, opponentBoard.pokemonBench.filter(c => c.nonEmpty).indexWhere(pkm => pkm.get == pokemonKO))
 
-        if (playerPokemonBench.filter(c => c.nonEmpty).exists(c => c.get.isKO)){
+        if (GameManager.pokemonBench(opponentBoard).filter(c => c.nonEmpty).exists(c => c.get.isKO)){
           for ((c, i) <- collapseToLeft(opponentBoard.pokemonBench).zipWithIndex) {
             opponentBoard.putPokemonInBenchPosition(c, i)
           }

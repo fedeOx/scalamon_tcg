@@ -17,23 +17,17 @@ object Events {
 
     def nextTurnEvent(turnOwner: TurnOwner): Event = NextTurn(turnOwner)
 
-    def updatePlayerBoardEvent(): Event = UpdatePlayerBoard()
+    def updateBoardsEvent(): Event = UpdateBoards()
 
-    def updateOpponentBoardEvent(): Event = UpdateOpponentBoard()
-
-    def updateBothBoardsEvent(): Event = UpdateBothBoards()
-
-    def pokemonKOEvent(): Event = PokemonKO()
+    def pokemonKOEvent(isAttackingPokemonKO: Boolean = false): Event = PokemonKO(isAttackingPokemonKO)
 
     case class ShowDeckCards(deckCards: Seq[DeckCard]) extends Event
     case class BuildGameField(playerBoard: Board, opponentBoard: Board) extends Event
     case class FlipCoin(coinValue: TurnOwner) extends Event
     case class PlaceCards() extends Event
     case class NextTurn(turnOwner: TurnOwner) extends Event
-    case class UpdatePlayerBoard() extends Event
-    case class UpdateOpponentBoard() extends Event
-    case class UpdateBothBoards() extends Event
-    case class PokemonKO() extends Event
+    case class UpdateBoards() extends Event
+    case class PokemonKO(isAttackingPokemonKO: Boolean) extends Event
   }
 
 }

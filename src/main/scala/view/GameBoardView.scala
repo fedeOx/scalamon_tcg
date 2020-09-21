@@ -8,7 +8,7 @@ import javafx.scene.paint.ImagePattern
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events
 import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, PokemonKO, UpdateOpponentBoard, UpdatePlayerBoard}
+import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, PokemonKO, UpdateBoards}
 import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
@@ -82,7 +82,9 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   override def update(event: Events.Event): Unit = event match {
     case event if  event.isInstanceOf[BuildGameField] => {
       humanBoard.board = event.asInstanceOf[BuildGameField].playerBoard
+      humanBoard.opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
       opponentBoard.board = event.asInstanceOf[BuildGameField].opponentBoard
+      opponentBoard.opponentBoard = event.asInstanceOf[BuildGameField].playerBoard
       Platform.runLater(humanBoard.updateHand())
       Platform.runLater(humanBoard.updateActive())
       Platform.runLater(humanBoard.closeLoadingScreen())
@@ -90,32 +92,32 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
     case event if event.isInstanceOf[FlipCoin] =>{
       turnOwner = event.asInstanceOf[FlipCoin].coinValue
     }
-    case event : UpdatePlayerBoard => {
+    case event : UpdateBoards => {
       Platform.runLater({
 
         humanBoard.updateActive()
         humanBoard.updateHand()
         humanBoard.updateBench()
         humanBoard.updateDiscardStack()
-      })
-    }
-    case event : UpdateOpponentBoard => {
-      Platform.runLater({
-        opponentBoard.updateBench()
-        opponentBoard.updateActive()
-        opponentBoard.updateDiscardStack()
+        if (!humanBoard.isFirstTurn) {
+          opponentBoard.updateBench()
+          opponentBoard.updateActive()
+          opponentBoard.updateDiscardStack()
+        }
       })
     }
     case event : NextTurn => {
       humanBoard.disable = !(event.turnOwner == TurnOwner.Player)
-      if(event.turnOwner == TurnOwner.Player)
+      if(event.turnOwner == TurnOwner.Player) {
+        utils.controller.activePokemonStatusCheck()
         Platform.runLater({
-          openTurnScreen(this)
-          utils.controller.drawACard()
-          humanBoard.updateHand()
-          //opponentBoard.updateBench()
-          //opponentBoard.updateActive()
-        })
+            openTurnScreen(this)
+            utils.controller.drawACard()
+            humanBoard.updateHand()
+            //opponentBoard.updateBench()
+            //opponentBoard.updateActive()
+          })
+      }
       Platform.runLater({
         opponentBoard.updateBench()
         opponentBoard.updateActive()
@@ -126,7 +128,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
     case event : PokemonKO => {
       println("pokemonKO event")
       if (humanBoard.board.activePokemon.get.isKO)
-        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.board.pokemonBench))
+        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.board.pokemonBench, event.isAttackingPokemonKO))
       else {
         utils.controller.drawAPrizeCard()
       }

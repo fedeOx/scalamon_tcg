@@ -2,14 +2,18 @@ package model.core
 
 import common.Observable
 import model.event.Events.Event
-import model.exception.CardNotFoundException
+import model.exception.{CardNotFoundException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, Board, DeckCard, StatusType}
+
+import scala.util.Random
 
 object GameManager extends Observable {
 
   val InitialHandCardNum = 7
   val InitialPrizeCardNum = 6
+  val PoisonDamage = 10
+  val ConfusedDamage = 30
 
   private var _playerBoard: Option[Board] = None
   private var _opponentBoard: Option[Board] = None
@@ -33,89 +37,115 @@ object GameManager extends Observable {
     _opponentBoard.get
   }
 
-  def isPlayerActivePokemonEmpty: Boolean = playerBoard.activePokemon.isEmpty
+  def isActivePokemonEmpty(board: Board = playerBoard): Boolean = board.activePokemon.isEmpty
 
-  def isPlayerBenchLocationEmpty(position: Int): Boolean = playerBoard.pokemonBench(position).isEmpty
+  def isBenchLocationEmpty(position: Int, board: Board = playerBoard): Boolean = board.pokemonBench(position).isEmpty
 
-  def playerActivePokemon: Option[PokemonCard] = playerBoard.activePokemon
+  def activePokemon(board: Board = playerBoard): Option[PokemonCard] = board.activePokemon
 
-  def playerActivePokemon_=(pokemonCard: Option[PokemonCard]): Unit = {
-    playerBoard.activePokemon = pokemonCard
-    playerBoard.removeCardFromHand(pokemonCard.get)
+  def setActivePokemon(pokemonCard: Option[PokemonCard], board: Board = playerBoard): Unit = {
+    board.activePokemon = pokemonCard
+    board.removeCardFromHand(pokemonCard.get)
     notifyBoardUpdate()
   }
 
-  def playerPokemonBench: Seq[Option[PokemonCard]] = playerBoard.pokemonBench
+  def pokemonBench(board: Board = playerBoard): Seq[Option[PokemonCard]] = board.pokemonBench
 
-  def putPokemonToPlayerBench(pokemonCard: Option[PokemonCard], position: Int): Unit = {
-    playerBoard.putPokemonInBenchPosition(pokemonCard, position)
-    playerBoard.removeCardFromHand(pokemonCard.get)
+  def putPokemonToBench(pokemonCard: Option[PokemonCard], position: Int, board: Board = playerBoard): Unit = {
+    board.putPokemonInBenchPosition(pokemonCard, position)
+    board.removeCardFromHand(pokemonCard.get)
     notifyBoardUpdate()
   }
 
-  def drawPlayerCard(): Unit = {
-    playerBoard.addCardsToHand(playerBoard.popDeck(1))
+  def drawCard(board: Board = playerBoard): Unit = {
+    board.addCardsToHand(board.popDeck(1))
     notifyBoardUpdate()
   }
 
-  def drawPlayerPrizeCard(): Unit = {
-    playerBoard.addCardsToHand(playerBoard.popPrizeCard(1))
+  def drawPrizeCard(board: Board = playerBoard): Unit = {
+    board.addCardsToHand(board.popPrizeCard(1))
     notifyBoardUpdate()
   }
 
-  def destroyPlayerActivePokemon(replacementBenchPosition: Int): Unit = {
-    playerBoard.addCardsToDiscardStack(GameManager.playerBoard.activePokemon.get :: Nil)
-    swap(None, replacementBenchPosition)
-    for((c, i) <- collapseToLeft(playerPokemonBench).zipWithIndex) {
-      playerBoard.putPokemonInBenchPosition(c, i)
+  def destroyActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Unit = {
+    board.addCardsToDiscardStack(activePokemon(board).get :: Nil)
+    swap(board, None, replacementBenchPosition)
+    for((c, i) <- collapseToLeft(pokemonBench(board)).zipWithIndex) {
+      board.putPokemonInBenchPosition(c, i)
     }
     notifyBoardUpdate()
   }
 
-  def retreatPlayerActivePokemon(replacementBenchPosition: Int): Unit = {
-    val activePokemon = GameManager.playerBoard.activePokemon.get
-    if (activePokemon.hasEnergies(activePokemon.retreatCost)) {
-      activePokemon.status = StatusType.NoStatus
-      activePokemon.removeFirstNEnergies(activePokemon.retreatCost.size)
-      swap(Some(activePokemon), replacementBenchPosition)
+  def retreatActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Unit = {
+    val pokemon = activePokemon(board).get
+    if (pokemon.status == StatusType.Asleep ) {
+      throw new InvalidOperationException("Your pokemon cannot retreat because its status is " + pokemon.status)
+    } else if (pokemon.hasEnergies(pokemon.retreatCost)) {
+      pokemon.status = StatusType.NoStatus
+      pokemon.removeFirstNEnergies(pokemon.retreatCost.size)
+      swap(board, Some(pokemon), replacementBenchPosition)
       notifyBoardUpdate()
     }
   }
 
-  def addEnergyToPokemon(pokemonCard: PokemonCard, energyCard: EnergyCard): Unit = {
+  def activePokemonStartTurnChecks(activePokemon: PokemonCard): Unit = {
+    if (activePokemon.immune) {
+      activePokemon.immune = false
+    }
+    if (activePokemon.status == StatusType.Poisoned) {
+      activePokemon.addDamage(PoisonDamage, Seq())
+    }
+  }
+
+  def activePokemonEndTurnChecks(activePokemon: PokemonCard): Unit = {
+    activePokemon.status match {
+      case StatusType.Paralyzed => activePokemon.status = StatusType.NoStatus
+      case StatusType.Asleep => if (new Random().nextInt(2) == 1) activePokemon.status = StatusType.NoStatus
+      case _ => // permanent status
+    }
+  }
+
+  def addEnergyToPokemon(pokemonCard: PokemonCard, energyCard: EnergyCard, board: Board = playerBoard): Unit = {
     pokemonCard.addEnergy(energyCard)
-    playerBoard.removeCardFromHand(energyCard)
+    board.removeCardFromHand(energyCard)
     notifyBoardUpdate()
   }
 
-  def evolvePokemon(pokemonCard: PokemonCard, evolution: PokemonCard): Option[PokemonCard] = {
+  def evolvePokemon(pokemonCard: PokemonCard, evolution: PokemonCard, board: Board = playerBoard): Option[PokemonCard] = {
     evolution.energiesMap = pokemonCard.energiesMap
-    evolution.status = pokemonCard.status
     evolution.actualHp = evolution.initialHp - (pokemonCard.initialHp - pokemonCard.actualHp)
-    playerBoard.addCardsToDiscardStack(pokemonCard :: Nil)
+    board.addCardsToDiscardStack(pokemonCard :: Nil)
     Some(evolution)
   }
 
-  def confirmAttack(attack: Attack): Unit ={
-    if (playerActivePokemon.nonEmpty && opponentBoard.activePokemon.nonEmpty) {
-      attack.effect.get.useEffect(playerBoard, opponentBoard)
-      if (playerActivePokemon.get.isKO || opponentBoard.activePokemon.get.isKO) {
-        this.notifyObservers(Event.pokemonKOEvent())
-      }
-      /*
-      if (playerPokemonBench.filter(c => c.nonEmpty).exists(c => c.get.isKO)) {
-        for((c, i) <- collapseToLeft(playerPokemonBench).zipWithIndex) {
-          playerBoard.putPokemonInBenchPosition(c, i)
+  @throws(classOf[InvalidOperationException])
+  def confirmAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean ={
+    var attackingPokemonIsKO = false
+    if (activePokemon(attackingBoard).nonEmpty && activePokemon(defendingBoard).nonEmpty) {
+      val attackingPokemon = activePokemon(attackingBoard).get
+      val defendingPokemon = activePokemon(defendingBoard).get
+      if (attackingPokemon.status == StatusType.Asleep ||
+        attackingPokemon.status == StatusType.Paralyzed) {
+        throw new InvalidOperationException("Your pokemon cannot attack because its status is " + attackingPokemon.status)
+      } else {
+        if (attackingPokemon.status == StatusType.Confused && new Random().nextInt(2) == 0) {
+          attackingPokemon.addDamage(ConfusedDamage, Seq())
+        } else {
+          attack.effect.get.useEffect(attackingBoard, defendingBoard)
         }
+        if (attackingPokemon.isKO || defendingPokemon.isKO) {
+          this.notifyObservers(Event.pokemonKOEvent(attackingPokemon.isKO))
+          attackingPokemonIsKO = attackingPokemon.isKO
+        }
+        notifyBoardUpdate()
       }
-      */
-      notifyBoardUpdate()
     }
+    attackingPokemonIsKO
   }
 
-  private def swap(activePokemon: Option[PokemonCard], benchPosition: Int): Unit = {
-    playerBoard.activePokemon = playerBoard.pokemonBench(benchPosition)
-    playerBoard.putPokemonInBenchPosition(activePokemon, benchPosition)
+  private def swap(board: Board, activePokemon: Option[PokemonCard], benchPosition: Int): Unit = {
+    board.activePokemon = board.pokemonBench(benchPosition)
+    board.putPokemonInBenchPosition(activePokemon, benchPosition)
   }
 
   private def collapseToLeft[A](bench: Seq[Option[A]]): List[Option[A]] = bench match {
@@ -155,6 +185,6 @@ object GameManager extends Observable {
   }
 
   private def notifyBoardUpdate(): Unit = {
-    this.notifyObservers(Event.updatePlayerBoardEvent())
+    this.notifyObservers(Event.updateBoardsEvent())
   }
 }

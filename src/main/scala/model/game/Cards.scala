@@ -162,7 +162,7 @@ object Cards {
           case _ :: t => damageWithResistances(damage, t)
           case _ => damage
         }
-        if (!this.isKO) {
+        if (!this.isKO && !immune) {
           var realDamage = damageWithResistances(damageWithWeaknesses(damage, weaknesses), resistances)
           if (realDamage < 0) realDamage = 0
           actualHp = actualHp - realDamage

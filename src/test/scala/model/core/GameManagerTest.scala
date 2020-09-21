@@ -2,7 +2,7 @@ package model.core
 
 import common.Observer
 import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, ShowDeckCards, UpdatePlayerBoard}
+import model.event.Events.Event.{BuildGameField, ShowDeckCards, UpdateBoards}
 import model.exception.CardNotFoundException
 import model.game.Cards.{Card, PokemonCard}
 import model.game.{Board, DeckCard, DeckType, EnergyType, SetType}
@@ -59,21 +59,21 @@ class GameManagerTest extends AnyFlatSpec with MockFactory  {
 
   it should "notify observers when a card is draw from player deck or prize cards stack" in {
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdatePlayerBoard]
+      e.isInstanceOf[UpdateBoards]
     }}).twice()
-    GameManager.drawPlayerCard()
-    GameManager.drawPlayerPrizeCard()
+    GameManager.drawCard(GameManager.playerBoard)
+    GameManager.drawPrizeCard(GameManager.playerBoard)
   }
 
   it should "notify observers when player active pokemon or player bench is updated" in {
     val newActivePokemon: PokemonCard = PokemonCard("1", "base1", Seq(EnergyType.Colorless), "myActivePokemon", 100, Nil, Nil, Nil, "", Nil)
     val newBenchPokemon: PokemonCard = PokemonCard("2", "base1", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdatePlayerBoard]
+      e.isInstanceOf[UpdateBoards]
     }}).repeat(3)
-    GameManager.playerActivePokemon = Some(newActivePokemon)
-    GameManager.putPokemonToPlayerBench(Some(newBenchPokemon), 0)
-    GameManager.destroyPlayerActivePokemon(0)
+    GameManager.setActivePokemon(Some(newActivePokemon))
+    GameManager.putPokemonToBench(Some(newBenchPokemon), 0)
+    GameManager.destroyActivePokemon(0)
   }
 
   it should "throw CardNotFoundException if a DeckCard does not exists in Cards set" in {

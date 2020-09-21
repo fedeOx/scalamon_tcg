@@ -67,9 +67,10 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
             if (!parentBoard.board.activePokemon.get.hasEnergies(attack.cost))
               disable = true
             onAction = event => {
-              utils.controller.declareAttack(attack)
-              utils.controller.endTurn()
-              event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+              if (!utils.controller.declareAttack(parentBoard.board, parentBoard.opponentBoard, attack)) {
+                utils.controller.endTurn()
+                event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+              }
               //dialog.close()
             }
           }
@@ -83,7 +84,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
           onAction = event => {
 
             println("ritirata")
-            PopupBuilder.openBenchSelectionScreen(parentWindow,parentBoard.board.pokemonBench)
+            PopupBuilder.openBenchSelectionScreen(parentWindow,parentBoard.board.pokemonBench, false)
 
             event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
           }
