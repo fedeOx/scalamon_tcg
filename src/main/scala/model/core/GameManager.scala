@@ -133,7 +133,11 @@ object GameManager extends Observable {
         } else {
           attack.effect.get.useEffect(attackingBoard, defendingBoard)
         }
+        // Controllo sul KO delle bench -> aggiunta a pila degli scarti dei pokemon KO nell bench + collapse left
+        // + invio n eventi pokemonKOEvent(false) (uno per ogni pokemon della panchina DELL'AVVERSARIO morto, NEL CASO DI POKEMON
+        // MORTI NELLA PANCHINA DEL GIOCATORE FARE SOLO LA RIMOZIONE E AGGIUNTA AL DISCARDSTACK e LA COLLAPSE LEFT)
         if (attackingPokemon.isKO || defendingPokemon.isKO) {
+          // Controllare vittoria: se prizeCardStack.size==1 || se pokemonBench di defendingBoard.isEmpty => Event.endGame(winnerPlayer: String) // Gestire reset del gioco
           this.notifyObservers(Event.pokemonKOEvent(attackingPokemon.isKO))
           attackingPokemonIsKO = attackingPokemon.isKO
         }
