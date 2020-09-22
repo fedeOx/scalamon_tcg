@@ -4,7 +4,6 @@ import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
 
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
-import model.core.GameManager.{collapseToLeft, putPokemonToBench}
 import model.core.{GameManager, TurnManager}
 import model.event.Events.Event
 import model.event.Events.Event.BuildGameField

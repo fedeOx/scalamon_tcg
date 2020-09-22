@@ -21,7 +21,7 @@ class EffectTest() extends FlatSpec with GivenWhenThen {
 
   it should "damage the enemy based on my water energies limited by 2 " in {
     Given(" a pokemon with damage based on its assigned energy")
-    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Blastoise")
+    BoardTmp.iaBoard.activePokemon =  getSpecificPokemon("Blastoise")
     And(" a pokemon with water weakness ")
     BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Charizard")
     When("we add 4 energies to the atker")
