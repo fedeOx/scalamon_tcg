@@ -31,10 +31,10 @@ case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exte
       isEmpty = true
       val cardMaterial = new PhongMaterial()
       cardMaterial.diffuseColor = Color.Transparent
-      bench = bench :+ new Box {
+      bench = Seq(new Box {
         material = cardMaterial
         depth = 0.5
-      }
+      })
     } else {
       isEmpty = false
       bench = Seq[Box]()

@@ -4,8 +4,8 @@ import common.{Observer, TurnOwner}
 import common.TurnOwner.TurnOwner
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, PlaceCards, ShowDeckCards, UpdatePlayerBoard}
-import model.exception.{ActivePokemonException, BenchPokemonException, CoinNotLaunchedException}
+import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, PlaceCards, ShowDeckCards}
+import model.exception.CoinNotLaunchedException
 import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{EnergyCard, PokemonCard}
 import model.game.{Board, DeckCard, DeckType, EnergyType, SetType}

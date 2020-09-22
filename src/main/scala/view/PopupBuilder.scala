@@ -47,7 +47,7 @@ object PopupBuilder {
     dialog.showAndWait()
   }
 
-  def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]]): Unit = {
+  def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]], isAttackingPokemonKO: Boolean): Unit = {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
@@ -67,6 +67,9 @@ object PopupBuilder {
             onMouseClicked = event => {
               utils.controller.swap(cardIndex)
               scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+              if (isAttackingPokemonKO) {
+                utils.controller.endTurn()
+              }
             }
           }
         }}

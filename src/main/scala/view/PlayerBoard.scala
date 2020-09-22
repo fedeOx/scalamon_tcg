@@ -32,9 +32,10 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
   private val bench = BenchZone(zoom, isHumans, this)
   private val deckDiscard = DeckDiscardZone()
   private var hand : HandZone = _
-  private var isFirstTurn : Boolean = true
   var board : Board = _
   val parentWin : Window = parentWindow
+  var isFirstTurn : Boolean = true
+  var opponentBoard : Board = _
   styleClass += "humanPB"
   children = List(prize, active, bench, deckDiscard)
   if (isHumans) {
