@@ -54,7 +54,7 @@ sealed trait DiscardEnergy extends AttackEffect {
     if (energyCount == -1)
       energyCount = pokemonToApply.get.totalEnergiesStored
     getStringArgFromMap("energyType") match {
-      case "Colorless" => pokemonToApply.get.removeFirstNEnergies(getIntArgFromMap("energyCount"))
+      case "Colorless" => pokemonToApply.get.removeFirstNEnergies(energyCount)
       case specificEnergy =>
         for (_ <- 1 to energyCount)
             pokemonToApply.get.removeEnergy(EnergyType.withNameWithDefault(specificEnergy))

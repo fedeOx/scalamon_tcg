@@ -1,6 +1,6 @@
 package model
 
-import model.core.DataLoader
+import model.core.{DataLoader, GameManager}
 import model.game.Cards.EnergyCard.EnergyCardImpl
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
@@ -105,9 +105,7 @@ class EffectTest() extends FlatSpec with GivenWhenThen {
 
   }
 
-
-  it should "damage and discard 2 energy " in {
-
+  it should "damage and discard 2 general energy " in {
 
     Given("a pokemon with this effect")
     BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Charizard")
@@ -119,6 +117,18 @@ class EffectTest() extends FlatSpec with GivenWhenThen {
     assert(BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 100)
     And("the attacking pokemon must have 2 less energy")
     assert(BoardTmp.iaBoard.activePokemon.get.totalEnergiesStored == initalEnergies - 2)
+
+  }
+
+  it should "damage and discard ALL energies" in {
+    Given("a pokemon with this effect")
+    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Zapdos")
+    addEnergiesToPokemon(EnergyType.Lightning,4,BoardTmp.iaBoard.activePokemon.get)
+    BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Charizard")
+    BoardTmp.playerBoard.activePokemon.get.actualHp = 120
+    Then("apply effect")
+    BoardTmp.iaBoard.activePokemon.get.attacks.last.effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard)
+    assert( BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 100 && BoardTmp.iaBoard.activePokemon.get.totalEnergiesStored == 0)
 
   }
 
