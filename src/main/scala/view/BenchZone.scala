@@ -25,10 +25,7 @@ case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exte
 
   updateView()
   def updateView(cards: Seq[Option[PokemonCard]] = Seq()): Unit = {
-    /*cards.zipWithIndex.foreach{case (card,cardIndex) => {
-      bench = bench :+ createCard("/assets/base1/"+card.imageId+".jpg", Some(zone), CardType.Hand, 1*cardIndex, //4.5 for Group
-        cardIndex = cardIndex, isHumans = Some(isHumans), Some(this))
-    }}*/
+    //TODO: check ultimo pkmn
     if (cards.isEmpty || (cards.count(c => c.isEmpty) == 5)) {
       println("sono qua")
       isEmpty = true
@@ -42,7 +39,7 @@ case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exte
       isEmpty = false
       bench = Seq[Box]()
       cards.filter(c => c.isDefined).zipWithIndex.foreach{case (card,cardIndex) => {
-        bench = bench :+ createCard("/assets/base1/"+card.get.imageId+".jpg", Some(zone), CardType.Bench,
+        bench = bench :+ createCard("/assets/"+card.get.belongingSetCode+"/"+card.get.imageId+".jpg", Some(zone), CardType.Bench,
           cardIndex = cardIndex, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.board))
       }}
     }
@@ -61,11 +58,21 @@ case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exte
   onMouseClicked = _ => {
     if (isHumans && !isOverChildren && !bench.size.equals(5)) {
       if (isEmpty) {
-        utils.controller.selectBenchLocation(0)
+        try {
+          utils.controller.selectBenchLocation(0)
+        } catch {
+          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.parentWin,ex.getMessage)
+        }
         println("panchina vuota")
       }
-      else
-        utils.controller.selectBenchLocation(bench.size)
+      else {
+        try {
+          utils.controller.selectBenchLocation(bench.size)
+        } catch {
+          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.parentWin,ex.getMessage)
+        }
+
+      }
     }
   }
 }

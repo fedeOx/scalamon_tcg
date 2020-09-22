@@ -1,31 +1,69 @@
 package view
 
 import model.game.Cards.PokemonCard
-import scalafx.event
+import scalafx.geometry.Pos
 import scalafx.scene.Scene
-import scalafx.scene.control.Label
+import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.HBox
-import scalafx.stage.{Modality, Stage, Window}
-import view.CardCreator.createCard
+import scalafx.stage.{Modality, Stage, StageStyle, Window}
 
-import scala.reflect.macros.whitebox
-
+/***
+ * Object that creates popup messages for the game
+ */
 object PopupBuilder {
+
+  def openLoadingScreen(parent: Window) : Stage = {
+    val dialog: Stage = new Stage() {
+      initOwner(parent)
+      initModality(Modality.ApplicationModal)
+      scene = new Scene(300, 200) {
+        content = new Label("Caricamento...")
+      }
+      sizeToScene()
+      resizable = false
+      alwaysOnTop = true
+    }
+    dialog
+  }
+
+  def closeLoadingScreen(loadingMessage: Stage) : Unit = {
+    loadingMessage.close()
+  }
+
+  def openInvalidOperationMessage(parent: Window, message: String) : Unit = {
+    val dialog: Stage = new Stage() {
+      initOwner(parent)
+      initModality(Modality.ApplicationModal)
+      scene = new Scene(300, 200) {
+        content = List(new Label(message), new Button("Ok") {
+          onAction = _ => scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+        })
+      }
+      sizeToScene()
+      resizable = false
+      alwaysOnTop = true
+    }
+    dialog.showAndWait()
+  }
 
   def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]]): Unit = {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
+      initStyle(StageStyle.Undecorated)
       scene = new Scene(1000, 400) {
-        var cardContainer = new HBox{
+        private val cardContainer: HBox = new HBox{
+          prefWidth = 1000
           prefHeight = 350
+          spacing = 10
+          alignment = Pos.Center
         }
         var cardList : Seq[ImageView] = Seq()
         bench.filter(c => c.isDefined).zipWithIndex.foreach{case (card,cardIndex) => {
           cardList = cardList :+ new ImageView(new Image("/assets/"+card.get.belongingSetCode+"/"+card.get.imageId+".jpg")) {
-            fitWidth = 160
-            fitHeight = 350
+            fitWidth = 180
+            fitHeight = 280
             onMouseClicked = event => {
               utils.controller.swap(cardIndex)
               scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()

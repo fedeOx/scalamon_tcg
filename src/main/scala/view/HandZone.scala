@@ -23,7 +23,7 @@ case class HandZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exten
   def updateView(cards: Seq[Card]) : Unit = {
     hand = Seq()
     cards.zipWithIndex.foreach{case (card,cardIndex) => {
-      hand = hand :+ createCard("/assets/base1/"+card.imageId+".jpg", Some(zone), CardType.Hand, 1*cardIndex, //4.5 for Group
+      hand = hand :+ createCard("/assets/"+card.belongingSetCode+"/"+card.imageId+".jpg", Some(zone), CardType.Hand, 1*cardIndex, //4.5 for Group
         cardIndex = cardIndex, isHumans = Some(isHumans), Some(this), Some(parentBoard.board))
     }}
     children = hand

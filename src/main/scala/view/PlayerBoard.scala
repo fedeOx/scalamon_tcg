@@ -1,27 +1,19 @@
 package view
 
-import common.Observer
-import controller.Controller
 import javafx.geometry.Insets
-import model.core.{DataLoader, GameManager, TurnManager}
-import model.event.Events
-import model.event.Events.Event
-import model.event.Events.Event.BuildGameField
-import model.game.{Board, DeckCard, DeckType, SetType, StatusType}
 import model.game.Cards.{Card, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.StatusType.StatusType
+import model.game.{Board, StatusType}
 import scalafx.Includes._
-import scalafx.application.Platform
 import scalafx.geometry.Pos
-import scalafx.scene.control.Label
-import scalafx.scene.{Group, Scene}
+import scalafx.scene.Group
 import scalafx.scene.image.Image
 import scalafx.scene.layout.{HBox, VBox}
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.Rotate
-import scalafx.stage.{Modality, Stage, Window}
+import scalafx.stage.Window
 
 /***
  * Player board component for the player
@@ -35,14 +27,14 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
   private val WIDTH = 55
   private val HEIGHT = 25
 
-  private var prize = PrizeCardsZone()
-  private var active = ActivePkmnZone(zoom, isHumans, this, parentWindow)
-  private var bench = BenchZone(zoom, isHumans, this)
-  private var deckDiscard = DeckDiscardZone()
+  private val prize = PrizeCardsZone()
+  private val active = ActivePkmnZone(zoom, isHumans, this, parentWindow)
+  private val bench = BenchZone(zoom, isHumans, this)
+  private val deckDiscard = DeckDiscardZone()
   private var hand : HandZone = _
   private var isFirstTurn : Boolean = true
-  private var loadingMessage : Stage = _
   var board : Board = _
+  val parentWin : Window = parentWindow
   styleClass += "humanPB"
   children = List(prize, active, bench, deckDiscard)
   if (isHumans) {
@@ -60,19 +52,13 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
       onMouseClicked = _ => {
         if(isFirstTurn) {
           isFirstTurn = false
-          //controller.playerReady
           utils.controller.playerReady()
-          //TurnManager.playerReady()
         } else
         utils.controller.endTurn()
-          //TurnManager.switchTurn()
         println("fine turno")
       }
     }
     children += tasto
-
-    loadingMessage = openLoadingScreen(parentWindow)
-    loadingMessage.show()
   }
 
   minWidth(WIDTH)
@@ -82,30 +68,10 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
 
   if (!isHumans) rotate = 180 else translateY = 25
 
-
   def updateHand() : Unit = hand.updateView(board.hand)
   def updateActive() : Unit = active.updateView(board.activePokemon)
   def updateBench() : Unit = bench.updateView(board.pokemonBench)
   def updateDiscardStack() : Unit = if (board.discardStack.nonEmpty) deckDiscard.updateView(board.discardStack.last)
-
-  //TODO: spostala in gameBoardView
-  def openLoadingScreen(parent: Window) : Stage = {
-    val dialog: Stage = new Stage() {
-      initOwner(parent)
-      initModality(Modality.ApplicationModal)
-      scene = new Scene(300, 200) {
-        content = new Label("Caricamento...")
-      }
-      sizeToScene()
-      resizable = false
-      alwaysOnTop = true
-    }
-    dialog
-  }
-
-  def closeLoadingScreen() : Unit = {
-    loadingMessage.close()
-  }
 }
 
 class ZoomZone extends HBox {
@@ -118,7 +84,7 @@ class ZoomZone extends HBox {
 
   def showContent(card: Card): Unit = {
     val cardMaterial = new PhongMaterial()
-    cardMaterial.diffuseMap = new Image(new Image("/assets/base1/"+card.imageId+".jpg"))
+    cardMaterial.diffuseMap = new Image(new Image("/assets/"+card.belongingSetCode+"/"+card.imageId+".jpg"))
     children = Seq(new Box {
       depth = 0.1
       width = 13

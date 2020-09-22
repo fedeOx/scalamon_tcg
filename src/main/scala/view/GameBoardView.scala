@@ -1,28 +1,19 @@
 package view
 
-import common.{Observer, TurnOwner}
 import common.TurnOwner.TurnOwner
+import common.{Observer, TurnOwner}
 import controller.Controller
-import javafx.geometry.Insets
 import javafx.scene.paint.ImagePattern
-import model.core.{DataLoader, GameManager, TurnManager}
+import model.core.{GameManager, TurnManager}
 import model.event.Events
-import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, PokemonKO, UpdateOpponentBoard, UpdatePlayerBoard}
-import model.game.Cards.EnergyCard.EnergyCardType
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.EnergyType.EnergyType
-import model.game.Weakness.Operation
-import model.game.Weakness.Operation.Operation
-import model.game.{EnergyType, Resistance, SetType, StatusType, Weakness}
+import model.event.Events.Event._
 import model.ia.Ia
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
-import scalafx.scene.control.{Button, Label}
+import scalafx.scene.control.Label
 import scalafx.scene.image.Image
-import scalafx.scene.layout._
-import scalafx.scene.paint.{Color, PhongMaterial}
+import scalafx.scene.paint.PhongMaterial
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing}
@@ -40,6 +31,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   private val opponentBoard = new PlayerBoard(false, zoomZone, parentWindow)
   private val humanBoard = new PlayerBoard(true, zoomZone, parentWindow)
   private var turnOwner : TurnOwner = TurnOwner.Player
+  private var loadingMessage : Stage = _
   title = TITLE
   icons += new Image("/assets/icon.png")
   Ia.start()
@@ -71,6 +63,9 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       alignmentInParent = Pos.Center
       children = Seq(opponentBoard, humanBoard)
     }, zoomZone)
+
+    loadingMessage = PopupBuilder.openLoadingScreen(parentWindow)
+    loadingMessage.show()
   }
 
   resizable = true
@@ -85,14 +80,13 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       opponentBoard.board = event.asInstanceOf[BuildGameField].opponentBoard
       Platform.runLater(humanBoard.updateHand())
       Platform.runLater(humanBoard.updateActive())
-      Platform.runLater(humanBoard.closeLoadingScreen())
+      Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
     }
     case event if event.isInstanceOf[FlipCoin] =>{
       turnOwner = event.asInstanceOf[FlipCoin].coinValue
     }
     case event : UpdatePlayerBoard => {
       Platform.runLater({
-
         humanBoard.updateActive()
         humanBoard.updateHand()
         humanBoard.updateBench()
@@ -121,7 +115,6 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
         opponentBoard.updateActive()
         opponentBoard.updateDiscardStack()
       })
-
     }
     case event : PokemonKO => {
       println("pokemonKO event")

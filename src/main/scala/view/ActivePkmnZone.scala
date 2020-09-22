@@ -43,7 +43,7 @@ case class ActivePkmnZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard,
       }
     } else {
       isEmpty = false
-      children = createCard("/assets/base1/"+active.get.imageId+".jpg", Some(zone), cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this),
+      children = createCard("/assets/"+active.get.belongingSetCode+"/"+active.get.imageId+".jpg", Some(zone), cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this),
         board = Some(parentBoard.board))
     }
   }
