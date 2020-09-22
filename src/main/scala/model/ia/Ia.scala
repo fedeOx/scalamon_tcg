@@ -29,8 +29,7 @@ object Ia extends Thread with Observer {
     val basePokemons: Seq[PokemonCard] = hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
     val pokemonWithMaxWeight = basePokemons.flatMap(pkm => createWeightedCard(pkm, calculateweightForPlaceCard)).reduceLeft(getMax)
     //drop active pokemon from hand
-    opponentBoard.removeCardFromHand(pokemonWithMaxWeight.pokemonCard)
-    opponentBoard.activePokemon = Some(pokemonWithMaxWeight.pokemonCard)
+    GameManager.setActivePokemon(Some(pokemonWithMaxWeight.pokemonCard), opponentBoard)
     //populate bench with basePokemon
     populateBench()
     Thread.sleep(1000)
@@ -39,8 +38,10 @@ object Ia extends Thread with Observer {
 
   private def doTurn(): Unit = {
     //TODO QUI
+    GameManager.activePokemonStartTurnChecks(opponentBoard.activePokemon.get)
     //pesco
-    opponentBoard.addCardsToHand(opponentBoard.popDeck(1))
+    //opponentBoard.addCardsToHand(opponentBoard.popDeck(1))
+    GameManager.drawCard(opponentBoard)
     myHand = opponentBoard.hand
     //metto pokemon in panchina
     populateBench()
@@ -52,7 +53,7 @@ object Ia extends Thread with Observer {
     Thread.sleep(1500)
     GameManager.notifyObservers(Event.updateBoardsEvent())
     //calculate if the retreat of the active pokemon is convenient and Do it
-    if (opponentBoard.pokemonBench.count(c => c.isDefined) > 0 && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored)
+    if (!GameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored)
       calculateIfWithdrawAndDo()
     //assignEnergy
     if (getEnergy.nonEmpty)
@@ -60,16 +61,20 @@ object Ia extends Thread with Observer {
     Thread.sleep(1500)
     GameManager.notifyObservers(Event.updateBoardsEvent())
     //attack
-    if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
-      // GameManager.confirmAttack(opponentBoard.activePokemon.get.attacks.last)
-      opponentBoard.activePokemon.get.attacks.last.effect.get.useEffect(opponentBoard, playerBoard)
-    } else if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.head.cost)) {
-      opponentBoard.activePokemon.get.attacks.head.effect.get.useEffect(opponentBoard, playerBoard)
-      // GameManager.confirmAttack(opponentBoard.activePokemon.get.attacks.head)
+    try {
+      if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
+        println("primo attacco IA")
+        GameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.last)
+      } else if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.head.cost)) {
+        println("secondo attacco IA")
+        GameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.head)
+      }
     }
+    catch {
+      case ex: Exception => println("Exception caught : " + ex)
+    }
+    GameManager.activePokemonEndTurnChecks(opponentBoard.activePokemon.get)
 
-    if(opponentBoard.activePokemon.get.isKO || playerBoard.activePokemon.get.isKO)
-      GameManager.notifyObservers(Event.pokemonKOEvent())
     TurnManager.switchTurn()
   }
 
@@ -97,42 +102,26 @@ object Ia extends Thread with Observer {
 
   private def checkForKo(): Unit = {
     if (opponentBoard.activePokemon.get.isKO) {
-      val pokemonKO = opponentBoard.activePokemon.get
+      //val pokemonKO = opponentBoard.activePokemon.get
       if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
         calculateIfWithdrawAndDo()
-        opponentBoard.addCardsToDiscardStack(Seq(pokemonKO))
-        opponentBoard.putPokemonInBenchPosition(None, opponentBoard.pokemonBench.filter(c => c.nonEmpty).indexWhere(pkm => pkm.get == pokemonKO))
-
-        if (GameManager.pokemonBench(opponentBoard).filter(c => c.nonEmpty).exists(c => c.get.isKO)){
-          for ((c, i) <- collapseToLeft(opponentBoard.pokemonBench).zipWithIndex) {
-            opponentBoard.putPokemonInBenchPosition(c, i)
-          }
-        }
-        //TODO code Double
-
       }
       else
         println("PERSO IA")
     } else {
       println("IA- Pesco carta premio")
-      opponentBoard.addCardsToHand(opponentBoard.popPrizeCard(1))
-      println("IA- Carte Premio Rimaste : "+opponentBoard.prizeCards)
+      GameManager.drawPrizeCard(opponentBoard)
+      println("IA- Carte Premio Rimaste : " + opponentBoard.prizeCards)
     }
   }
 
-  private def collapseToLeft[A](bench: Seq[Option[A]]): List[Option[A]] = bench match {
-    case h :: t if h.isEmpty => collapseToLeft(t) :+ h
-    case h :: t if h.nonEmpty => h :: collapseToLeft(t)
-    case _ => Nil
-  }
 
 
   private def populateBench(): Unit = {
     val basePokemons: Seq[PokemonCard] = opponentBoard.hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
     basePokemons.zipWithIndex.foreach {
       case (pkm, i) => if (opponentBoard.pokemonBench.count(card => card.nonEmpty) < 5) {
-        opponentBoard.putPokemonInBenchPosition(Some(pkm), opponentBoard.pokemonBench.count(card => card.nonEmpty))
-        opponentBoard.removeCardFromHand(pkm)
+        GameManager.putPokemonToBench(Some(pkm), opponentBoard.pokemonBench.count(card => card.nonEmpty),opponentBoard)
       }
     }
   }
@@ -166,7 +155,6 @@ object Ia extends Thread with Observer {
       if (pokemon.weaknesses.head.energyType == playerBoard.activePokemon.get.pokemonTypes.head)
         totalweight -= WeightIa.WeakPokemon
     }
-
     //15 x energyType
     totalweight += pokemon.totalEnergiesStored * WeightIa.HasEnergy
     //is evolution
@@ -184,15 +172,15 @@ object Ia extends Thread with Observer {
     if (evolution.size > 0)
       evolve(evolution)
 
-    //TODO SISTEMARE EVOLUZIONI POKEMON , assegnare energie e danni del pokemon evoluto
     @scala.annotation.tailrec
     def evolve(pokemons: Seq[PokemonCard]): Unit = pokemons match {
       case evolution :: t if opponentBoard.activePokemon.get.name == evolution.evolutionName => {
-        TransferEvolutionInfo(evolution, opponentBoard.activePokemon.get)
-        opponentBoard.activePokemon = Some(evolution.asInstanceOf[PokemonCard])
+        opponentBoard.activePokemon = GameManager.evolvePokemon(opponentBoard.activePokemon.get, evolution, opponentBoard)
+        // TransferEvolutionInfo(evolution, opponentBoard.activePokemon.get)
+        //opponentBoard.activePokemon = Some(evolution.asInstanceOf[PokemonCard])
         evolve(t)
       }
-      case evolution :: t if opponentBoard.pokemonBench.count(pkm => pkm.isDefined) > 0 => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
+      case evolution :: t if !GameManager.isBenchLocationEmpty(0, opponentBoard) => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
       case List() =>
       case _ =>
     }
@@ -203,8 +191,7 @@ object Ia extends Thread with Observer {
         case List() =>
         case benchPkm :: _ if benchPkm.get.name == evolution.evolutionName => {
           val getbenchedIndex: Int = opponentBoard.pokemonBench.filter(card => card.isDefined).indexWhere(pkm => pkm.get.name == benchPkm.get.name)
-          TransferEvolutionInfo(evolution, benchPkm.get)
-          opponentBoard.putPokemonInBenchPosition(Some(evolution), getbenchedIndex)
+          GameManager.putPokemonToBench(GameManager.evolvePokemon(benchPkm.get, evolution, opponentBoard), getbenchedIndex,opponentBoard)
         } //pokemon found in bench
         case _ :: t => evolveBench(t, evolution)
       }
@@ -213,17 +200,15 @@ object Ia extends Thread with Observer {
 
   private def calculateIfWithdrawAndDo(): Unit = {
     val activePokemonweight: Int = calculateweightForWithdraw(opponentBoard.activePokemon.get)
-
     val benchPokemonsMaxweight = opponentBoard.pokemonBench.filter(c => c.isDefined).flatMap(bench => createWeightedCard(bench.get, calculateweightForWithdraw)).reduceLeft(getMax)
+    val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
 
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
-      if (!opponentBoard.activePokemon.get.isKO)
-        opponentBoard.activePokemon.get.removeFirstNEnergies(opponentBoard.activePokemon.get.retreatCost.size)
-
-      val currentActivePkmTmp = opponentBoard.activePokemon
-      val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
-      opponentBoard.activePokemon = Some(benchPokemonsMaxweight.pokemonCard)
-      opponentBoard.putPokemonInBenchPosition(currentActivePkmTmp, benchIndex)
+      if (!opponentBoard.activePokemon.get.isKO) {
+        GameManager.retreatActivePokemon(benchIndex, opponentBoard)
+      } else {
+        GameManager.destroyActivePokemon(benchIndex, opponentBoard)
+      }
     }
   }
 
@@ -238,14 +223,12 @@ object Ia extends Thread with Observer {
         returnedIndex = iterateSeqToAssign(opponentBoard.pokemonBench.filter(c => c.isDefined))
     }
 
-
     def iterateSeqToAssign(seqToIterate: Seq[Option[PokemonCard]]): Int = {
       var index = -1
       seqToIterate.foreach(pkm => {
         if (index < 0)
           index = assignEnergy(pkm.get)
       })
-
       index
     }
   }
@@ -254,22 +237,10 @@ object Ia extends Thread with Observer {
     var energyIndex = -1
     if (!pokemon.hasEnergies(pokemon.attacks.last.cost)) {
       energyIndex = myHand.indexWhere(card => card.isInstanceOf[EnergyCard] && card.asInstanceOf[EnergyCard].energyType == pokemon.attacks.last.cost.head)
-      if (energyIndex >= 0) {
-        //TODO Utils.addEnergy?
-        pokemon.addEnergy(myHand(energyIndex).asInstanceOf[EnergyCard])
-        //remove energy from hand
-        opponentBoard.hand.drop(energyIndex)
-      }
+      if (energyIndex >= 0)
+        GameManager.addEnergyToPokemon(pokemon, myHand(energyIndex).asInstanceOf[EnergyCard], opponentBoard)
     }
     energyIndex
-  }
-
-  private def TransferEvolutionInfo(evolution: PokemonCard, previousStage: PokemonCard): Unit = {
-    evolution.addDamage(previousStage.initialHp - previousStage.actualHp, Seq(EnergyType.Colorless))
-    evolution.immune = previousStage.immune
-    evolution.energiesMap = previousStage.energiesMap
-    evolution.status = previousStage.status
-    //TODO pila scarti
   }
 
   private def waitForNextEvent(): Event = {
