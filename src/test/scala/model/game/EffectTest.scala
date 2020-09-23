@@ -1,13 +1,9 @@
-package model
+package model.game
 
-import model.core.{DataLoader, GameManager}
-import model.game.Cards.EnergyCard.EnergyCardImpl
+import model.core.DataLoader
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
-import model.game.{Board, EnergyType, SetType, StatusType}
 import org.scalatest.{FlatSpec, GivenWhenThen}
-
-import scala.util.Random
 
 class EffectTest() extends FlatSpec with GivenWhenThen {
 

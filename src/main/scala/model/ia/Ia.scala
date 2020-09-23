@@ -10,7 +10,6 @@ import model.event.Events.Event.BuildGameField
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
 
-import scala.None
 
 object Ia extends Thread with Observer {
 
@@ -36,29 +35,33 @@ object Ia extends Thread with Observer {
   }
 
   private def doTurn(): Unit = {
-    //TODO QUI
+
     GameManager.activePokemonStartTurnChecks(opponentBoard.activePokemon.get)
+
     //pesco
-    //opponentBoard.addCardsToHand(opponentBoard.popDeck(1))
     GameManager.drawCard(opponentBoard)
     myHand = opponentBoard.hand
+
     //metto pokemon in panchina
     populateBench()
-    Thread.sleep(1500)
     GameManager.notifyObservers(Event.updateBoardsEvent())
-    val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
+    Thread.sleep(1500)
+
     //evolve all pkm
     evolveAll()
-    Thread.sleep(1500)
     GameManager.notifyObservers(Event.updateBoardsEvent())
+    Thread.sleep(1500)
+
     //calculate if the retreat of the active pokemon is convenient and Do it
     if (!GameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored)
       calculateIfWithdrawAndDo()
+
     //assignEnergy
+    val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
     if (getEnergy.nonEmpty)
       calculateAssignEnergy()
-    Thread.sleep(1500)
     GameManager.notifyObservers(Event.updateBoardsEvent())
+    Thread.sleep(1000)
     //attack
     try {
       if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
@@ -72,8 +75,8 @@ object Ia extends Thread with Observer {
     catch {
       case ex: Exception => println("Exception caught : " + ex)
     }
-    GameManager.activePokemonEndTurnChecks(opponentBoard.activePokemon.get)
 
+    GameManager.activePokemonEndTurnChecks(opponentBoard.activePokemon.get)
     TurnManager.switchTurn()
   }
 
@@ -115,12 +118,11 @@ object Ia extends Thread with Observer {
   }
 
 
-
   private def populateBench(): Unit = {
     val basePokemons: Seq[PokemonCard] = opponentBoard.hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
     basePokemons.zipWithIndex.foreach {
       case (pkm, i) => if (opponentBoard.pokemonBench.count(card => card.nonEmpty) < 5) {
-        GameManager.putPokemonToBench(Some(pkm), opponentBoard.pokemonBench.count(card => card.nonEmpty),opponentBoard)
+        GameManager.putPokemonToBench(Some(pkm), opponentBoard.pokemonBench.count(card => card.nonEmpty), opponentBoard)
       }
     }
   }
@@ -175,8 +177,6 @@ object Ia extends Thread with Observer {
     def evolve(pokemons: Seq[PokemonCard]): Unit = pokemons match {
       case evolution :: t if opponentBoard.activePokemon.get.name == evolution.evolutionName => {
         opponentBoard.activePokemon = GameManager.evolvePokemon(opponentBoard.activePokemon.get, evolution, opponentBoard)
-        // TransferEvolutionInfo(evolution, opponentBoard.activePokemon.get)
-        //opponentBoard.activePokemon = Some(evolution.asInstanceOf[PokemonCard])
         evolve(t)
       }
       case evolution :: t if !GameManager.isBenchLocationEmpty(0, opponentBoard) => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
@@ -190,7 +190,7 @@ object Ia extends Thread with Observer {
         case List() =>
         case benchPkm :: _ if benchPkm.get.name == evolution.evolutionName => {
           val getbenchedIndex: Int = opponentBoard.pokemonBench.filter(card => card.isDefined).indexWhere(pkm => pkm.get.name == benchPkm.get.name)
-          GameManager.putPokemonToBench(GameManager.evolvePokemon(benchPkm.get, evolution, opponentBoard), getbenchedIndex,opponentBoard)
+          GameManager.putPokemonToBench(GameManager.evolvePokemon(benchPkm.get, evolution, opponentBoard), getbenchedIndex, opponentBoard)
         } //pokemon found in bench
         case _ :: t => evolveBench(t, evolution)
       }
@@ -234,8 +234,18 @@ object Ia extends Thread with Observer {
 
   private def assignEnergy(pokemon: PokemonCard): Int = {
     var energyIndex = -1
+    val pokemonType = pokemon.pokemonTypes.head
+    var totalEnergyCount = 0
     if (!pokemon.hasEnergies(pokemon.attacks.last.cost)) {
-      energyIndex = myHand.indexWhere(card => card.isInstanceOf[EnergyCard] && card.asInstanceOf[EnergyCard].energyType == pokemon.attacks.last.cost.head)
+      energyIndex = myHand.indexWhere(card => card.isInstanceOf[EnergyCard] && card.asInstanceOf[EnergyCard].energyType == pokemonType)
+
+      if (energyIndex == -1) {
+        val numberOfColorlessNeededForAtk: Int = pokemon.attacks.last.cost.count(card => card.isInstanceOf[EnergyCard] && card.asInstanceOf[EnergyCard].energyType == EnergyType.Colorless)
+        println("IA- non ho energie del colore del pokemon , ne assegno una diversa in quanto l'attacco richiede energie colorless")
+        pokemon.energiesMap.filter(p => p._1 != pokemonType).foreach(map => totalEnergyCount += map._2)
+        if (numberOfColorlessNeededForAtk < totalEnergyCount)
+          energyIndex = myHand.indexWhere(card => card.isInstanceOf[EnergyCard])
+      }
       if (energyIndex >= 0)
         GameManager.addEnergyToPokemon(pokemon, myHand(energyIndex).asInstanceOf[EnergyCard], opponentBoard)
     }
