@@ -73,9 +73,7 @@ object GameManager extends Observable {
   def destroyActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Unit = {
     board.addCardsToDiscardStack(activePokemon(board).get :: Nil)
     swap(board, None, replacementBenchPosition)
-    for((c, i) <- collapseToLeft(pokemonBench(board)).zipWithIndex) {
-      board.putPokemonInBenchPosition(c, i)
-    }
+    collapseBench(board)
     notifyBoardUpdate()
   }
 
@@ -136,6 +134,17 @@ object GameManager extends Observable {
         } else {
           attack.effect.get.useEffect(attackingBoard, defendingBoard)
         }
+
+        for ((p, i) <- pokemonBench(defendingBoard).zipWithIndex
+             if p.nonEmpty && p.get.isKO) {
+          destroyBenchPokemon(i, defendingBoard)
+          this.notifyObservers(Event.pokemonKOEvent())
+        }
+        for ((p, i) <- pokemonBench(attackingBoard).zipWithIndex
+             if p.nonEmpty && p.get.isKO) {
+          destroyBenchPokemon(i, attackingBoard)
+        }
+
         // Controllo sul KO delle bench -> aggiunta a pila degli scarti dei pokemon KO nell bench + collapse left
         // + invio n eventi pokemonKOEvent(false) (uno per ogni pokemon della panchina DELL'AVVERSARIO morto, NEL CASO DI POKEMON
         // MORTI NELLA PANCHINA DEL GIOCATORE FARE SOLO LA RIMOZIONE E AGGIUNTA AL DISCARDSTACK e LA COLLAPSE LEFT)
@@ -158,10 +167,22 @@ object GameManager extends Observable {
     board.putPokemonInBenchPosition(activePokemon, benchPosition)
   }
 
-  private def collapseToLeft[A](bench: Seq[Option[A]]): List[Option[A]] = bench match {
+  private def collapseBench(board: Board): Unit = {
+    for((c, i) <- collapseToLeft(pokemonBench(board)).zipWithIndex) {
+      board.putPokemonInBenchPosition(c, i)
+    }
+  }
+
+  private def collapseToLeft[A](l: Seq[Option[A]]): List[Option[A]] = l match {
     case h :: t if h.isEmpty => collapseToLeft(t) :+ h
     case h :: t if h.nonEmpty => h :: collapseToLeft(t)
     case _ => Nil
+  }
+
+  private def destroyBenchPokemon(benchPosition: Int, board: Board): Unit = {
+    board.addCardsToDiscardStack(pokemonBench(board)(benchPosition).get :: Nil)
+    board.putPokemonInBenchPosition(None, benchPosition)
+    collapseBench(board)
   }
 
   @throws(classOf[CardNotFoundException])

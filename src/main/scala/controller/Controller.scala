@@ -98,6 +98,9 @@ trait Controller {
    * It makes [[model.core.GameManager]] manage the declaration of an attack from player active pokemon to opponent
    * active pokemon.
    * @param attack the active pokemon attack selected by the user
+   * @param attackingBoard the attacking board
+   * @param defendingBoard the defending board
+   * @return true if the attacking pokemon becomes KO, false otherwise
    */
   def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean
 
