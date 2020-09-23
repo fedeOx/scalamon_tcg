@@ -64,6 +64,9 @@ object GameManager extends Observable {
 
   def drawPrizeCard(board: Board = playerBoard): Unit = {
     board.addCardsToHand(board.popPrizeCard(1))
+    if (board.prizeCards.isEmpty) { // Win check
+      this.notifyObservers(Event.endGameEvent())
+    }
     notifyBoardUpdate()
   }
 
@@ -137,9 +140,12 @@ object GameManager extends Observable {
         // + invio n eventi pokemonKOEvent(false) (uno per ogni pokemon della panchina DELL'AVVERSARIO morto, NEL CASO DI POKEMON
         // MORTI NELLA PANCHINA DEL GIOCATORE FARE SOLO LA RIMOZIONE E AGGIUNTA AL DISCARDSTACK e LA COLLAPSE LEFT)
         if (attackingPokemon.isKO || defendingPokemon.isKO) {
-          // Controllare vittoria: se prizeCardStack.size==1 || se pokemonBench di defendingBoard.isEmpty => Event.endGame(winnerPlayer: String) // Gestire reset del gioco
-          this.notifyObservers(Event.pokemonKOEvent(attackingPokemon.isKO))
-          attackingPokemonIsKO = attackingPokemon.isKO
+          if (!pokemonBench(defendingBoard).exists(c => c.nonEmpty)) { // Win check
+            this.notifyObservers(Event.endGameEvent())
+          } else {
+            this.notifyObservers(Event.pokemonKOEvent(attackingPokemon.isKO))
+            attackingPokemonIsKO = attackingPokemon.isKO
+          }
         }
         notifyBoardUpdate()
       }

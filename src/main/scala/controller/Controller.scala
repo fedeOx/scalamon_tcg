@@ -100,6 +100,11 @@ trait Controller {
    * @param attack the active pokemon attack selected by the user
    */
   def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean
+
+  /**
+   * It resets the current game in order to start a new one.
+   */
+  def resetGame(): Unit
 }
 
 object Controller {
@@ -212,5 +217,11 @@ object Controller {
 
     override def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean =
       GameManager.confirmAttack(attackingBoard, defendingBoard, attack)
+
+    override def resetGame(): Unit = {
+      GameManager.reset()
+      TurnManager.reset()
+      DataLoader.reset()
+    }
   }
 }
