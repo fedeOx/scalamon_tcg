@@ -36,7 +36,7 @@ case class ActivePkmnZone(isHumans: Boolean, board: PlayerBoard) extends HBox{
     } else {
       isEmpty = false
       children = createCard("/assets/"+active.get.belongingSetCode+"/"+active.get.imageId+".jpg", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone),
-        cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard))
+        cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard), gameWindow = Some(board.gameWindow))
     }
   }
 
@@ -64,6 +64,8 @@ case class ActivePkmnZone(isHumans: Boolean, board: PlayerBoard) extends HBox{
               disable = true
             onAction = event => {
               if (!board.gameWindow.asInstanceOf[GameBoardView].controller.declareAttack(parentBoard.myBoard, parentBoard.opponentBoard, attack)) {
+                //TODO: spostare in ricezione end attack event
+                println("end turn")
                 board.gameWindow.asInstanceOf[GameBoardView].controller.endTurn()
                 event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
               }

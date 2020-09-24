@@ -7,6 +7,7 @@ import common.{Observer, TurnOwner}
 import model.core.{GameManager, TurnManager}
 import model.event.Events.Event
 import model.event.Events.Event.BuildGameField
+import model.exception.InvalidOperationException
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
 
@@ -53,8 +54,14 @@ object Ia extends Thread with Observer {
     Thread.sleep(1500)
 
     //calculate if the retreat of the active pokemon is convenient and Do it
-    if (!GameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored)
-      calculateIfWithdrawAndDo()
+    if (!GameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
+      try {
+        calculateIfWithdrawAndDo()
+      } catch {
+        case exception : InvalidOperationException => println("non posso ritirare")
+        case _ =>
+      }
+    }
 
     //assignEnergy
     val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
@@ -93,7 +100,7 @@ object Ia extends Thread with Observer {
             //TODO remove
             placeCards(myHand)
           }
-          case event: Event.FlipCoin => turn = event.coinValue
+          case event: Event.FlipCoin => turn = if(event.isHead) TurnOwner.Player else TurnOwner.Opponent
           case event: Event.NextTurn if event.turnOwner == TurnOwner.Opponent => doTurn()
           case event: Event.PokemonKO => checkForKo()
           case _ =>

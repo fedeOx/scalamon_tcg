@@ -7,7 +7,6 @@ import javafx.scene.paint.ImagePattern
 import model.core.{GameManager, TurnManager}
 import model.event.Events
 import model.event.Events.Event._
-import model.game.Board
 import model.ia.Ia
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
@@ -68,7 +67,6 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       alignmentInParent = Pos.Center
       children = Seq(iABoard, humanBoard)
     }, zoomZone)
-
     loadingMessage = PopupBuilder.openLoadingScreen(this.window.value)
     loadingMessage.show()
   }
@@ -89,8 +87,11 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       Platform.runLater(humanBoard.updateActive())
       Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
     }
-    case event if event.isInstanceOf[FlipCoin] =>{
-      turnOwner = event.asInstanceOf[FlipCoin].coinValue
+    case event : FlipCoin =>{
+      println("lancio animazione moneta: " + event.isHead)
+      Platform.runLater(PopupBuilder.openTurnScreen(this))
+      //Thread.sleep(4000)
+      //turnOwner = if (event.asInstanceOf[FlipCoin].isHead) TurnOwner.Player else TurnOwner.Opponent
     }
     case event : UpdateBoards => {
       Platform.runLater({
@@ -106,6 +107,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       })
     }
     case event : NextTurn => {
+      turnOwner = event.turnOwner
       humanBoard.disable = !(event.turnOwner == TurnOwner.Player)
       if(event.turnOwner == TurnOwner.Player) {
         controller.activePokemonStatusCheck()

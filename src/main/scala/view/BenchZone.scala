@@ -25,7 +25,6 @@ case class BenchZone(isHumans: Boolean, board: PlayerBoard) extends HBox {
   updateView()
   def updateView(cards: Seq[Option[PokemonCard]] = Seq()): Unit = {
     if (cards.isEmpty || (cards.count(c => c.isEmpty) == 5)) {
-      println("sono qua")
       isEmpty = true
       val cardMaterial = new PhongMaterial()
       cardMaterial.diffuseColor = Color.Transparent
@@ -38,7 +37,7 @@ case class BenchZone(isHumans: Boolean, board: PlayerBoard) extends HBox {
       bench = Seq[Box]()
       cards.filter(c => c.isDefined).zipWithIndex.foreach{case (card,cardIndex) => {
         bench = bench :+ createCard("/assets/"+card.get.belongingSetCode+"/"+card.get.imageId+".jpg", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), CardType.Bench,
-          cardIndex = cardIndex, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard))
+          cardIndex = cardIndex, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard), gameWindow = Some(board.gameWindow))
       }}
     }
     children = bench

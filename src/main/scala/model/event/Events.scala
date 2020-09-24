@@ -11,7 +11,7 @@ object Events {
 
     def buildGameFieldEvent(playerBoard: Board, opponentBoard: Board): Event = BuildGameField(playerBoard, opponentBoard)
 
-    def flipCoinEvent(coinValue: TurnOwner): Event = FlipCoin(coinValue)
+    def flipCoinEvent(isHead: Boolean): Event = FlipCoin(isHead)
 
     def placeCardsEvent(): Event = PlaceCards()
 
@@ -23,7 +23,7 @@ object Events {
 
     case class ShowDeckCards(deckCards: Seq[DeckCard]) extends Event
     case class BuildGameField(playerBoard: Board, opponentBoard: Board) extends Event
-    case class FlipCoin(coinValue: TurnOwner) extends Event
+    case class FlipCoin(isHead: Boolean) extends Event
     case class PlaceCards() extends Event
     case class NextTurn(turnOwner: TurnOwner) extends Event
     case class UpdateBoards() extends Event

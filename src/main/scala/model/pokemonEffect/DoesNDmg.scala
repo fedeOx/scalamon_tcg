@@ -13,6 +13,7 @@ case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEff
         pkm.get.addDamage(totalDmgToEnemyPkm, attackingBoard.activePokemon.get.pokemonTypes)
       else
         pkm.get.addDamage(totalDmgToEnemyPkm, Seq(EnergyType.Colorless)))
+    //TODO: Manda evento fine attacco
   }
   override var args: Map[String, Any] = Map.empty[String, Any]
   override var totalDmgToEnemyPkm: Int = totalDmgToEnemyPkm + baseDmgCount

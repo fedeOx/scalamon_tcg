@@ -7,6 +7,7 @@ import scalafx.scene.Scene
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{HBox, VBox}
+import scalafx.scene.paint.Color
 import scalafx.scene.text.{Text, TextAlignment}
 import scalafx.stage.{Modality, Stage, StageStyle, Window}
 
@@ -25,8 +26,19 @@ object PopupBuilder {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
+      initStyle(StageStyle.Undecorated)
       scene = new Scene(300, 200) {
-        content = new Label("Caricamento...")
+        stylesheets = List("/style/loadingScreen.css")
+        content = new VBox {
+          prefWidth = 300
+          prefHeight = 200
+          alignment = Pos.Center
+          spacing = 20
+          children = List(new ImageView(new Image("/assets/loading.gif")) {
+            fitWidth = 60
+            fitHeight = 60
+          },new Label("Caricamento..."))
+        }
       }
       sizeToScene()
       resizable = false
@@ -52,6 +64,7 @@ object PopupBuilder {
     }
     dialog.show()
     Thread.sleep(1000)
+    println("chiuso popup")
     dialog.close()
   }
 
