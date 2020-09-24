@@ -2,42 +2,38 @@ package view
 
 import controller.Controller
 import model.game.Board
-import scalafx.Includes._
 import scalafx.scene.Node
 import scalafx.scene.image.Image
 import scalafx.scene.paint.PhongMaterial
 import scalafx.scene.shape.{Box, DrawMode}
-import scalafx.scene.transform.Rotate
-import scalafx.scene.transform.Transform._
 
 /***
  * Object that creates cards
  */
 object CardCreator {
-  private val controller = utils.controller
+  private var controller: Controller = _
+
+  def setController(c: Controller): Unit = {
+    controller = c
+  }
   private def addAction(card: Box, cardType: String, cardIndex: Int, zone: Option[Node] = Option.empty,
                         board: Option[Board] = Option.empty): Unit = cardType match {
     case CardType.Active => card.onMouseClicked = _ => {
-      if (controller.handCardSelected.isEmpty)//noCardSelected && active.canDoAction
+      if (controller.handCardSelected.isEmpty)
         zone.get.asInstanceOf[ActivePkmnZone].openMenu()
-      else
+      else {
         controller.selectActivePokemonLocation()
+      }
     }
     case CardType.Bench => {
       card.onMouseClicked = _ => controller.selectBenchLocation(cardIndex)
     }
     case CardType.Hand => card.onMouseClicked = _ => {
-      //canBeSelected
       if (card.width.value != 5.8) {
-        //zone.get.asInstanceOf[HandZone].updateView()
         card.translateZ = -0.5
-
         card.width = 5.8
         card.height = 8
         controller.handCardSelected = Some(board.get.hand(cardIndex))
-
-
-
       } else if (card.width.value == 5.8) {
         card.translateZ = 0
         card.width = 5.5

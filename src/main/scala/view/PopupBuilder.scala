@@ -1,17 +1,25 @@
 package view
 
+import controller.Controller
 import model.game.Cards.PokemonCard
 import scalafx.geometry.Pos
 import scalafx.scene.Scene
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.layout.HBox
+import scalafx.scene.layout.{HBox, VBox}
+import scalafx.scene.text.{Text, TextAlignment}
 import scalafx.stage.{Modality, Stage, StageStyle, Window}
 
 /***
  * Object that creates popup messages for the game
  */
 object PopupBuilder {
+
+  private var controller: Controller = _
+
+  def setController(c: Controller): Unit = {
+    controller = c
+  }
 
   def openLoadingScreen(parent: Window) : Stage = {
     val dialog: Stage = new Stage() {
@@ -31,14 +39,42 @@ object PopupBuilder {
     loadingMessage.close()
   }
 
+  def openTurnScreen(parent: Window) : Unit = {
+    val dialog: Stage = new Stage() {
+      initOwner(parent)
+      initModality(Modality.ApplicationModal)
+      scene = new Scene(300, 200) {
+        content = new Label("È il tuo turno")
+      }
+      sizeToScene()
+      resizable = false
+      alwaysOnTop = true
+    }
+    dialog.show()
+    Thread.sleep(1000)
+    dialog.close()
+  }
+
   def openInvalidOperationMessage(parent: Window, message: String) : Unit = {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
       scene = new Scene(300, 200) {
-        content = List(new Label(message), new Button("Ok") {
-          onAction = _ => scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
-        })
+        content = new VBox() {
+          prefWidth = 300
+          prefHeight = 200
+          alignment = Pos.Center
+          spacing = 10
+          children = List(new Label(message) {
+            prefWidth = 300
+            maxHeight(200)
+            prefHeight = 50
+            wrapText = true
+            textAlignment = TextAlignment.Center
+          }, new Button("Ok") {
+            onAction = _ => scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+          })
+        }
       }
       sizeToScene()
       resizable = false
@@ -65,10 +101,10 @@ object PopupBuilder {
             fitWidth = 180
             fitHeight = 280
             onMouseClicked = event => {
-              utils.controller.swap(cardIndex)
+              controller.swap(cardIndex)
               scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
               if (isAttackingPokemonKO) {
-                utils.controller.endTurn()
+                controller.endTurn()
               }
             }
           }

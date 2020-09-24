@@ -12,10 +12,9 @@ import scala.collection.mutable
 
 /***
  * The field zone that contains the benched pokemon
- * @param zone: the zone for the zoomed cards
  * @param isHumans: true if it's the human's board
  */
-case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) extends HBox {
+case class BenchZone(isHumans: Boolean, board: PlayerBoard) extends HBox {
   private val WIDTH = 35
   private val HEIGHT = 10
   private var bench : Seq[Box] = Seq()
@@ -25,7 +24,6 @@ case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exte
 
   updateView()
   def updateView(cards: Seq[Option[PokemonCard]] = Seq()): Unit = {
-    //TODO: check ultimo pkmn
     if (cards.isEmpty || (cards.count(c => c.isEmpty) == 5)) {
       println("sono qua")
       isEmpty = true
@@ -39,8 +37,8 @@ case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exte
       isEmpty = false
       bench = Seq[Box]()
       cards.filter(c => c.isDefined).zipWithIndex.foreach{case (card,cardIndex) => {
-        bench = bench :+ createCard("/assets/"+card.get.belongingSetCode+"/"+card.get.imageId+".jpg", Some(zone), CardType.Bench,
-          cardIndex = cardIndex, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.board))
+        bench = bench :+ createCard("/assets/"+card.get.belongingSetCode+"/"+card.get.imageId+".jpg", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), CardType.Bench,
+          cardIndex = cardIndex, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard))
       }}
     }
     children = bench
@@ -59,17 +57,17 @@ case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exte
     if (isHumans && !isOverChildren && !bench.size.equals(5)) {
       if (isEmpty) {
         try {
-          utils.controller.selectBenchLocation(0)
+          board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(0)
         } catch {
-          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.parentWin,ex.getMessage)
+          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
         }
         println("panchina vuota")
       }
       else {
         try {
-          utils.controller.selectBenchLocation(bench.size)
+          board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(bench.size)
         } catch {
-          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.parentWin,ex.getMessage)
+          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
         }
 
       }

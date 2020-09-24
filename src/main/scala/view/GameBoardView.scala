@@ -7,11 +7,11 @@ import javafx.scene.paint.ImagePattern
 import model.core.{GameManager, TurnManager}
 import model.event.Events
 import model.event.Events.Event._
+import model.game.Board
 import model.ia.Ia
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
-import scalafx.scene.control.Label
 import scalafx.scene.image.Image
 import scalafx.scene.paint.PhongMaterial
 import scalafx.scene.shape.Box
@@ -23,20 +23,25 @@ import scalafx.stage.{Modality, Stage, Window}
  * Stage that contains the game scene
  */
 class GameBoardView extends JFXApp.PrimaryStage with Observer {
+  //private val parentWindow : Window = this
+  val zoomZone = new ZoomZone
+  val controller: Controller = Controller()
   private val WIDTH = 1600
   private val HEIGHT = 1000
   private val TITLE = "Scalamon"
-  private val parentWindow : Window = this
-  val zoomZone = new ZoomZone
-  private val opponentBoard = new PlayerBoard(false, zoomZone, parentWindow)
-  private val humanBoard = new PlayerBoard(true, zoomZone, parentWindow)
+  //private val guiEl: GuiElements = GuiElements(this, new ZoomZone)
+  private val iABoard = new PlayerBoard(false,this)
+  private val humanBoard = new PlayerBoard(true,this)
   private var turnOwner : TurnOwner = TurnOwner.Player
   private var loadingMessage : Stage = _
+
   title = TITLE
   icons += new Image("/assets/icon.png")
   Ia.start()
   GameManager.addObserver(this)
   TurnManager.addObserver(this)
+  CardCreator.setController(controller)
+  PopupBuilder.setController(controller)
   x = 0
   y = 0
   scene = new Scene(WIDTH, HEIGHT, true, SceneAntialiasing.Balanced) {
@@ -61,10 +66,10 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       minWidth(55)
       minHeight(50)
       alignmentInParent = Pos.Center
-      children = Seq(opponentBoard, humanBoard)
+      children = Seq(iABoard, humanBoard)
     }, zoomZone)
 
-    loadingMessage = PopupBuilder.openLoadingScreen(parentWindow)
+    loadingMessage = PopupBuilder.openLoadingScreen(this.window.value)
     loadingMessage.show()
   }
 
@@ -76,10 +81,10 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
 
   override def update(event: Events.Event): Unit = event match {
     case event if  event.isInstanceOf[BuildGameField] => {
-      humanBoard.board = event.asInstanceOf[BuildGameField].playerBoard
+      humanBoard.myBoard = event.asInstanceOf[BuildGameField].playerBoard
       humanBoard.opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
-      opponentBoard.board = event.asInstanceOf[BuildGameField].opponentBoard
-      opponentBoard.opponentBoard = event.asInstanceOf[BuildGameField].playerBoard
+      iABoard.myBoard = event.asInstanceOf[BuildGameField].opponentBoard
+      iABoard.opponentBoard = event.asInstanceOf[BuildGameField].playerBoard
       Platform.runLater(humanBoard.updateHand())
       Platform.runLater(humanBoard.updateActive())
       Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
@@ -94,62 +99,36 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
         humanBoard.updateBench()
         humanBoard.updateDiscardStack()
         if (!humanBoard.isFirstTurn) {
-          opponentBoard.updateBench()
-          opponentBoard.updateActive()
-          opponentBoard.updateDiscardStack()
+          iABoard.updateBench()
+          iABoard.updateActive()
+          iABoard.updateDiscardStack()
         }
       })
     }
     case event : NextTurn => {
       humanBoard.disable = !(event.turnOwner == TurnOwner.Player)
       if(event.turnOwner == TurnOwner.Player) {
-        utils.controller.activePokemonStatusCheck()
+        controller.activePokemonStatusCheck()
         Platform.runLater({
-            openTurnScreen(this)
-            utils.controller.drawACard()
+            PopupBuilder.openTurnScreen(this)
+            controller.drawACard()
             humanBoard.updateHand()
-            //opponentBoard.updateBench()
-            //opponentBoard.updateActive()
           })
       }
       Platform.runLater({
-        opponentBoard.updateBench()
-        opponentBoard.updateActive()
-        opponentBoard.updateDiscardStack()
+        iABoard.updateBench()
+        iABoard.updateActive()
+        iABoard.updateDiscardStack()
       })
     }
     case event : PokemonKO => {
       println("pokemonKO event")
-      if (humanBoard.board.activePokemon.get.isKO)
-        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.board.pokemonBench, event.isAttackingPokemonKO))
+      if (humanBoard.myBoard.activePokemon.get.isKO)
+        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.myBoard.pokemonBench, event.isAttackingPokemonKO))
       else {
-        utils.controller.drawAPrizeCard()
+        controller.drawAPrizeCard()
       }
     }
     case _ =>
   }
-
-  def openTurnScreen(parent: Window) : Unit = {
-    val dialog: Stage = new Stage() {
-      initOwner(parent)
-      initModality(Modality.ApplicationModal)
-      scene = new Scene(300, 200) {
-        content = new Label("È il tuo turno")
-      }
-      sizeToScene()
-      //x = parentWindow.getX + parentWindow.getWidth / 1.6
-      //y = parentWindow.getY + parentWindow.getHeight / 2.8
-      resizable = false
-      alwaysOnTop = true
-    }
-    dialog.show()
-    Thread.sleep(1000)
-    dialog.close()
-  }
-
-}
-
-//TODO: orribile
-object utils {
-  var controller = Controller()
 }

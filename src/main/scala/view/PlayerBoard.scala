@@ -16,32 +16,31 @@ import scalafx.scene.transform.Rotate
 import scalafx.stage.Window
 
 /***
- * Player board component for the player
+ * Player board component representing one size of the game board
  * isHumans: true if it's the board of the human player
  * zoom: the zone in which the zoomed cards are generated
  *
  * @param isHumans : true if it's the human's board
- * @param zoom : the zone for the zoomed cards
  */
-class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) extends Group {
+class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
   private val WIDTH = 55
   private val HEIGHT = 25
-
+  val gameWindow : Window = parentWindow
   private val prize = PrizeCardsZone()
-  private val active = ActivePkmnZone(zoom, isHumans, this, parentWindow)
-  private val bench = BenchZone(zoom, isHumans, this)
+  private val active = ActivePkmnZone(isHumans, this)
+  private val bench = BenchZone(isHumans, this)
   private val deckDiscard = DeckDiscardZone()
   private var hand : HandZone = _
-  var board : Board = _
-  val parentWin : Window = parentWindow
-  var isFirstTurn : Boolean = true
+  var myBoard : Board = _
   var opponentBoard : Board = _
+  var isFirstTurn : Boolean = true
+
   styleClass += "humanPB"
   children = List(prize, active, bench, deckDiscard)
   if (isHumans) {
-    hand = HandZone(zoom, isHumans, this)
+    hand = HandZone(isHumans, this)
     children += hand
-    val tasto = new Box{
+    val endTurnButton: Box = new Box{
       val buttonMaterial = new PhongMaterial()
       buttonMaterial.diffuseColor = Color.Blue
       material = buttonMaterial
@@ -53,13 +52,13 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
       onMouseClicked = _ => {
         if(isFirstTurn) {
           isFirstTurn = false
-          utils.controller.playerReady()
+          gameWindow.asInstanceOf[GameBoardView].controller.playerReady()
         } else
-        utils.controller.endTurn()
+          gameWindow.asInstanceOf[GameBoardView].controller.endTurn()
         println("fine turno")
       }
     }
-    children += tasto
+    children += endTurnButton
   }
 
   minWidth(WIDTH)
@@ -69,10 +68,10 @@ class PlayerBoard(isHumans: Boolean, zoom: ZoomZone, parentWindow: Window) exten
 
   if (!isHumans) rotate = 180 else translateY = 25
 
-  def updateHand() : Unit = hand.updateView(board.hand)
-  def updateActive() : Unit = active.updateView(board.activePokemon)
-  def updateBench() : Unit = bench.updateView(board.pokemonBench)
-  def updateDiscardStack() : Unit = if (board.discardStack.nonEmpty) deckDiscard.updateView(board.discardStack.last)
+  def updateHand() : Unit = hand.updateView(myBoard.hand)
+  def updateActive() : Unit = active.updateView(myBoard.activePokemon)
+  def updateBench() : Unit = bench.updateView(myBoard.pokemonBench)
+  def updateDiscardStack() : Unit = if (myBoard.discardStack.nonEmpty) deckDiscard.updateView(myBoard.discardStack.last)
 }
 
 class ZoomZone extends HBox {
