@@ -1,10 +1,10 @@
 package controller
 
-import model.core.{DataLoader, GameManager, TurnManager}
+import model.core.{DataLoader, DataWriter, GameManager, TurnManager}
 import model.event.Events.Event
 import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.{Attack, Board, DeckCard, DeckType}
+import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
 import model.game.DeckType.DeckType
 import model.game.SetType.SetType
 
@@ -12,11 +12,23 @@ import scala.util.Random
 
 trait Controller {
   /**
-   * It makes [[model.core.DataLoader]] loads a list of [[model.game.DeckCard]] and notify them to all observers.
+   * It makes [[model.core.DataLoader]] loads all the available decks and notify them to all observers.
    * @param set the card set chosen by the user
-   * @param deck the deck chosen by the user
    */
-  def loadDeckCards(set: SetType, deck: DeckType): Unit
+  def loadDecks(set: SetType): Unit
+
+  /**
+   * It makes [[model.core.DataLoader]] loads the list of [[model.game.Cards.Card]] of the specified set and notify
+   * them to all observers.
+   * @param set the set whose cards must be loaded
+   */
+  def loadSet(set: SetType): Unit
+
+  /**
+   * It makes [[model.core.DataWriter]] save a new custom deck.
+   * @param customDeck the custom deck to be saved
+   */
+  def createCustomDeck(customDeck: CustomDeck): Unit
 
   /**
    * It makes [[model.core.GameManager]] init the game field and [[model.core.TurnManager]] decide who will be the
@@ -57,11 +69,6 @@ trait Controller {
    * Makes the player draw a card from his deck
    */
   def drawACard(): Unit
-
-  /**
-   * Makes the player draw a card from the prize card stack
-   */
-  def drawAPrizeCard(): Unit
 
   /**
    * Swap the active pokemon with the benched pokemon in the specified position. If the active pokemon is KO, the benched
@@ -119,10 +126,23 @@ object Controller {
     private var energyCardAlreadyAssigned = false
     private var pokemonAlreadyRetreated = false
 
-    override def loadDeckCards(set: SetType, deck: DeckType): Unit = new Thread {
+    override def loadDecks(set: SetType): Unit = new Thread {
       override def run(): Unit = {
-        val deckCards: Seq[DeckCard] = DataLoader.loadDeck(set, deck)
+        val deckCards: Map[String, Seq[DeckCard]] = DataLoader.loadDecks(set)
         DataLoader.notifyObservers(Event.showDeckCardsEvent(deckCards))
+      }
+    }.start()
+
+    override def loadSet(set: SetType): Unit = new Thread {
+      override def run(): Unit = {
+        val setCards: Seq[Card] = DataLoader.loadSet(set)
+        DataLoader.notifyObservers(Event.showSetCardsEvent(setCards))
+      }
+    }.start()
+
+    override def createCustomDeck(customDeck: CustomDeck): Unit = new Thread {
+      override def run(): Unit = {
+        DataWriter.saveCustomDeck(customDeck)
       }
     }.start()
 
@@ -133,7 +153,7 @@ object Controller {
         val random = new Random()
         val opponentChosenDeckType = DeckType.values.filter(d => d.setType == set)
           .toVector(random.nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
-        val opponentDeckCards: Seq[DeckCard] = DataLoader.loadDeck(set, opponentChosenDeckType)
+        val opponentDeckCards: Seq[DeckCard] = DataLoader.loadSingleDeck(set.toString, opponentChosenDeckType.name)
         // TODO end
         GameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
         TurnManager.flipACoin()
@@ -158,7 +178,7 @@ object Controller {
 
     override def activePokemonStatusCheck(): Unit = {
       if (!GameManager.isActivePokemonEmpty()) {
-        GameManager.activePokemonStartTurnChecks(GameManager.activePokemon().get)
+        GameManager.activePokemonStartTurnChecks(GameManager.playerBoard, GameManager.opponentBoard)
       }
     }
 
@@ -177,8 +197,6 @@ object Controller {
     }
 
     override def drawACard(): Unit = GameManager.drawCard()
-
-    override def drawAPrizeCard(): Unit = GameManager.drawPrizeCard()
 
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
 

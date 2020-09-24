@@ -15,8 +15,8 @@ class GameManagerTest extends AnyFlatSpec with MockFactory  {
   behavior of "The GameField"
 
   val cardsSet: Seq[Card] = DataLoader.loadSet(SetType.Base)
-  var playerDeckCards: Seq[DeckCard] = DataLoader.loadDeck(SetType.Base, DeckType.Base1)
-  val opponentDeckCards: Seq[DeckCard] = DataLoader.loadDeck(SetType.Base, DeckType.Base2)
+  var playerDeckCards: Seq[DeckCard] = ??? //DataLoader.loadDefaultDeck(SetType.Base, DeckType.Base1) TODO
+  val opponentDeckCards: Seq[DeckCard] = ??? //DataLoader.loadDefaultDeck(SetType.Base, DeckType.Base2) TODO
   val observerMock: Observer = mock[Observer]
   GameManager.addObserver(observerMock)
 
@@ -43,8 +43,8 @@ class GameManagerTest extends AnyFlatSpec with MockFactory  {
       for (deck <- DeckType.values
            if deck.setType == set) {
         val cardsSet: Seq[Card] = DataLoader.loadSet(set)
-        val playerDeckCards: Seq[DeckCard] = DataLoader.loadDeck(set, deck)
-        val opponentDeckCards: Seq[DeckCard] = DataLoader.loadDeck(set, deck)
+        val playerDeckCards: Seq[DeckCard] = ??? //DataLoader.loadDefaultDeck(set, deck) TODO
+        val opponentDeckCards: Seq[DeckCard] = ??? //DataLoader.loadDefaultDeck(set, deck) TODO
         (observerMock.update _).expects(where {e: Event => {
           e.isInstanceOf[BuildGameField]
           e.asInstanceOf[BuildGameField].playerBoard.isInstanceOf[Board]
