@@ -54,7 +54,7 @@ sealed trait DiscardEnergy extends AttackEffect {
     if (energyCount == -1)
       energyCount = pokemonToApply.get.totalEnergiesStored
     getStringArgFromMap("energyType") match {
-      case "Colorless" => pokemonToApply.get.removeFirstNEnergies(getIntArgFromMap("energyCount"))
+      case "Colorless" => pokemonToApply.get.removeFirstNEnergies(energyCount)
       case specificEnergy =>
         for (_ <- 1 to energyCount)
             pokemonToApply.get.removeEnergy(EnergyType.withNameWithDefault(specificEnergy))
@@ -87,7 +87,7 @@ sealed trait MultipleTargetDmg extends AttackEffect {
     val pokemonToApply = getStringArgFromMap("target")
     val dmgToDo = getIntArgFromMap("dmgToMultiple")
 
-    atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench).foreach(pkm => pkm.get.addDamage(dmgToDo, Seq(EnergyType.Colorless)))
+    atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench.filter(c => c.isDefined)).foreach(pkm => pkm.get.addDamage(dmgToDo, Seq(EnergyType.Colorless)))
     super.useEffect(attackingBoard,defendingBoard)
   }
 }
