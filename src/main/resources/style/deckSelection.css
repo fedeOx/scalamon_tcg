@@ -1,10 +1,10 @@
-#deckSelection-pane {
+#deckSelection-pane , #CardPane {
     -fx-padding: 10;
     -fx-background-image: url("/assets/deckSelection.jpg");
     -fx-background-size: 100% 100%;
     -fx-background-repeat: stretch;
 }
-#Zap , #Overgrowth , #Blackout, #Brushfire{
+#Zap , #Overgrowth , #Blackout, #Brushfire, #addDeck , #cardSelect{
     -fx-min-height: 250;
     -fx-min-width: 100;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
@@ -15,6 +15,12 @@
     -fx-background-color: transparent;
 }
 
+#cardSelect {
+    -fx-min-height:440;
+    -fx-min-width: 320;
+    -fx-padding: 0;
+    -fx-background-size: 100% 100%;
+}
 #Zap {
     -fx-background-image: url("/assets/zap.png");
 }
@@ -30,6 +36,9 @@
 #tableView-Cards{
     -fx-padding: 10;
     -fx-max-height: 450;
+}
+#addDeck{
+    -fx-background-image: url("/assets/addicon.png");
 }
 #startGame-btn {
     -fx-background-radius: 48;
