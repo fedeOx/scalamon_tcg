@@ -134,11 +134,9 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
     }
     case event : PokemonKO => {
       println("pokemonKO event")
+
       if (humanBoard.myBoard.activePokemon.get.isKO)
-        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.myBoard.pokemonBench, event.isAttackingPokemonKO))
-      else {
-        controller.drawAPrizeCard()
-      }
+        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
       Platform.runLater({
         humanBoard.updateActive()
         humanBoard.updatePrizes()

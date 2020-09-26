@@ -37,12 +37,10 @@ class TurnManagerTest extends AnyFlatSpec with MockFactory {
   }*/
 
   it should "notify observers when both human player and AI player are ready to play" in {
-    inAnyOrder {
-      (observerMock.update _).expects(where {e: Event => {
-        e.isInstanceOf[NextTurn]
-        e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
-      }})
-    }
+    (observerMock.update _).expects(where {e: Event => {
+      e.isInstanceOf[NextTurn]
+      e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
+    }})
     TurnManager.playerReady() // AI player is ready
     TurnManager.playerReady() // Human player is ready
   }

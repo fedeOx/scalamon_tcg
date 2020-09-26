@@ -37,7 +37,7 @@ object Ia extends Thread with Observer {
 
   private def doTurn(): Unit = {
 
-    GameManager.activePokemonStartTurnChecks(opponentBoard.activePokemon.get)
+    GameManager.activePokemonStartTurnChecks(opponentBoard, playerBoard)
 
     //pesco
     GameManager.drawCard(opponentBoard)
@@ -117,10 +117,6 @@ object Ia extends Thread with Observer {
       }
       else
         println("PERSO IA")
-    } else {
-      println("IA- Pesco carta premio")
-      GameManager.drawPrizeCard(opponentBoard)
-      println("IA- Carte Premio Rimaste : " + opponentBoard.prizeCards)
     }
   }
 

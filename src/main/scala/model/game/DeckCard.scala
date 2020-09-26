@@ -1,7 +1,7 @@
 package model.game
 
 import io.circe.Decoder.Result
-import io.circe.{Decoder, HCursor}
+import io.circe.{Decoder, Encoder, HCursor, Json}
 
 trait DeckCard {
   def imageId: String
@@ -24,6 +24,15 @@ object DeckCard {
         val imageId = _id.substring(_id.indexOf("-") + 1)
         DeckCard(imageId, _name, _rarity, _count)
       }
+  }
+
+  implicit val encoder: Encoder[DeckCard] = new Encoder[DeckCard] {
+    override def apply(card: DeckCard): Json = Json.obj(
+      ("id", Json.fromString(card.imageId)),
+      ("name", Json.fromString(card.name)),
+      ("rarity", Json.fromString(card.rarity)),
+      ("count", Json.fromInt(card.count))
+    )
   }
 
   case class DeckCardImpl(override val imageId: String,
