@@ -24,7 +24,7 @@ case class HandZone(isHumans: Boolean, board: PlayerBoard) extends HBox {
     cards.zipWithIndex.foreach{case (card,cardIndex) => {
       hand = hand :+ createCard("/assets/"+card.belongingSetCode+"/"+card.imageId+".jpg",
         Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), CardType.Hand, 1*cardIndex, //4.5 for Group
-        cardIndex = cardIndex, isHumans = Some(isHumans), Some(this), Some(parentBoard.myBoard))
+        cardIndex = cardIndex, isHumans = Some(isHumans), Some(this), Some(parentBoard.myBoard), gameWindow = Some(parentBoard.gameWindow))
     }}
     children = hand
   }

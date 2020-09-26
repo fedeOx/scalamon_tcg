@@ -1,5 +1,7 @@
 package model.pokemonEffect
 
+import model.core.GameManager
+import model.event.Events.Event
 import model.game.Cards.PokemonCard
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
@@ -14,6 +16,9 @@ case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEff
       else
         pkm.get.addDamage(totalDmgToEnemyPkm, Seq(EnergyType.Colorless)))
     //TODO: Manda evento fine attacco
+    println(Thread.currentThread().getName)
+    Thread.sleep(4000)
+    GameManager.notifyObservers(Event.attackEnded())
   }
   override var args: Map[String, Any] = Map.empty[String, Any]
   override var totalDmgToEnemyPkm: Int = totalDmgToEnemyPkm + baseDmgCount

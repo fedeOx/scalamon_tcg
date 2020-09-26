@@ -1,5 +1,6 @@
 package view
 
+import common.TurnOwner
 import controller.Controller
 import javafx.animation.Animation.Status
 import model.game.{Board, StatusType}
@@ -21,43 +22,49 @@ object CardCreator {
   private def addAction(card: Box, cardType: String, cardIndex: Int, zone: Option[Node] = Option.empty,
                         board: Option[Board] = Option.empty, gameWindow: Option[Window] = Option.empty): Unit = cardType match {
     case CardType.Active => card.onMouseClicked = _ => {
-      if (controller.handCardSelected.isEmpty)
-        zone.get.asInstanceOf[ActivePkmnZone].openMenu()
-      else {
-        try {
-          controller.selectActivePokemonLocation()
-        } catch {
-          case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get,ex.getMessage)
+      if (gameWindow.get.asInstanceOf[GameBoardView].turnOwner.equals(TurnOwner.Player)) {
+        if (controller.handCardSelected.isEmpty)
+          zone.get.asInstanceOf[ActivePkmnZone].openMenu()
+        else {
+          try {
+            controller.selectActivePokemonLocation()
+          } catch {
+            case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get,ex.getMessage)
+          }
         }
       }
     }
     case CardType.Bench => {
       card.onMouseClicked = _ => {
-        try {
-          controller.selectBenchLocation(cardIndex)
-        } catch {
-          case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get,ex.getMessage)
+        if (gameWindow.get.asInstanceOf[GameBoardView].turnOwner.equals(TurnOwner.Player)) {
+          try {
+            controller.selectBenchLocation(cardIndex)
+          } catch {
+            case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get, ex.getMessage)
+          }
         }
       }
     }
     case CardType.Hand => card.onMouseClicked = _ => {
-      if (card.width.value != 5.8) {
-        card.translateZ = -0.5
-        card.width = 5.8
-        card.height = 8
-        try {
-          controller.handCardSelected = Some(board.get.hand(cardIndex))
-        } catch {
-          case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get,ex.getMessage)
-        }
-      } else if (card.width.value == 5.8) {
-        card.translateZ = 0
-        card.width = 5.5
-        card.height = 7.7
-        try {
-          controller.handCardSelected = Option.empty
-        } catch {
-          case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get,ex.getMessage)
+      if (gameWindow.get.asInstanceOf[GameBoardView].turnOwner.equals(TurnOwner.Player)) {
+        if (card.width.value != 5.8) {
+          card.translateZ = -0.5
+          card.width = 5.8
+          card.height = 8
+          try {
+            controller.handCardSelected = Some(board.get.hand(cardIndex))
+          } catch {
+            case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get, ex.getMessage)
+          }
+        } else if (card.width.value == 5.8) {
+          card.translateZ = 0
+          card.width = 5.5
+          card.height = 7.7
+          try {
+            controller.handCardSelected = Option.empty
+          } catch {
+            case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get, ex.getMessage)
+          }
         }
       }
     }

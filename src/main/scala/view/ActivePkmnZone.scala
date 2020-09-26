@@ -1,6 +1,7 @@
 package view
 
 import javafx.geometry.Insets
+import model.exception.InvalidOperationException
 import model.game.Cards.PokemonCard
 import scalafx.Includes._
 import scalafx.geometry.Pos
@@ -63,11 +64,11 @@ case class ActivePkmnZone(isHumans: Boolean, board: PlayerBoard) extends HBox{
             if (!parentBoard.myBoard.activePokemon.get.hasEnergies(attack.cost))
               disable = true
             onAction = event => {
-              if (!board.gameWindow.asInstanceOf[GameBoardView].controller.declareAttack(parentBoard.myBoard, parentBoard.opponentBoard, attack)) {
-                //TODO: spostare in ricezione end attack event
-                println("end turn")
-                board.gameWindow.asInstanceOf[GameBoardView].controller.endTurn()
-                event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+              event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+              try {
+                board.gameWindow.asInstanceOf[GameBoardView].controller.declareAttack(parentBoard.myBoard, parentBoard.opponentBoard, attack)
+              } catch {
+                case ex : InvalidOperationException => PopupBuilder.openInvalidOperationMessage(parentBoard.gameWindow, ex.getMessage)
               }
             }
           }

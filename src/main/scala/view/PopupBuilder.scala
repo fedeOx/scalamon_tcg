@@ -2,14 +2,18 @@ package view
 
 import controller.Controller
 import model.game.Cards.PokemonCard
+import scalafx.animation.{Interpolator, RotateTransition}
 import scalafx.geometry.Pos
-import scalafx.scene.Scene
+import scalafx.scene.{Node, Scene}
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{HBox, VBox}
-import scalafx.scene.paint.Color
+import scalafx.scene.paint.{Color, PhongMaterial}
+import scalafx.scene.shape.{MeshView, TriangleMesh}
 import scalafx.scene.text.{Text, TextAlignment}
+import scalafx.scene.transform.Rotate
 import scalafx.stage.{Modality, Stage, StageStyle, Window}
+import scalafx.util.Duration
 
 /***
  * Object that creates popup messages for the game
@@ -132,5 +136,63 @@ object PopupBuilder {
       alwaysOnTop = true
     }
     dialog.show()
+  }
+
+  def openCoinFlipScreen(parent: Window, isHead: Boolean): Unit = {
+    val dialog = new Stage() {
+      println("popup builder: "+Thread.currentThread().getId)
+      initOwner(parent)
+      initModality(Modality.ApplicationModal)
+      initStyle(StageStyle.Undecorated)
+      initStyle(StageStyle.Transparent)
+      scene = new Scene(200, 200) {
+        val coin = new MeshView(createCoinMesh())
+        val material = new PhongMaterial()
+        fill = Color.Transparent
+        material.setDiffuseMap(new Image("/assets/coin.png"))
+        coin.setMaterial(material)
+        val rotator = createRotator(coin, isHead)
+        rotator.play()
+        rotator.setOnFinished(e => {
+          Thread.sleep(1000)
+          scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+        })
+        val container = new VBox() {
+          alignment = Pos.Center
+          prefWidth = 200
+          prefHeight = 200
+          children = coin
+        }
+        content = container
+      }
+      sizeToScene()
+      resizable = false
+      alwaysOnTop = true
+    }
+    dialog.show()
+  }
+
+  private def createCoinMesh(): TriangleMesh = {
+    val mesh = new TriangleMesh()
+    mesh.getPoints.addAll(-1 * 200 / 2, -1 * 200 / 2, 0, 1 * 200 / 2, -1 * 200 / 2, 0, -1 * 200 / 2, 1 * 200 / 2, 0, 1 * 200 / 2, 1 * 200 / 2, 0)
+    mesh.getFaces.addAll(0, 0, 2, 2, 3, 3, 3, 3, 1, 1, 0, 0)
+    mesh.getFaces.addAll(0, 4, 3, 7, 2, 6, 3, 7, 0, 4, 1, 5)
+    mesh.getTexCoords.addAll(0, 0, 0.5f, 0, 0, 1, 0.5f, 1, 0.5f, 0, 1, 0, 0.5f, 1, 1, 1)
+    mesh
+  }
+
+
+  private def createRotator(coin: Node, isHead: Boolean) = {
+    val rotator = new RotateTransition() {
+      duration = Duration.apply(2000)
+      node = coin
+    }
+    rotator.setAxis(Rotate.YAxis)
+    if (isHead) rotator.setFromAngle(180) else rotator.setFromAngle(0)
+    if (isHead) rotator.setToAngle(540) else rotator.setToAngle(360)
+    rotator.rate = 4
+    rotator.setInterpolator(Interpolator.Linear)
+    rotator.setCycleCount(4)
+    rotator
   }
 }

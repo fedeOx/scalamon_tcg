@@ -162,6 +162,7 @@ object EffectManager {
         GameManager.notifyObservers(Event.flipCoinEvent(false)); "tail"
       }
     }
+
   }
 
 

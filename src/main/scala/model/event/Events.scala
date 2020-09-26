@@ -21,6 +21,8 @@ object Events {
 
     def pokemonKOEvent(isAttackingPokemonKO: Boolean = false): Event = PokemonKO(isAttackingPokemonKO)
 
+    def attackEnded(): Event = AttackEnded()
+
     case class ShowDeckCards(deckCards: Seq[DeckCard]) extends Event
     case class BuildGameField(playerBoard: Board, opponentBoard: Board) extends Event
     case class FlipCoin(isHead: Boolean) extends Event
@@ -28,6 +30,7 @@ object Events {
     case class NextTurn(turnOwner: TurnOwner) extends Event
     case class UpdateBoards() extends Event
     case class PokemonKO(isAttackingPokemonKO: Boolean) extends Event
+    case class AttackEnded() extends Event
   }
 
 }

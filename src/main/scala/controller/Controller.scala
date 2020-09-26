@@ -99,7 +99,7 @@ trait Controller {
    * active pokemon.
    * @param attack the active pokemon attack selected by the user
    */
-  def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean
+  def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Unit
 }
 
 object Controller {
@@ -210,7 +210,11 @@ object Controller {
       case _ => throw new InvalidOperationException("Operation not allowed on pokemon bench location")
     }
 
-    override def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean =
-      GameManager.confirmAttack(attackingBoard, defendingBoard, attack)
+    override def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Unit =
+      new Thread {
+        override def run() : Unit = {
+          GameManager.confirmAttack(attackingBoard, defendingBoard, attack)
+        }
+      }.start()
   }
 }

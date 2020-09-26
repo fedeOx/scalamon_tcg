@@ -8,7 +8,7 @@ import model.game.{Board, StatusType}
 import scalafx.Includes._
 import scalafx.geometry.Pos
 import scalafx.scene.Group
-import scalafx.scene.image.Image
+import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.{HBox, VBox}
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
@@ -26,7 +26,7 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
   private val WIDTH = 55
   private val HEIGHT = 25
   val gameWindow : Window = parentWindow
-  private val prize = PrizeCardsZone()
+  private val prize = PrizeCardsZone(isHumans, this)
   private val active = ActivePkmnZone(isHumans, this)
   private val bench = BenchZone(isHumans, this)
   private val deckDiscard = DeckDiscardZone()
@@ -42,12 +42,15 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
     children += hand
     val endTurnButton: Box = new Box{
       val buttonMaterial = new PhongMaterial()
-      buttonMaterial.diffuseColor = Color.Blue
+      buttonMaterial.diffuseMap = new Image("/assets/endturn.png")
+      //buttonMaterial.diffuseColor = Color.Blue
       material = buttonMaterial
       width = 3
       height = 2
       translateX = 42
       translateY = 5
+      transforms += new Rotate(45, Rotate.XAxis)
+      depth = 2
 
       onMouseClicked = _ => {
         if(isFirstTurn) {
@@ -71,6 +74,7 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
   def updateHand() : Unit = hand.updateView(myBoard.hand)
   def updateActive() : Unit = active.updateView(myBoard.activePokemon)
   def updateBench() : Unit = bench.updateView(myBoard.pokemonBench)
+  def updatePrizes() : Unit = prize.updateView(myBoard.prizeCards)
   def updateDiscardStack() : Unit = if (myBoard.discardStack.nonEmpty) deckDiscard.updateView(myBoard.discardStack.last)
 }
 
