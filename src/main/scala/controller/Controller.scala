@@ -106,9 +106,8 @@ trait Controller {
    * @param attack the active pokemon attack selected by the user
    * @param attackingBoard the attacking board
    * @param defendingBoard the defending board
-   * @return true if the attacking pokemon becomes KO, false otherwise
    */
-  def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean
+  def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Unit
 
   /**
    * It resets the current game in order to start a new one.
@@ -235,8 +234,11 @@ object Controller {
       case _ => throw new InvalidOperationException("Operation not allowed on pokemon bench location")
     }
 
-    override def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean =
-      GameManager.confirmAttack(attackingBoard, defendingBoard, attack)
+    override def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Unit = new Thread {
+      override def run() : Unit = {
+        GameManager.confirmAttack(attackingBoard, defendingBoard, attack)
+      }
+    }.start()
 
     override def resetGame(): Unit = {
       GameManager.reset()

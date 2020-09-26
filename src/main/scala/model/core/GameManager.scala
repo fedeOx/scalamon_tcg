@@ -117,8 +117,7 @@ object GameManager extends Observable {
   }
 
   @throws(classOf[InvalidOperationException])
-  def confirmAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean ={
-    var isPokemonInChargeKO = false
+  def confirmAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Unit ={
     if (activePokemon(attackingBoard).nonEmpty && activePokemon(defendingBoard).nonEmpty) {
       val attackingPokemon = activePokemon(attackingBoard).get
       val defendingPokemon = activePokemon(defendingBoard).get
@@ -137,11 +136,9 @@ object GameManager extends Observable {
         eventuallyRemoveKOActivePokemon(attackingPokemon, attackingBoard, defendingBoard, isPokemonInCharge = true)
         eventuallyRemoveKOActivePokemon(defendingPokemon, defendingBoard, attackingBoard, isPokemonInCharge = false)
 
-        isPokemonInChargeKO = attackingPokemon.isKO
         notifyBoardUpdate()
       }
     }
-    isPokemonInChargeKO
   }
 
   private def eventuallyRemoveKOActivePokemon(activePokemon: PokemonCard, board: Board, otherBoard: Board, isPokemonInCharge: Boolean): Unit = {

@@ -18,7 +18,7 @@ object TurnManager extends Observable {
       turnOwner = Some(TurnOwner.Opponent)
     else
       turnOwner = Some(TurnOwner.Player)
-    this.notifyObservers(Event.flipCoinEvent(turnOwner.get))
+    this.notifyObservers(Event.flipCoinEvent(turnOwner.get.equals(TurnOwner.Player)))
   }
 
   @throws(classOf[CoinNotLaunchedException])
