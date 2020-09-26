@@ -72,14 +72,14 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
     }}).repeat(3)
 
     Given("a new active pokemon")
-    val newActivePokemon: PokemonCard = PokemonCard("1", "base1", Seq(EnergyType.Colorless), "myActivePokemon", 100, Nil, Nil, Nil, "", Nil)
+    val newActivePokemon: PokemonCard = PokemonCard("1", "base1", "rare", Seq(EnergyType.Colorless), "myActivePokemon", 100, Nil, Nil, Nil, "", Nil)
     When("it is set as active pokemon")
     GameManager.setActivePokemon(Some(newActivePokemon))
     Then("the active pokemon location should be not empty")
     assert(GameManager.playerBoard.activePokemon.nonEmpty && GameManager.playerBoard.activePokemon.get == newActivePokemon)
 
     Given("a new bench pokemon and a bench position")
-    val newBenchPokemon: PokemonCard = PokemonCard("2", "base1", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
+    val newBenchPokemon: PokemonCard = PokemonCard("2", "base1", "rare", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
     val benchPosition = 0
     When("the bench pokemon is put int the bench at the given position")
     GameManager.putPokemonToBench(Some(newBenchPokemon), benchPosition)
@@ -102,13 +102,13 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
 
     Given("an active pokemon with a retreat cost")
     val retreatCost: Seq[EnergyType] = Seq(EnergyType.Colorless, EnergyType.Colorless)
-    val activePokemon: PokemonCard = PokemonCard("1", "base1", Seq(EnergyType.Colorless), "myActivePokemon", 100, Nil,
+    val activePokemon: PokemonCard = PokemonCard("1", "base1", "rare", Seq(EnergyType.Colorless), "myActivePokemon", 100, Nil,
       Nil, retreatCost, "", Nil)
     GameManager.setActivePokemon(Some(activePokemon))
-    val energyCard: EnergyCard = EnergyCard("1", "base-1", EnergyType.Grass, EnergyCardType.basic)
+    val energyCard: EnergyCard = EnergyCard("1", "energy", "base-1", "rare", EnergyType.Grass, EnergyCardType.basic)
 
     Given("a pokemon in a bench position")
-    val benchPokemon: PokemonCard = PokemonCard("2", "base1", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
+    val benchPokemon: PokemonCard = PokemonCard("2", "base1", "rare", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
     val benchPosition = 0
     GameManager.putPokemonToBench(Some(benchPokemon), benchPosition)
 

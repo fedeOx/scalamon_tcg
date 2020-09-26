@@ -131,13 +131,6 @@ object GameManager extends Observable {
         } else {
           attack.effect.get.useEffect(attackingBoard, defendingBoard)
         }
-
-        /*
-        Gestire pecata dopo la morte di ogni pokemon sia in panchina che in posizione attivo. Controllo vittoria dopo la pescata
-        Inviare Event.pokemonKOEvent() se muore uno dei due pokemon attivi: la view e l'IA controllano se il proprio active pokemon
-        è morto e in caso fanno lo swap.
-         */
-
         eventuallyRemoveKOBenchedPokemon(defendingBoard, attackingBoard)
         eventuallyRemoveKOBenchedPokemon(attackingBoard, defendingBoard)
 

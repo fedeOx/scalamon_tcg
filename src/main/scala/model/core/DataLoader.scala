@@ -53,13 +53,15 @@ object DataLoader extends Observable {
   }
 
   private def loadCustomDecksNames(set: SetType): Seq[String] = {
-    val cursor = buildCursor(new FileInputStream(SaveDirectory + CustomDeckFileName))
-    if (cursor.values.nonEmpty) {
-      cursor.values.get.filter(c => c.hcursor.downField("set").as[SetType].toOption.get == set)
-        .map(c => c.hcursor.downField("name").as[String].toOption.get).toList
-    } else {
-      List.empty
+    var list: Seq[String] = List.empty
+    if (Files.exists(Paths.get(SaveDirectory + CustomDeckFileName))) {
+      val cursor = buildCursor(new FileInputStream(SaveDirectory + CustomDeckFileName))
+      if (cursor.values.nonEmpty) {
+        list = cursor.values.get.filter(c => c.hcursor.downField("set").as[SetType].toOption.get == set)
+          .map(c => c.hcursor.downField("name").as[String].toOption.get).toList
+      }
     }
+    list
   }
 
   private def buildCursor(inputFile: InputStream): HCursor = {
