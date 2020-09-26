@@ -13,7 +13,7 @@ class BoardTest extends AnyFlatSpec with GivenWhenThen {
 
   behavior of "A Board"
 
-  it should "pop cards from deck and add them to hand when requested" in {
+  it should "pop cards from deck and add them to the hand when requested" in {
     val initialHandCardsNumber = board.hand.size
     val initialDeckSize = board.deck.size
     board.addCardsToHand(board.popDeck(1))

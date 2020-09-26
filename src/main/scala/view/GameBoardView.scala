@@ -129,9 +129,6 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       println("pokemonKO event")
       if (humanBoard.board.activePokemon.get.isKO)
         Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.board.pokemonBench, event.isPokemonInCharge))
-      else {
-        utils.controller.drawAPrizeCard()
-      }
     }
     case _ =>
   }

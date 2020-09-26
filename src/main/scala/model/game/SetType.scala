@@ -6,7 +6,6 @@ import io.circe.{Decoder, HCursor}
 object SetType extends Enumeration {
   type SetType = Value
   val Base: Value = Value("base")
-  val Custom: Value = Value("custom")
 
   implicit val decoder: Decoder[SetType] = new Decoder[SetType] {
     override def apply(c: HCursor): Result[SetType] =

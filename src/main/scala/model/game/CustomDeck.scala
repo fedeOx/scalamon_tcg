@@ -1,7 +1,7 @@
 package model.game
 
-import io.circe.Json.JArray
-import io.circe.{Encoder, Json}
+import io.circe.Decoder.Result
+import io.circe.{Decoder, Encoder, HCursor, Json}
 import model.game.SetType.SetType
 import io.circe.syntax._
 
@@ -20,6 +20,17 @@ object CustomDeck {
       ("set", Json.fromString(deck.set.toString)),
       ("cards", deck.cards.asJson)
     )
+  }
+
+  implicit val decoder: Decoder[CustomDeck] = new Decoder[CustomDeck] {
+    override def apply(c: HCursor): Result[CustomDeck] =
+      for {
+        _name <- c.downField("name").as[String]
+        _set <- c.downField("set").as[String]
+        _cards <- c.downField("cards").as[Seq[DeckCard]]
+      } yield {
+        CustomDeck(_name, SetType.withName(_set), _cards)
+      }
   }
 
   case class CustomDeckImpl(override val name: String,

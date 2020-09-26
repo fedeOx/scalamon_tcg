@@ -1,11 +1,10 @@
 package controller
 
-import model.core.{DataLoader, DataWriter, GameManager, TurnManager}
+import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.Event
 import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
-import model.game.DeckType.DeckType
 import model.game.SetType.SetType
 
 import scala.util.Random
@@ -25,7 +24,7 @@ trait Controller {
   def loadSet(set: SetType): Unit
 
   /**
-   * It makes [[model.core.DataWriter]] save a new custom deck.
+   * It makes [[model.core.DataLoader]] save a new custom deck.
    * @param customDeck the custom deck to be saved
    */
   def createCustomDeck(customDeck: CustomDeck): Unit
@@ -142,7 +141,7 @@ object Controller {
 
     override def createCustomDeck(customDeck: CustomDeck): Unit = new Thread {
       override def run(): Unit = {
-        DataWriter.saveCustomDeck(customDeck)
+        DataLoader.saveCustomDeck(customDeck)
       }
     }.start()
 
@@ -153,7 +152,7 @@ object Controller {
         val random = new Random()
         val opponentChosenDeckType = DeckType.values.filter(d => d.setType == set)
           .toVector(random.nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
-        val opponentDeckCards: Seq[DeckCard] = DataLoader.loadSingleDeck(set.toString, opponentChosenDeckType.name)
+        val opponentDeckCards: Seq[DeckCard] = DataLoader.loadSingleDeck(set, opponentChosenDeckType)
         // TODO end
         GameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
         TurnManager.flipACoin()

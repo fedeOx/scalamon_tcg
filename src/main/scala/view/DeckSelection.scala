@@ -35,7 +35,7 @@ object DeckSelection extends Scene with Observer{
   scrollPane.setBackground(Background.Empty)
   stylesheets += cssStyle
   DataLoader.addObserver(this)
-  controller.loadDeckCards(SetType.Base,DeckType.Base1)
+  // controller.loadDeckCards(SetType.Base,DeckType.Base1) TODO
 
   root = new BorderPane {
     id = "deckSelection-pane"
@@ -59,7 +59,7 @@ object DeckSelection extends Scene with Observer{
   def createDeckButton(deckName: String): Button = {
     val deckButton: Button = new Button(deckName)
     deckButton.onAction = () => {
-      controller.loadDeckCards(SetType.Base,DeckType.withNameWithDefault(deckName))
+      // controller.loadDeckCards(SetType.Base,DeckType.withNameWithDefault(deckName)) TODO
     }
     deckButton.id = deckName
     deckButton.text = ""
@@ -100,8 +100,8 @@ object DeckSelection extends Scene with Observer{
     case event if event.isInstanceOf[ShowDeckCards] =>  {
       cardsTableItem.clear()
       event.asInstanceOf[ShowDeckCards].deckCards.foreach(deckCard => {
-        cardsTableItem = cardsTableItem :+ CardView(deckCard.imageId, deckCard.name,
-          deckCard.rarity, deckCard.count)
+        //cardsTableItem = cardsTableItem :+ CardView(deckCard.imageId, deckCard.name, TODO
+          //deckCard.rarity, deckCard.count)
       })
       tableView.setItems(cardsTableItem)
       tableView.refresh()
