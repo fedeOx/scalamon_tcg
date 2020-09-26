@@ -11,29 +11,26 @@ object Events {
 
     def buildGameFieldEvent(playerBoard: Board, opponentBoard: Board): Event = BuildGameField(playerBoard, opponentBoard)
 
-    def flipCoinEvent(coinValue: TurnOwner): Event = FlipCoin(coinValue)
+    def flipCoinEvent(isHead: Boolean): Event = FlipCoin(isHead)
 
     def placeCardsEvent(): Event = PlaceCards()
 
     def nextTurnEvent(turnOwner: TurnOwner): Event = NextTurn(turnOwner)
 
-    def updatePlayerBoardEvent(): Event = UpdatePlayerBoard()
+    def updateBoardsEvent(): Event = UpdateBoards()
 
-    def updateOpponentBoardEvent(): Event = UpdateOpponentBoard()
+    def pokemonKOEvent(isAttackingPokemonKO: Boolean = false): Event = PokemonKO(isAttackingPokemonKO)
 
-    def updateBothBoardsEvent(): Event = UpdateBothBoards()
-
-    def pokemonKOEvent(): Event = PokemonKO()
+    def attackEnded(): Event = AttackEnded()
 
     case class ShowDeckCards(deckCards: Seq[DeckCard]) extends Event
     case class BuildGameField(playerBoard: Board, opponentBoard: Board) extends Event
-    case class FlipCoin(coinValue: TurnOwner) extends Event
+    case class FlipCoin(isHead: Boolean) extends Event
     case class PlaceCards() extends Event
     case class NextTurn(turnOwner: TurnOwner) extends Event
-    case class UpdatePlayerBoard() extends Event
-    case class UpdateOpponentBoard() extends Event
-    case class UpdateBothBoards() extends Event
-    case class PokemonKO() extends Event
+    case class UpdateBoards() extends Event
+    case class PokemonKO(isAttackingPokemonKO: Boolean) extends Event
+    case class AttackEnded() extends Event
   }
 
 }

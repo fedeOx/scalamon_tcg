@@ -10,7 +10,7 @@ import scala.util.Random
 object TurnManager extends Observable {
   private var turnOwner: Option[TurnOwner] = None
   private var acks: Int = 0
-  private val TotalNumberOfAckRequired = 1//2
+  private val TotalNumberOfAckRequired = 2
 
   def flipACoin(): Unit = {
     val side = new Random().nextInt(2)
@@ -18,7 +18,7 @@ object TurnManager extends Observable {
       turnOwner = Some(TurnOwner.Opponent)
     else
       turnOwner = Some(TurnOwner.Player)
-    this.notifyObservers(Event.flipCoinEvent(turnOwner.get))
+    this.notifyObservers(Event.flipCoinEvent(turnOwner.get.equals(TurnOwner.Player)))
   }
 
   @throws(classOf[CoinNotLaunchedException])

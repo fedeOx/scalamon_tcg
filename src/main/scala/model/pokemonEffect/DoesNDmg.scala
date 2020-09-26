@@ -1,5 +1,7 @@
 package model.pokemonEffect
 
+import model.core.GameManager
+import model.event.Events.Event
 import model.game.Cards.PokemonCard
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
@@ -13,6 +15,10 @@ case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEff
         pkm.get.addDamage(totalDmgToEnemyPkm, attackingBoard.activePokemon.get.pokemonTypes)
       else
         pkm.get.addDamage(totalDmgToEnemyPkm, Seq(EnergyType.Colorless)))
+    //TODO: Manda evento fine attacco
+    println(Thread.currentThread().getName)
+    Thread.sleep(4000)
+    GameManager.notifyObservers(Event.attackEnded())
   }
   override var args: Map[String, Any] = Map.empty[String, Any]
   override var totalDmgToEnemyPkm: Int = totalDmgToEnemyPkm + baseDmgCount
@@ -54,7 +60,7 @@ sealed trait DiscardEnergy extends AttackEffect {
     if (energyCount == -1)
       energyCount = pokemonToApply.get.totalEnergiesStored
     getStringArgFromMap("energyType") match {
-      case "Colorless" => pokemonToApply.get.removeFirstNEnergies(getIntArgFromMap("energyCount"))
+      case "Colorless" => pokemonToApply.get.removeFirstNEnergies(energyCount)
       case specificEnergy =>
         for (_ <- 1 to energyCount)
             pokemonToApply.get.removeEnergy(EnergyType.withNameWithDefault(specificEnergy))
@@ -87,7 +93,7 @@ sealed trait MultipleTargetDmg extends AttackEffect {
     val pokemonToApply = getStringArgFromMap("target")
     val dmgToDo = getIntArgFromMap("dmgToMultiple")
 
-    atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench, defendingBoard.pokemonBench).foreach(pkm => pkm.get.addDamage(dmgToDo, Seq(EnergyType.Colorless)))
+    atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench.filter(c => c.isDefined)).foreach(pkm => pkm.get.addDamage(dmgToDo, Seq(EnergyType.Colorless)))
     super.useEffect(attackingBoard,defendingBoard)
   }
 }

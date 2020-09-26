@@ -1,6 +1,10 @@
 package model.pokemonEffect
 
 
+import model.core.GameManager
+import model.event.Events.Event
+import model.event.Events.Event.FlipCoin
+
 import scala.util.Random
 
 object EffectManager {
@@ -151,9 +155,14 @@ object EffectManager {
 
   private def getCoinFlipValue: String = {
     Random.nextInt(99) + 1 match {
-      case n if n<= 50 => "head"
-      case _ => "tail"
+      case n if n<= 50 => {
+        GameManager.notifyObservers(Event.flipCoinEvent(true)); "head"
+      }
+      case _ => {
+        GameManager.notifyObservers(Event.flipCoinEvent(false)); "tail"
+      }
     }
+
   }
 
 

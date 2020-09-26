@@ -14,7 +14,6 @@ import scala.collection.mutable
 case class DeckDiscardZone() extends VBox {
   private val WIDTH = 10
   private val HEIGHT = 25
-  //private val discardStack = mutable.Stack("/assets/1.jpg", "/assets/4.jpg")
   private var deck = createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
   private var discardStack : Box = _
   children = deck
@@ -26,7 +25,7 @@ case class DeckDiscardZone() extends VBox {
   translateX = 45
 
   def updateView(card: Card) : Unit = {
-    discardStack = createCard("/assets/base1/"+card.imageId+".jpg", cardType = CardType.DiscardStack)
+    discardStack = createCard("/assets/"+card.belongingSetCode+"/"+card.imageId+".jpg", cardType = CardType.DiscardStack)
     children = List(deck, discardStack)
   }
 }

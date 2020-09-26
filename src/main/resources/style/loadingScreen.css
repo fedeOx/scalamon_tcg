@@ -1,0 +1,9 @@
+VBox {
+    -fx-fill: black;
+    -fx-background-color: black;
+    -fx-font-size: 20px;
+}
+
+Label {
+    -fx-text-fill: white;
+}

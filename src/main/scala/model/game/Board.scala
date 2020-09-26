@@ -1,6 +1,6 @@
 package model.game
 
-import model.exception.BenchPokemonException
+import model.exception.InvalidOperationException
 import model.game.Cards.{Card, PokemonCard}
 
 import scala.util.Random
@@ -42,9 +42,9 @@ trait Board {
    * Replace the specified pokemon with the bench pokemon in the specified bench position
    * @param newPokemon the pokemon to be placed in the bench
    * @param position the position in the bench
-   * @throws model.exception.BenchPokemonException if the specified position is out of bound
+   * @throws model.exception.InvalidOperationException if the specified position is out of bound
    */
-  @throws(classOf[BenchPokemonException])
+  @throws(classOf[InvalidOperationException])
   def putPokemonInBenchPosition(newPokemon: Option[PokemonCard], position: Int): Unit
 
   /**
@@ -102,6 +102,7 @@ object Board {
       _hand = List()
       _deck = Random.shuffle(_deck)
     }
+
     override def popPrizeCard(popNumber: Int): List[Card] = _prizeCards match {
       case h :: t if popNumber > 0 => _prizeCards = t; h :: popPrizeCard(popNumber - 1)
       case _ => Nil
@@ -110,7 +111,7 @@ object Board {
     private def updateBenchPosition(pokemon: Option[PokemonCard], bench: Seq[Option[PokemonCard]], position: Int): List[Option[PokemonCard]] = bench match {
       case h :: t if position > 0 => h :: updateBenchPosition(pokemon, t, position-1)
       case _ :: t => pokemon :: t
-      case _ => throw new BenchPokemonException("The specified position is out of bound")
+      case _ => throw new InvalidOperationException("The specified position is out of bound")
     }
   }
 }

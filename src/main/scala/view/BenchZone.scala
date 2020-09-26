@@ -12,10 +12,9 @@ import scala.collection.mutable
 
 /***
  * The field zone that contains the benched pokemon
- * @param zone: the zone for the zoomed cards
  * @param isHumans: true if it's the human's board
  */
-case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) extends HBox {
+case class BenchZone(isHumans: Boolean, board: PlayerBoard) extends HBox {
   private val WIDTH = 35
   private val HEIGHT = 10
   private var bench : Seq[Box] = Seq()
@@ -25,25 +24,20 @@ case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exte
 
   updateView()
   def updateView(cards: Seq[Option[PokemonCard]] = Seq()): Unit = {
-    /*cards.zipWithIndex.foreach{case (card,cardIndex) => {
-      bench = bench :+ createCard("/assets/base1/"+card.imageId+".jpg", Some(zone), CardType.Hand, 1*cardIndex, //4.5 for Group
-        cardIndex = cardIndex, isHumans = Some(isHumans), Some(this))
-    }}*/
     if (cards.isEmpty || (cards.count(c => c.isEmpty) == 5)) {
-      println("sono qua")
       isEmpty = true
       val cardMaterial = new PhongMaterial()
       cardMaterial.diffuseColor = Color.Transparent
-      bench = bench :+ new Box {
+      bench = Seq(new Box {
         material = cardMaterial
         depth = 0.5
-      }
+      })
     } else {
       isEmpty = false
       bench = Seq[Box]()
       cards.filter(c => c.isDefined).zipWithIndex.foreach{case (card,cardIndex) => {
-        bench = bench :+ createCard("/assets/base1/"+card.get.imageId+".jpg", Some(zone), CardType.Bench,
-          cardIndex = cardIndex, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.board))
+        bench = bench :+ createCard("/assets/"+card.get.belongingSetCode+"/"+card.get.imageId+".jpg", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), CardType.Bench,
+          cardIndex = cardIndex, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard), gameWindow = Some(board.gameWindow))
       }}
     }
     children = bench
@@ -61,11 +55,21 @@ case class BenchZone(zone: ZoomZone, isHumans: Boolean, board: PlayerBoard) exte
   onMouseClicked = _ => {
     if (isHumans && !isOverChildren && !bench.size.equals(5)) {
       if (isEmpty) {
-        utils.controller.selectBenchLocation(0)
+        try {
+          board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(0)
+        } catch {
+          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
+        }
         println("panchina vuota")
       }
-      else
-        utils.controller.selectBenchLocation(bench.size)
+      else {
+        try {
+          board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(bench.size)
+        } catch {
+          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
+        }
+
+      }
     }
   }
 }
