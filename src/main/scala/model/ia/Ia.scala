@@ -7,6 +7,7 @@ import common.{Observer, TurnOwner}
 import model.core.{GameManager, TurnManager}
 import model.event.Events.Event
 import model.event.Events.Event.BuildGameField
+import model.exception.InvalidOperationException
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
 
@@ -36,7 +37,7 @@ object Ia extends Thread with Observer {
 
   private def doTurn(): Unit = {
 
-    GameManager.activePokemonStartTurnChecks(opponentBoard.activePokemon.get)
+    GameManager.activePokemonStartTurnChecks(opponentBoard, playerBoard)
 
     //pesco
     GameManager.drawCard(opponentBoard)
@@ -53,8 +54,14 @@ object Ia extends Thread with Observer {
     Thread.sleep(1500)
 
     //calculate if the retreat of the active pokemon is convenient and Do it
-    if (!GameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored)
-      calculateIfWithdrawAndDo()
+    if (!GameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
+      try {
+        calculateIfWithdrawAndDo()
+      } catch {
+        case exception : InvalidOperationException => println("non posso ritirare")
+        case _ =>
+      }
+    }
 
     //assignEnergy
     val getEnergy = myHand.filter(energy => energy.isInstanceOf[EnergyCard])
@@ -65,10 +72,10 @@ object Ia extends Thread with Observer {
     //attack
     try {
       if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
-        println("primo attacco IA")
+        println("secondo attacco IA")
         GameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.last)
       } else if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.head.cost)) {
-        println("secondo attacco IA")
+        println("primo attacco IA")
         GameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.head)
       }
     }
@@ -85,15 +92,13 @@ object Ia extends Thread with Observer {
       while (true) {
         val event: Event = Ia.waitForNextEvent()
         event match {
-          case event: Event.PlaceCards => placeCards(opponentBoard.hand)
           case event: Event.BuildGameField => {
             opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
             playerBoard = event.asInstanceOf[BuildGameField].playerBoard
             myHand = opponentBoard.hand
-            //TODO remove
             placeCards(myHand)
           }
-          case event: Event.FlipCoin => turn = event.coinValue
+          case event: Event.FlipCoin => turn = if(event.isHead) TurnOwner.Player else TurnOwner.Opponent
           case event: Event.NextTurn if event.turnOwner == TurnOwner.Opponent => doTurn()
           case event: Event.PokemonKO => checkForKo()
           case _ =>
@@ -104,16 +109,11 @@ object Ia extends Thread with Observer {
 
   private def checkForKo(): Unit = {
     if (opponentBoard.activePokemon.get.isKO) {
-      //val pokemonKO = opponentBoard.activePokemon.get
       if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
         calculateIfWithdrawAndDo()
       }
       else
         println("PERSO IA")
-    } else {
-      println("IA- Pesco carta premio")
-      GameManager.drawPrizeCard(opponentBoard)
-      println("IA- Carte Premio Rimaste : " + opponentBoard.prizeCards)
     }
   }
 

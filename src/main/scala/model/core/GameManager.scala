@@ -59,20 +59,16 @@ object GameManager extends Observable {
 
   def drawCard(board: Board = playerBoard): Unit = {
     board.addCardsToHand(board.popDeck(1))
-    notifyBoardUpdate()
-  }
-
-  def drawPrizeCard(board: Board = playerBoard): Unit = {
-    board.addCardsToHand(board.popPrizeCard(1))
+    if (board.deck.isEmpty) {
+      this.notifyObservers(Event.endGameEvent())
+    }
     notifyBoardUpdate()
   }
 
   def destroyActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Unit = {
     board.addCardsToDiscardStack(activePokemon(board).get :: Nil)
     swap(board, None, replacementBenchPosition)
-    for((c, i) <- collapseToLeft(pokemonBench(board)).zipWithIndex) {
-      board.putPokemonInBenchPosition(c, i)
-    }
+    collapseBench(board)
     notifyBoardUpdate()
   }
 
@@ -88,12 +84,14 @@ object GameManager extends Observable {
     }
   }
 
-  def activePokemonStartTurnChecks(activePokemon: PokemonCard): Unit = {
-    if (activePokemon.immune) {
-      activePokemon.immune = false
+  def activePokemonStartTurnChecks(board: Board, opponentBoard: Board): Unit = {
+    val pokemon = activePokemon(board).get
+    if (pokemon.immune) {
+      pokemon.immune = false
     }
-    if (activePokemon.status == StatusType.Poisoned) {
-      activePokemon.addDamage(PoisonDamage, Seq())
+    if (pokemon.status == StatusType.Poisoned) {
+      pokemon.addDamage(PoisonDamage, Seq())
+      eventuallyRemoveKOActivePokemon(pokemon, board, opponentBoard, isPokemonInCharge = true) // GESTIONE KO + PESCATA CARTA PREMIO + CONTROLLO VITTORIA
     }
   }
 
@@ -119,8 +117,7 @@ object GameManager extends Observable {
   }
 
   @throws(classOf[InvalidOperationException])
-  def confirmAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Boolean ={
-    var attackingPokemonIsKO = false
+  def confirmAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Unit ={
     if (activePokemon(attackingBoard).nonEmpty && activePokemon(defendingBoard).nonEmpty) {
       val attackingPokemon = activePokemon(attackingBoard).get
       val defendingPokemon = activePokemon(defendingBoard).get
@@ -133,18 +130,53 @@ object GameManager extends Observable {
         } else {
           attack.effect.get.useEffect(attackingBoard, defendingBoard)
         }
-        // Controllo sul KO delle bench -> aggiunta a pila degli scarti dei pokemon KO nell bench + collapse left
-        // + invio n eventi pokemonKOEvent(false) (uno per ogni pokemon della panchina DELL'AVVERSARIO morto, NEL CASO DI POKEMON
-        // MORTI NELLA PANCHINA DEL GIOCATORE FARE SOLO LA RIMOZIONE E AGGIUNTA AL DISCARDSTACK e LA COLLAPSE LEFT)
-        if (attackingPokemon.isKO || defendingPokemon.isKO) {
-          // Controllare vittoria: se prizeCardStack.size==1 || se pokemonBench di defendingBoard.isEmpty => Event.endGame(winnerPlayer: String) // Gestire reset del gioco
-          this.notifyObservers(Event.pokemonKOEvent(attackingPokemon.isKO))
-          attackingPokemonIsKO = attackingPokemon.isKO
-        }
+        eventuallyRemoveKOBenchedPokemon(defendingBoard, attackingBoard)
+        eventuallyRemoveKOBenchedPokemon(attackingBoard, defendingBoard)
+
+        eventuallyRemoveKOActivePokemon(attackingPokemon, attackingBoard, defendingBoard, isPokemonInCharge = true)
+        eventuallyRemoveKOActivePokemon(defendingPokemon, defendingBoard, attackingBoard, isPokemonInCharge = false)
+
         notifyBoardUpdate()
       }
     }
-    attackingPokemonIsKO
+  }
+
+  private def eventuallyRemoveKOActivePokemon(activePokemon: PokemonCard, board: Board, otherBoard: Board, isPokemonInCharge: Boolean): Unit = {
+    if (activePokemon.isKO) {
+      if (!pokemonBench(board).exists(c => c.nonEmpty)) {
+        this.notifyObservers(Event.endGameEvent()) // Win check
+      } else {
+        this.notifyObservers(Event.pokemonKOEvent(isPokemonInCharge))
+        drawPrizeCard(otherBoard)
+      }
+    }
+  }
+
+  private def eventuallyRemoveKOBenchedPokemon(actualBoard: Board, otherBoard: Board): Unit = {
+    for ((p, i) <- pokemonBench(actualBoard).zipWithIndex
+      if p.nonEmpty && p.get.isKO) {
+      destroyBenchPokemon(i, actualBoard)
+      drawPrizeCard(otherBoard)
+    }
+  }
+
+  private def drawPrizeCard(board: Board): Unit = {
+    board.addCardsToHand(board.popPrizeCard(1))
+    if (board.prizeCards.isEmpty) { // Win check
+      this.notifyObservers(Event.endGameEvent())
+    }
+  }
+
+  private def destroyBenchPokemon(benchPosition: Int, board: Board): Unit = {
+    board.addCardsToDiscardStack(pokemonBench(board)(benchPosition).get :: Nil)
+    board.putPokemonInBenchPosition(None, benchPosition)
+    collapseBench(board)
+  }
+
+  private def collapseBench(board: Board): Unit = {
+    for((c, i) <- collapseToLeft(pokemonBench(board)).zipWithIndex) {
+      board.putPokemonInBenchPosition(c, i)
+    }
   }
 
   private def swap(board: Board, activePokemon: Option[PokemonCard], benchPosition: Int): Unit = {
@@ -152,7 +184,7 @@ object GameManager extends Observable {
     board.putPokemonInBenchPosition(activePokemon, benchPosition)
   }
 
-  private def collapseToLeft[A](bench: Seq[Option[A]]): List[Option[A]] = bench match {
+  private def collapseToLeft[A](l: Seq[Option[A]]): List[Option[A]] = l match {
     case h :: t if h.isEmpty => collapseToLeft(t) :+ h
     case h :: t if h.nonEmpty => h :: collapseToLeft(t)
     case _ => Nil

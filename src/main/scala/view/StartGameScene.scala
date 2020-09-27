@@ -17,7 +17,7 @@ object StartGameScene extends Scene {
       text = "Select Deck"
       onAction = _ => {
 
-        StartGameGui.getPrimaryStage.scene = DeckSelection
+        StartGameGui.getPrimaryStage.scene = new DeckSelection
         StartGameGui.getPrimaryStage.width = 1400
         StartGameGui.getPrimaryStage.height = 1000
         StartGameGui.getPrimaryStage.x = 200

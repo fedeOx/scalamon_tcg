@@ -13,7 +13,7 @@ class BoardTest extends AnyFlatSpec with GivenWhenThen {
 
   behavior of "A Board"
 
-  it should "pop cards from deck and add them to hand when requested" in {
+  it should "pop cards from deck and add them to the hand when requested" in {
     val initialHandCardsNumber = board.hand.size
     val initialDeckSize = board.deck.size
     board.addCardsToHand(board.popDeck(1))
@@ -41,7 +41,7 @@ class BoardTest extends AnyFlatSpec with GivenWhenThen {
   }
 
   it should "add/remove pokemon to/from bench if it is possible" in {
-    val pokemonToAdd: PokemonCard = PokemonCard("1", "base1", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
+    val pokemonToAdd: PokemonCard = PokemonCard("1", "base1", "rare", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
     for (i <- board.pokemonBench.indices) {
       assert(board.pokemonBench(i).isEmpty)
       board.putPokemonInBenchPosition(Some(pokemonToAdd), i)
@@ -64,7 +64,7 @@ class BoardTest extends AnyFlatSpec with GivenWhenThen {
   }
 
   it should "add an active pokemon to the discard stack when it is made KO" in {
-    val activePokemon: PokemonCard = PokemonCard("1", "base1", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
+    val activePokemon: PokemonCard = PokemonCard("1", "base1", "rare", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
     board.activePokemon = Some(activePokemon)
     board.addCardsToDiscardStack(board.activePokemon.get :: Nil)
     board.activePokemon = None
