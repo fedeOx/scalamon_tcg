@@ -31,18 +31,15 @@ class TurnManagerTest extends AnyFlatSpec with MockFactory {
   it should "flip a coin when required and return the first TurnOwner" in {
     (observerMock.update _).expects(where {e: Event => {
       e.isInstanceOf[FlipCoin]
-      e.asInstanceOf[FlipCoin].coinValue.isInstanceOf[TurnOwner]
     }})
     TurnManager.flipACoin()
   }
 
   it should "notify observers when both human player and AI player are ready to play" in {
-    inAnyOrder {
-      (observerMock.update _).expects(where {e: Event => {
-        e.isInstanceOf[NextTurn]
-        e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
-      }})
-    }
+    (observerMock.update _).expects(where {e: Event => {
+      e.isInstanceOf[NextTurn]
+      e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
+    }})
     TurnManager.playerReady() // AI player is ready
     TurnManager.playerReady() // Human player is ready
   }
