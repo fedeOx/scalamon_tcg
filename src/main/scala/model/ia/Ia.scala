@@ -65,10 +65,10 @@ object Ia extends Thread with Observer {
     //attack
     try {
       if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
-        println("primo attacco IA")
+        println("secondo attacco IA")
         GameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.last)
       } else if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.head.cost)) {
-        println("secondo attacco IA")
+        println("primo attacco IA")
         GameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.head)
       }
     }
@@ -85,12 +85,10 @@ object Ia extends Thread with Observer {
       while (true) {
         val event: Event = Ia.waitForNextEvent()
         event match {
-          case event: Event.PlaceCards => placeCards(opponentBoard.hand)
           case event: Event.BuildGameField => {
             opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
             playerBoard = event.asInstanceOf[BuildGameField].playerBoard
             myHand = opponentBoard.hand
-            //TODO remove
             placeCards(myHand)
           }
           case event: Event.FlipCoin => turn = event.coinValue
@@ -104,7 +102,6 @@ object Ia extends Thread with Observer {
 
   private def checkForKo(): Unit = {
     if (opponentBoard.activePokemon.get.isKO) {
-      //val pokemonKO = opponentBoard.activePokemon.get
       if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
         calculateIfWithdrawAndDo()
       }
