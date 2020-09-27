@@ -2,11 +2,10 @@ package view
 
 import common.Observer
 import controller.Controller
-import model.core.{DataLoader, GameManager}
+import model.core.DataLoader
 import model.event.Events
-import model.event.Events.Event.{BuildGameField, FlipCoin, ShowDeckCards}
-import model.game.DeckType.DeckType
-import model.game.{DeckCard, DeckType, SetType}
+import model.event.Events.Event.ShowDeckCards
+import model.game.{DeckCard, SetType}
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.beans.property.{ObjectProperty, StringProperty}
@@ -14,8 +13,9 @@ import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control.TableColumn._
-import scalafx.scene.control.{Button, ScrollPane, TableColumn, TableView}
-import scalafx.scene.layout.{Background, BorderPane, GridPane}
+import scalafx.scene.control._
+import scalafx.scene.layout._
+import scalafx.scene.text.Font
 
 case class CardView(id: String, name: String, rarity: String, var count: Int) {
   val idCard = new StringProperty(this, "id", id)
@@ -24,22 +24,17 @@ case class CardView(id: String, name: String, rarity: String, var count: Int) {
   var countCard = new ObjectProperty(this, "count", count)
 }
 
-object DeckSelection extends Scene with Observer {
+case class DeckSelection() extends Scene with Observer {
 
   var cardsTableItem: ObservableBuffer[CardView] = ObservableBuffer[CardView]()
   val tableView: TableView[CardView] = viewUtils.createTableView(cardsTableItem)
   var deckMap: Map[String, Seq[DeckCard]] = Map()
-  //val deckPane: GridPane = createDeckPanel
   val scrollPane: ScrollPane = new ScrollPane()
   val controller: Controller = Controller()
   val cssStyle: String = getClass.getResource("/style/deckSelection.css").toExternalForm
-  //scrollPane.content = deckPane
-  scrollPane.padding = Insets(5, 20, 5, 20)
-  scrollPane.setBackground(Background.Empty)
   stylesheets += cssStyle
   DataLoader.addObserver(this)
   controller.loadDecks(SetType.Base)
-  // controller.loadDeckCards(SetType.Base,DeckType.Base1) TODO
 
   root = new BorderPane {
     id = "deckSelection-pane"
@@ -52,20 +47,53 @@ object DeckSelection extends Scene with Observer {
       alignmentInParent = Pos.Center
       onAction = _ => {
         //go to game
-        StartGameGui.getPrimaryStage.close()
-        new GameBoardView
-        var seqDeck: Seq[DeckCard] = Seq()
-        cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count))
-        controller.initGame(seqDeck, SetType.Base)
+        if (cardsTableItem.nonEmpty) {
+          StartGameGui.getPrimaryStage.close()
+          new GameBoardView
+          var seqDeck: Seq[DeckCard] = Seq()
+          cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count))
+          controller.initGame(seqDeck, SetType.Base)
+        }
       }
     }
   }
 
-  def createDeckButton(deckName: String): Button = {
+
+  def createDeckPanel: GridPane = {
+    var columnIndexcnt = 0
+    var rowIndexcnt = 0
+
+    new GridPane {
+      background = Background.Empty
+      id = "gridPane"
+      alignment = Pos.CenterLeft
+      hgap = 10
+      vgap = 10
+      padding = Insets(5, 20, 5, 20)
+      val addDeckCustom: Button = new Button()
+      addDeckCustom.id = "addDeck"
+      addDeckCustom.text = ""
+      addDeckCustom.onMouseClicked = _ => {
+        StartGameGui.getPrimaryStage.scene = CustomizeDeck(SetType.Base)
+      }
+      add(addDeckCustom, columnIndexcnt, rowIndexcnt)
+      columnIndexcnt += 1
+
+      deckMap.keys.foreach(k => {
+        add(createDeckItem(k), columnIndexcnt, rowIndexcnt)
+        columnIndexcnt += 1
+        if (columnIndexcnt > 3) {
+          columnIndexcnt = 0
+          rowIndexcnt += 1
+        }
+      })
+    }
+  }
+
+  def createDeckItem(deckName: String): VBox = {
     val deckButton: Button = new Button(deckName)
+    val selectedDeck = deckMap(deckName)
     deckButton.onAction = () => {
-      // controller.loadDeckCards(SetType.Base,DeckType.withNameWithDefault(deckName)) TODO
-      val selectedDeck = deckMap(deckName)
       cardsTableItem.clear()
       selectedDeck.foreach(card => {
         cardsTableItem = cardsTableItem :+ CardView(card.imageId, card.name, card.rarity, card.count)
@@ -74,43 +102,18 @@ object DeckSelection extends Scene with Observer {
       tableView.refresh()
     }
     deckButton.id = deckName
+    deckButton.getStyleClass.add("deckSelection")
     deckButton.text = ""
-    deckButton
-  }
 
-  def createDeckPanel: GridPane = {
-    var columnIndexcnt = 0
-    var rowIndexcnt = 0
-    val pane: GridPane = new GridPane {
-      background = Background.Empty
-      id = "gridPane"
-      alignment = Pos.CenterLeft
-      hgap = 10
-      vgap = 10
-      val addDeckCustom: Button = new Button()
-      addDeckCustom.id = "addDeck"
-      addDeckCustom.text = ""
-      addDeckCustom.onMouseClicked = _ => {
-        StartGameGui.getPrimaryStage.scene = CustomDeck
-      }
-      add(addDeckCustom, columnIndexcnt, rowIndexcnt)
-      columnIndexcnt += 1
-
-      deckMap.keys.foreach(k => {
-        add(createDeckButton(k), columnIndexcnt, rowIndexcnt)
-        columnIndexcnt += 1
-        if (columnIndexcnt > 1) {
-          columnIndexcnt = 0
-          rowIndexcnt += 1
-        }
-      })
+    new VBox(deckButton, new Label(deckName) {
+      font = Font.font(20); id = "deckNameLabel"
+    }) {
+      alignment = Pos.Center; padding = Insets(5, 15, 5, 15)
     }
-    pane
   }
 
   override def update(event: Events.Event): Unit = event match {
     case event if event.isInstanceOf[ShowDeckCards] => {
-
       deckMap = event.asInstanceOf[ShowDeckCards].deckCards
       Platform.runLater(() => {
         scrollPane.content = createDeckPanel

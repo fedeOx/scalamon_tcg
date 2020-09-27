@@ -4,22 +4,24 @@
     -fx-background-size: 100% 100%;
     -fx-background-repeat: stretch;
 }
-#Zap , #Overgrowth , #Blackout, #Brushfire, #addDeck , #cardSelect{
+
+#Zap , #Overgrowth , #Blackout, #Brushfire, #addDeck , #cardSelect,.deckSelection{
     -fx-min-height: 250;
     -fx-min-width: 100;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
     -fx-padding: 10;
     -fx-background-radius: 5;
-    -fx-background-size: 90% 90%;
+    -fx-background-size: 100% 100%;
     -fx-background-repeat: stretch;
     -fx-background-color: transparent;
+    -fx-background-image: url("/assets/customDeckImage.jpg");
 }
 
 #cardSelect {
     -fx-min-height:440;
     -fx-min-width: 320;
-    -fx-padding: 0;
-    -fx-background-size: 100% 100%;
+    -fx-padding: 10;
+
 }
 #Zap {
     -fx-background-image: url("/assets/zap.png");
@@ -46,4 +48,38 @@
     -fx-font-family: "Helvetica";
     -fx-font-size: 16px;
 
+}
+ #backButton {
+    -fx-min-height: 30;
+    -fx-min-width: 30;
+    -fx-padding: 2;
+    -fx-background-radius: 5;
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: stretch;
+    -fx-background-color: transparent;
+}
+
+#backButton{
+    -fx-min-height: 90;
+    -fx-min-width: 90;
+    -fx-background-color: Gold ;
+    -fx-background-image: url("/assets/back.png");
+}
+
+GridPane{
+    -fx-background-color: rgba(0, 100, 100, 0.2);
+    -fx-background-radius: 10;
+}
+ScrollPane{
+    -fx-background-color:transparent;
+}
+ScrollPane .viewport {
+    -fx-background-color: transparent;
+}
+Button{
+    -fx-background-color: Gold ;
+    -fx-background-radius: 20;
+}
+#deckNameLabel {
+    -fx-background-color: rgba(46,196,195,0.75);
 }

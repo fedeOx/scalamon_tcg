@@ -7,63 +7,61 @@ import model.core.DataLoader
 import model.event.Events
 import model.event.Events.Event.ShowSetCards
 import model.game.Cards.Card
-import model.game.{DeckCard, SetType}
+import model.game.DeckCard
+import model.game.SetType.SetType
 import scalafx.application.Platform
-import scalafx.beans.property.{ObjectProperty, StringProperty}
+import scalafx.beans.property.ObjectProperty
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import scalafx.scene.layout._
+import scalafx.stage.Stage
 
 
-object CustomDeck extends Scene with Observer {
+case class CustomizeDeck(setType : SetType) extends Scene with Observer {
 
   DataLoader.addObserver(this)
   var deckCard: Seq[Card] = List()
+  val loadingMessage: Stage = PopupBuilder.openLoadingScreen(window.getValue.asInstanceOf[scalafx.stage.Window])
+  Platform.runLater(loadingMessage.show())
 
   //TODO PASSAMI IL CONTROLLER LORENZO SIMONCINI 2
   val controller: Controller = Controller()
-  controller.loadSet(SetType.Base)
+  controller.loadSet(setType)
   val textFieldName: TextField = new TextField {
     maxWidth = 200
   }
   val buttonConfirm: Button = new Button {
     id = "Confirm-btn"
     text = "Salva"
-    alignment = Pos.BaselineRight
-    alignmentInParent = Pos.BaselineRight
+    margin = Insets(0,10,0,10)
     onAction = _ => {
       var seqDeck: Seq[DeckCard] = Seq()
-      //TODO PIMPARE QUESTO
-      cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count))
-      controller.createCustomDeck(model.game.CustomDeck(textFieldName.text.value, SetType.Base,seqDeck))
+      if(textFieldName.text.value != "") {
+        cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count))
+        controller.createCustomDeck(model.game.CustomDeck(textFieldName.text.value, setType, seqDeck))
+        StartGameGui.getPrimaryStage.scene = new DeckSelection
+      }
     }
   }
 
   var cardsTableItem: ObservableBuffer[CardView] = ObservableBuffer[CardView]()
   val tableView: TableView[CardView] = viewUtils.createTableView(cardsTableItem)
   val scrollPane: ScrollPane = new ScrollPane()
-  //val deckPane: GridPane = createCardPanel
   stylesheets = List("/style/deckSelection.css")
 
-  // scrollPane.content = deckPane
   scrollPane.padding = Insets(5, 5, 5, 5)
   scrollPane.setBackground(Background.Empty)
   scrollPane.minWidth = 1050
   scrollPane.maxHeight = 900
-
   tableView.minHeight = 600
   tableView.minWidth = 250
 
   root = new BorderPane {
     id = "CardPane"
     padding = Insets(15, 15, 15, 15)
-    bottom = new VBox(new HBox(new Label("Inserisci nome del deck  "), textFieldName) {
-      alignment = Pos.TopCenter; padding = Insets(5, 5, 5, 5)
-    }, buttonConfirm) {
-      alignment = Pos.TopCenter
-    }
+    top = createTopInfo
     right = tableView
     left = scrollPane
   }
@@ -85,10 +83,12 @@ object CustomDeck extends Scene with Observer {
           rowIndexcnt += 1
         }
       })
+      Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
     }
+
   }
 
-  def createButtonCard(card: Card): VBox = {
+  private def createButtonCard(card: Card): VBox = {
     new VBox() {
       background = Background.Empty
       children = Seq(new Button("" + card.imageId) {
@@ -99,18 +99,26 @@ object CustomDeck extends Scene with Observer {
         new HBox() {
           alignmentInParent = Pos.TopCenter
           alignment = Pos.TopCenter
+          minHeight = 20
+          minWidth = 20
+          padding = Insets(5, 10, 5, 10)
           children = Seq(new Button("+") {
-            onMouseClicked = _ => addAndRemove(true, card)
-            padding = Insets(10, 10, 10, 10)
+            onMouseClicked = _ => addOrRemove(true, card)
           }, new Button("-") {
-            onMouseClicked = _ => addAndRemove(false, card)
-            padding = Insets(10, 10, 10, 10)
+            onMouseClicked = _ => addOrRemove(false, card)
           })
         })
     }
   }
 
-  private def addAndRemove(add: Boolean, card: Card): Unit = {
+  private def createTopInfo: HBox = {
+    new HBox(new Button {
+      id = "backButton";
+      onMouseClicked = _ => {StartGameGui.getPrimaryStage.scene = new DeckSelection}
+    }, new VBox(new HBox(new Label("Inserisci nome del deck "){ id = "deckNameLabel" ; margin = Insets(0,10,0,10)}, textFieldName), buttonConfirm){ padding = Insets(5,0,0,30)})
+  }
+
+  private def addOrRemove(add: Boolean, card: Card): Unit = {
     if (cardsTableItem.exists(p => p.idCard.getValue == card.imageId)) {
       val pokemonSelected = cardsTableItem.find(p => p.idCard.getValue == card.imageId).get
       if (add)
@@ -123,7 +131,6 @@ object CustomDeck extends Scene with Observer {
     } else if (add) {
       cardsTableItem.add(CardView(card.imageId, card.name, card.rarity, 1))
     }
-
     tableView.setItems(cardsTableItem)
     tableView.refresh()
   }
