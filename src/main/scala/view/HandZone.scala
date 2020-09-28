@@ -9,8 +9,6 @@ import scalafx.scene.transform.Rotate
 import view.CardCreator._
 import model.game.Cards._
 
-import scala.collection.mutable
-
 /***
  * The zone for the player's hand
  * @param isHumans: true if it's the human's board

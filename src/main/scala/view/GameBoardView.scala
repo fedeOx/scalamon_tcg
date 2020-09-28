@@ -6,6 +6,7 @@ import controller.Controller
 import javafx.scene.paint.ImagePattern
 import model.core.{GameManager, TurnManager}
 import model.event.Events
+import model.event.Events.Event
 import model.event.Events.Event._
 import model.ia.Ia
 import scalafx.Includes._
@@ -79,78 +80,87 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   onCloseRequest = _ => Ia.interrupt()
 
   override def update(event: Events.Event): Unit = event match {
-    case event if  event.isInstanceOf[BuildGameField] => {
-      humanBoard.myBoard = event.asInstanceOf[BuildGameField].playerBoard
-      humanBoard.opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
-      iABoard.myBoard = event.asInstanceOf[BuildGameField].opponentBoard
-      iABoard.opponentBoard = event.asInstanceOf[BuildGameField].playerBoard
-      Platform.runLater(humanBoard.updateHand())
-      Platform.runLater(humanBoard.updateActive())
-      Platform.runLater({
-        humanBoard.updatePrizes()
-        iABoard.updatePrizes()
-      })
-      Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
-    }
-    case event : FlipCoin => {
-      println("lancio animazione moneta: " + event.isHead)
-      Platform.runLater({
-        println("Moneta: "+Thread.currentThread().getId)
-        PopupBuilder.openCoinFlipScreen(this, event.isHead)
-      })
-    }
-    case event : UpdateBoards => {
-      Platform.runLater({
-        humanBoard.updateActive()
-        humanBoard.updateHand()
-        humanBoard.updateBench()
-        humanBoard.updateDiscardStack()
-        if (!humanBoard.isFirstTurn) {
-          iABoard.updateBench()
-          iABoard.updateActive()
-          iABoard.updateDiscardStack()
-        }
-      })
-    }
-    case event : NextTurn => {
-      turnOwner = event.turnOwner
-      if(event.turnOwner == TurnOwner.Player) {
-        controller.activePokemonStatusCheck()
-        Platform.runLater({
-            PopupBuilder.openTurnScreen(this)
-            controller.drawACard()
-            humanBoard.updateHand()
-          })
-      }
-      Platform.runLater({
+    case event : BuildGameField => initializeBoards(event)
+    case event : FlipCoin => flipCoin(event)
+    case _ : UpdateBoards => updateBoards()
+    case event : NextTurn => handleTurnStart(event)
+    case event : PokemonKO => handleKO(event)
+    case _ : AttackEnded => handleAttackEnd()
+    case _ : EndGame => endGame()
+    case _ =>
+  }
+
+  private def initializeBoards(event: BuildGameField): Unit = {
+    humanBoard.myBoard = event.playerBoard
+    humanBoard.opponentBoard = event.opponentBoard
+    iABoard.myBoard = event.opponentBoard
+    iABoard.opponentBoard = event.playerBoard
+    Platform.runLater({
+      humanBoard.updateHand()
+      humanBoard.updatePrizes()
+      humanBoard.updateActive()
+      iABoard.updatePrizes()
+    })
+    Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
+  }
+
+  private def flipCoin(event: FlipCoin): Unit = {
+    Platform.runLater(PopupBuilder.openCoinFlipScreen(this, event.isHead))
+  }
+
+  private def updateBoards() : Unit = {
+    Platform.runLater({
+      humanBoard.updateActive()
+      humanBoard.updateHand()
+      humanBoard.updateBench()
+      humanBoard.updateDiscardStack()
+      if (!humanBoard.isFirstTurn) {
         iABoard.updateBench()
         iABoard.updateActive()
         iABoard.updateDiscardStack()
-      })
-    }
-    case event : PokemonKO => {
-      println("pokemonKO event")
-
-      if (humanBoard.myBoard.activePokemon.get.isKO)
-        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
-      Platform.runLater({
-        humanBoard.updateActive()
-        humanBoard.updatePrizes()
-        iABoard.updatePrizes()
-        iABoard.updateActive()
-      })
-    }
-    case event : AttackEnded => {
-      println("attack ended")
-      if(turnOwner.equals(TurnOwner.Player) && !humanBoard.myBoard.activePokemon.get.isKO) {
-        Platform.runLater({
-          println("Fine turno: "+Thread.currentThread().getId)
-          println("fine turno")
-          controller.endTurn()
-        })
       }
-    } //TODO: crea evento stopAI per la fine del gioco e l'endgame
-    case _ =>
+    })
+  }
+
+  private def handleTurnStart(event: NextTurn) : Unit = {
+    turnOwner = event.turnOwner
+    if(event.turnOwner == TurnOwner.Player) {
+      controller.activePokemonStatusCheck()
+      Platform.runLater({
+        PopupBuilder.openTurnScreen(this)
+        controller.drawACard()
+        humanBoard.updateHand()
+      })
+    }
+    Platform.runLater({
+      iABoard.updateBench()
+      iABoard.updateActive()
+      iABoard.updateDiscardStack()
+    })
+  }
+
+  private def handleKO(event: PokemonKO): Unit = {
+    if (humanBoard.myBoard.activePokemon.get.isKO)
+      Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
+        humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
+    Platform.runLater({
+      humanBoard.updateActive()
+      humanBoard.updatePrizes()
+      iABoard.updatePrizes()
+      iABoard.updateActive()
+    })
+  }
+
+  private def handleAttackEnd() : Unit = {
+    if(turnOwner.equals(TurnOwner.Player) && !humanBoard.myBoard.activePokemon.get.isKO) {
+      Platform.runLater(controller.endTurn())
+    }
+  }
+
+  //TODO: crea evento stopAI per la fine del gioco e l'endgame
+  private def endGame() : Unit = {
+    //GameManager.notifyObservers(Event.StopAI())
+    controller.resetGame()
   }
 }
 
