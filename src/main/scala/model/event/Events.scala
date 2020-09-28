@@ -28,6 +28,8 @@ object Events {
 
     def endGameEvent(): Event = EndGame()
 
+    def customDeckSavedEvent(): Event = CustomDeckSaved()
+
     case class ShowDeckCards(deckCards: Map[String, Seq[DeckCard]]) extends Event
     case class ShowSetCards(setCards: Seq[Card]) extends Event
     case class BuildGameField(playerBoard: Board, opponentBoard: Board) extends Event
@@ -38,6 +40,7 @@ object Events {
     case class PokemonKO(isPokemonInCharge: Boolean) extends Event
     case class AttackEnded() extends Event
     case class EndGame() extends Event
+    case class CustomDeckSaved() extends Event
   }
 
 }

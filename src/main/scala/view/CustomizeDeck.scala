@@ -5,7 +5,7 @@ import common.Observer
 import controller.Controller
 import model.core.DataLoader
 import model.event.Events
-import model.event.Events.Event.ShowSetCards
+import model.event.Events.Event.{CustomDeckSaved, ShowSetCards}
 import model.game.Cards.Card
 import model.game.{CustomDeck, DeckCard}
 import model.game.SetType.SetType
@@ -43,7 +43,6 @@ case class CustomizeDeck(setType: SetType) extends Scene with Observer {
         cardsTableItem.foreach(p => {seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count) ; totalCard += p.count})
         if (totalCard >= 60) {
           controller.createCustomDeck(CustomDeck(textFieldName.text.value, setType, seqDeck))
-          StartGameGui.getPrimaryStage.scene = new DeckSelection
         }
       }
     }
@@ -145,12 +144,15 @@ case class CustomizeDeck(setType: SetType) extends Scene with Observer {
   }
 
   override def update(event: Events.Event): Unit = event match {
-    case event if event.isInstanceOf[ShowSetCards] => {
+    case event if event.isInstanceOf[ShowSetCards] =>
       deckCard = event.asInstanceOf[ShowSetCards].setCards
       Platform.runLater(() => {
         scrollPane.content = createCardPanel
       })
-    }
+    case event if event.isInstanceOf[CustomDeckSaved] =>
+      Platform.runLater(() => {
+        StartGameGui.getPrimaryStage.scene = new DeckSelection
+      })
     case _ =>
   }
 }

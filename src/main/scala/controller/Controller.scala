@@ -141,6 +141,7 @@ object Controller {
     override def createCustomDeck(customDeck: CustomDeck): Unit = new Thread {
       override def run(): Unit = {
         DataLoader.saveCustomDeck(customDeck)
+        DataLoader.notifyObservers(Event.customDeckSavedEvent())
       }
     }.start()
 
