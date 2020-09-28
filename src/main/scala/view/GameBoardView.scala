@@ -1,7 +1,5 @@
 package view
 
-import java.time.Duration
-
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import controller.Controller
@@ -11,7 +9,6 @@ import model.event.Events
 import model.event.Events.Event._
 import model.ia.Ia
 import scalafx.Includes._
-import scalafx.animation.{KeyFrame, Timeline}
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
 import scalafx.scene.image.Image
@@ -19,7 +16,7 @@ import scalafx.scene.paint.PhongMaterial
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing}
-import scalafx.stage.{Modality, Stage, Window}
+import scalafx.stage.Stage
 
 
 /** *
@@ -95,9 +92,8 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       })
       Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
     }
-    case event : FlipCoin =>{
+    case event : FlipCoin => {
       println("lancio animazione moneta: " + event.isHead)
-      var w = this
       Platform.runLater({
         println("Moneta: "+Thread.currentThread().getId)
         PopupBuilder.openCoinFlipScreen(this, event.isHead)
@@ -148,14 +144,12 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       println("attack ended")
       if(turnOwner.equals(TurnOwner.Player) && !humanBoard.myBoard.activePokemon.get.isKO) {
         Platform.runLater({
-          //Thread.sleep(5000)
           println("Fine turno: "+Thread.currentThread().getId)
           println("fine turno")
-          //PopupBuilder.openInvalidOperationMessage(this, "aaa")
           controller.endTurn()
         })
       }
-    }
+    } //TODO: crea evento stopAI per la fine del gioco e l'endgame
     case _ =>
   }
 }

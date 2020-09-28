@@ -181,7 +181,6 @@ object PopupBuilder {
     mesh
   }
 
-
   private def createRotator(coin: Node, isHead: Boolean) = {
     val rotator = new RotateTransition() {
       duration = Duration.apply(2000)
