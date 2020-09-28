@@ -7,7 +7,7 @@ import model.core.DataLoader
 import model.event.Events
 import model.event.Events.Event.ShowSetCards
 import model.game.Cards.Card
-import model.game.DeckCard
+import model.game.{CustomDeck, DeckCard}
 import model.game.SetType.SetType
 import scalafx.application.Platform
 import scalafx.beans.property.ObjectProperty
@@ -19,7 +19,7 @@ import scalafx.scene.layout._
 import scalafx.stage.Stage
 
 
-case class CustomizeDeck(setType : SetType) extends Scene with Observer {
+case class CustomizeDeck(setType: SetType) extends Scene with Observer {
 
   DataLoader.addObserver(this)
   var deckCard: Seq[Card] = List()
@@ -35,13 +35,16 @@ case class CustomizeDeck(setType : SetType) extends Scene with Observer {
   val buttonConfirm: Button = new Button {
     id = "Confirm-btn"
     text = "Salva"
-    margin = Insets(0,10,0,10)
+    margin = Insets(0, 10, 0, 10)
     onAction = _ => {
       var seqDeck: Seq[DeckCard] = Seq()
-      if(textFieldName.text.value != "") {
-        cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count))
-        controller.createCustomDeck(model.game.CustomDeck(textFieldName.text.value, setType, seqDeck))
-        StartGameGui.getPrimaryStage.scene = new DeckSelection
+      if (textFieldName.text.value != "") {
+        var totalCard = 0
+        cardsTableItem.foreach(p => {seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count) ; totalCard += p.count})
+        if (totalCard >= 60) {
+          controller.createCustomDeck(CustomDeck(textFieldName.text.value, setType, seqDeck))
+          StartGameGui.getPrimaryStage.scene = new DeckSelection
+        }
       }
     }
   }
@@ -114,8 +117,14 @@ case class CustomizeDeck(setType : SetType) extends Scene with Observer {
   private def createTopInfo: HBox = {
     new HBox(new Button {
       id = "backButton";
-      onMouseClicked = _ => {StartGameGui.getPrimaryStage.scene = new DeckSelection}
-    }, new VBox(new HBox(new Label("Inserisci nome del deck "){ id = "deckNameLabel" ; margin = Insets(0,10,0,10)}, textFieldName), buttonConfirm){ padding = Insets(5,0,0,30)})
+      onMouseClicked = _ => {
+        StartGameGui.getPrimaryStage.scene = new DeckSelection
+      }
+    }, new VBox(new HBox(new Label("Inserisci nome del deck ") {
+      id = "deckNameLabel"; margin = Insets(0, 10, 0, 10)
+    }, textFieldName), buttonConfirm) {
+      padding = Insets(5, 0, 0, 30)
+    })
   }
 
   private def addOrRemove(add: Boolean, card: Card): Unit = {
