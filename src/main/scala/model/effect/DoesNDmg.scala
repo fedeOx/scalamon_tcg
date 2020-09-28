@@ -1,11 +1,11 @@
-package model.pokemonEffect
+package model.effect
 
 import model.core.GameManager
 import model.event.Events.Event
 import model.game.Cards.PokemonCard
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
-import model.pokemonEffect.staticMethod.{atkTo, getAtkOrDef}
+import model.effect.staticMethod.{atkTo, getAtkOrDef}
 
 
 case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEffect {

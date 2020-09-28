@@ -1,10 +1,10 @@
-package model.pokemonEffect
+package model.effect
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
 import model.game.Board
 import model.game.Cards.PokemonCard
-import model.pokemonEffect.EffectType.effectType
+import model.effect.EffectType.effectType
 
 trait AttackEffect {
   def useEffect(attackingBoard:Board , defendingBoard:Board): Unit

@@ -1,6 +1,6 @@
-package model.ia
+package model.ai
 
-object WeightIa extends Enumeration {
+object WeightAi extends Enumeration {
   val PokemonDmg = 10
   val WeakPokemon = -40
   val HasEnergy = 15
@@ -8,6 +8,4 @@ object WeightIa extends Enumeration {
   val WithdrawCost = 20
   val EvolutionInHand = 20
   val KO = -300
-
-
 }

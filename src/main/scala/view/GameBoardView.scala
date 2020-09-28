@@ -9,7 +9,7 @@ import javafx.scene.paint.ImagePattern
 import model.core.{GameManager, TurnManager}
 import model.event.Events
 import model.event.Events.Event._
-import model.ia.Ia
+import model.ai.Ai
 import scalafx.Includes._
 import scalafx.animation.{KeyFrame, Timeline}
 import scalafx.application.{JFXApp, Platform}
@@ -40,7 +40,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
 
   title = TITLE
   icons += new Image("/assets/icon.png")
-  Ia.start()
+  Ai.start()
   GameManager.addObserver(this)
   TurnManager.addObserver(this)
   CardCreator.setController(controller)
@@ -79,7 +79,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   sizeToScene()
   show()
 
-  onCloseRequest = _ => Ia.interrupt()
+  onCloseRequest = _ => Ai.interrupt()
 
   override def update(event: Events.Event): Unit = event match {
     case event if  event.isInstanceOf[BuildGameField] => {

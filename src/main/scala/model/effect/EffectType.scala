@@ -1,8 +1,7 @@
-package model.pokemonEffect
+package model.effect
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
-import model.pokemonEffect.EffectType.effectType
 
 object EffectType extends Enumeration {
   type effectType = Value

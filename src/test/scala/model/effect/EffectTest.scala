@@ -1,15 +1,16 @@
-package model.game
-
-import model.core.{DataLoader, GameManager, TurnManager}
+package model.effect
+import model.core.DataLoader
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
-import org.scalatest.{FlatSpec, GivenWhenThen}
+import model.game.{Board, EnergyType, SetType, StatusType}
+import org.scalatest.GivenWhenThen
+import org.scalatest.flatspec.AnyFlatSpec
+object BoardTmp {
+  var iaBoard : Board = Board(Seq())
+  var playerBoard : Board = Board(Seq())
+}
+class EffectTest() extends AnyFlatSpec with GivenWhenThen {
 
-class EffectTest() extends FlatSpec with GivenWhenThen {
-
-  GameManager.reset()
-  TurnManager.reset()
-  DataLoader.reset()
   val cardList: Seq[Card] = DataLoader.loadSet(SetType.Base)
     .filter(c => c.isInstanceOf[Card])
   val pokemonCards: Seq[Card] = cardList.filter(p => p.isInstanceOf[PokemonCard])

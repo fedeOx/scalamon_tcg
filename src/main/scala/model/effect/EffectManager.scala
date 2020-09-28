@@ -1,10 +1,7 @@
-package model.pokemonEffect
-
+package model.effect
 
 import model.core.GameManager
 import model.event.Events.Event
-import model.event.Events.Event.FlipCoin
-
 import scala.util.Random
 
 object EffectManager {
@@ -135,7 +132,6 @@ object EffectManager {
           if (getCoinFlipValue == "tail")
             effectArgs += ("status" -> h.params(4))
 
-
         returnedAttack = returnedEffect(new DoesDmgAndApplyStatus(basicDmgToDo, basicEnemyToAtk), effectArgs)
         if (t.nonEmpty)
           resolveAttack(t)
@@ -152,7 +148,6 @@ object EffectManager {
     item
   }
 
-
   private def getCoinFlipValue: String = {
     Random.nextInt(99) + 1 match {
       case n if n<= 50 => {
@@ -164,7 +159,6 @@ object EffectManager {
     }
 
   }
-
 
 }
 

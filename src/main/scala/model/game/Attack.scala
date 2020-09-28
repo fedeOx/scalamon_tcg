@@ -2,7 +2,7 @@ package model.game
 
 import io.circe.Decoder.Result
 
-import model.pokemonEffect.{AttackEffect, DoesNDmg, Effect, EffectManager}
+import model.effect.{AttackEffect, DoesNDmg, Effect, EffectManager}
 import io.circe.{Decoder, HCursor}
 import model.game.EnergyType.EnergyType
 
