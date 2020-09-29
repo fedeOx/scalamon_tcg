@@ -38,7 +38,8 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
 
   title = TITLE
   icons += new Image("/assets/icon.png")
-  Ia.start()
+  var ai = Ia()
+  ai.start()
   GameManager.addObserver(this)
   TurnManager.addObserver(this)
   CardCreator.setController(controller)
@@ -77,7 +78,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   sizeToScene()
   show()
 
-  onCloseRequest = _ => Ia.interrupt()
+  onCloseRequest = _ => ai.interrupt()
 
   override def update(event: Events.Event): Unit = event match {
     case event : BuildGameField => initializeBoards(event)
@@ -140,7 +141,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   }
 
   private def handleKO(event: PokemonKO): Unit = {
-    if (humanBoard.myBoard.activePokemon.get.isKO)
+    if (humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined))
       Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
         humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
     Platform.runLater({
@@ -157,19 +158,16 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
     }
   }
 
-  //TODO: crea evento stopAI per la fine del gioco e l'endgame
   private def endGame() : Unit = {
     println("fermo il gioco")
     val playerBoard = humanBoard.myBoard
     val opponentBoard = humanBoard.opponentBoard
     var playerWon: Boolean = false
-    //GameManager.notifyObservers(Event.StopAI())
-    if(playerBoard.prizeCards.isEmpty)
+    if(playerBoard.prizeCards.isEmpty ||
+      (opponentBoard.activePokemon.get.isKO && !opponentBoard.pokemonBench.exists(card => card.isDefined)))
       playerWon = true
     else if (opponentBoard.prizeCards.isEmpty)
       playerWon = false
-    else if (opponentBoard.activePokemon == Option.empty && !opponentBoard.pokemonBench.exists(card => card.isDefined))
-      playerWon = true
     else
       playerWon = false
     Platform.runLater(PopupBuilder.openEndGameScreen(this, playerWon))

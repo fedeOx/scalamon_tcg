@@ -242,7 +242,6 @@ object Controller {
     }.start()
 
     override def resetGame(): Unit = {
-      Ia.cancel()
       GameManager.reset()
       TurnManager.reset()
       DataLoader.reset()

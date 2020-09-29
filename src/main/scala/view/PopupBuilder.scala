@@ -198,18 +198,21 @@ object PopupBuilder {
 
   def openEndGameScreen(parent: Window, playerWon: Boolean) : Unit = {
     val dialog: Stage = new Stage() {
-      val gameStage = parent
+      private val gameStage = parent
       initOwner(parent)
       initModality(Modality.ApplicationModal)
       scene = new Scene(300, 200) {
         content = new VBox() {
+          prefWidth = 300
+          prefHeight = 200
           alignment = Pos.Center
           children = List(new Label(if(playerWon)"You won!" else "You lose!"),
             new Button("Back to menu") {
               onAction = _ => {
                 scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close();
-                //gameStage.asInstanceOf[Stage].close()
                 StartGameGui.getPrimaryStage.asInstanceOf[Stage].scene = DeckSelection()
+                StartGameGui.getPrimaryStage.width = 1400
+                StartGameGui.getPrimaryStage.height = 1000
               }
           })
         }

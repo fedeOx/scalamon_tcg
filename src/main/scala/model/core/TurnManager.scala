@@ -49,4 +49,9 @@ object TurnManager extends Observable {
     }
   }
 
+  override def reset(): Unit = {
+    super.reset()
+    acks = 0
+  }
+
 }

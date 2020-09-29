@@ -6,13 +6,13 @@ import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import model.core.{GameManager, TurnManager}
 import model.event.Events.Event
-import model.event.Events.Event.BuildGameField
+import model.event.Events.Event.{BuildGameField, EndGame}
 import model.exception.InvalidOperationException
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
 
 
-object Ia extends Thread with Observer {
+case class Ia() extends Thread with Observer {
 
   private val eventQueue: BlockingQueue[Event] = new ArrayBlockingQueue[Event](20)
 
@@ -33,6 +33,7 @@ object Ia extends Thread with Observer {
     //populate bench with basePokemon
     populateBench()
     Thread.sleep(1000)
+    println("ho messo le carte")
     TurnManager.playerReady()
   }
 
@@ -91,7 +92,7 @@ object Ia extends Thread with Observer {
   override def run() {
     try {
       while (!isCancelled) {
-        val event: Event = Ia.waitForNextEvent()
+        val event: Event = waitForNextEvent()
         event match {
           case event: Event.BuildGameField => {
             opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
@@ -102,9 +103,11 @@ object Ia extends Thread with Observer {
           case event: Event.FlipCoin => turn = if(event.isHead) TurnOwner.Player else TurnOwner.Opponent
           case event: Event.NextTurn if event.turnOwner == TurnOwner.Opponent => doTurn()
           case event: Event.PokemonKO => checkForKo()
+          case _ : EndGame => isCancelled = true
           case _ =>
         }
       }
+      interrupt()
     }
   }
 
