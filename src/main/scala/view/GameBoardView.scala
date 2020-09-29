@@ -128,13 +128,15 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   private def handleTurnStart(event: NextTurn) : Unit = {
     turnOwner = event.turnOwner
     if(event.turnOwner == TurnOwner.Player) {
+      humanBoard.alterButton(false)
       controller.activePokemonStatusCheck()
       Platform.runLater({
         PopupBuilder.openTurnScreen(this)
         controller.drawCard()
         humanBoard.updateHand()
       })
-    }
+    } else
+      humanBoard.alterButton(true)
     Platform.runLater({
       iABoard.updateBench()
       iABoard.updateActive()

@@ -35,22 +35,16 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
   var myBoard : Board = _
   var opponentBoard : Board = _
   var isFirstTurn : Boolean = true
+  private var endTurnButton: Box = _
 
   styleClass += "humanPB"
   children = List(prize, active, bench, deckDiscard)
   if (isHumans) {
     hand = HandZone(isHumans, this)
     children += hand
-    val endTurnButton: Box = new Box{
+    endTurnButton = new Box{
       var buttonMaterial = new PhongMaterial()
       buttonMaterial.diffuseMap = new Image("/assets/endturn.png")
-      //buttonMaterial.diffuseColor = Color.Blue
-      if(gameWindow.asInstanceOf[GameBoardView].turnOwner == TurnOwner.Opponent) {
-        buttonMaterial.diffuseColor = Color.DarkGray
-        material = buttonMaterial
-      }
-      //else
-        //buttonMaterial.diffuseColor = Color.Transparent
       material = buttonMaterial
       width = 3
       height = 2
@@ -69,7 +63,6 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
             println("fine turno")
           }
         }
-
       }
     }
     children += endTurnButton
@@ -87,6 +80,13 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
   def updateBench() : Unit = bench.updateView(myBoard.pokemonBench)
   def updatePrizes() : Unit = prize.updateView(myBoard.prizeCards)
   def updateDiscardStack() : Unit = if (myBoard.discardStack.nonEmpty) deckDiscard.updateView(myBoard.discardStack.last)
+
+  def alterButton(isDisabled: Boolean): Unit = {
+    if(isDisabled)
+      endTurnButton.material.value.asInstanceOf[javafx.scene.paint.PhongMaterial].diffuseColor = Color.DarkGray
+    else
+      endTurnButton.material.value.asInstanceOf[javafx.scene.paint.PhongMaterial].diffuseColor = Color.White
+  }
 }
 
 class ZoomZone extends HBox {
