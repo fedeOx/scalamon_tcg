@@ -40,11 +40,6 @@ trait Controller {
   def initGame(cardList: Seq[DeckCard], set: SetType): Unit
 
   /**
-   * It makes [[model.core.TurnManager]] propagate event for players cards placing.
-   */
-  def startGame(): Unit
-
-  /**
    * It inform [[model.core.TurnManager]] when the user has finished his placement turn.
    * @throws model.exception.CoinNotLaunchedException if [[model.core.TurnManager]] has not launched the initial coin yet
    */
@@ -68,7 +63,7 @@ trait Controller {
   /**
    * Makes the player draw a card from his deck
    */
-  def drawACard(): Unit
+  def drawCard(): Unit
 
   /**
    * Swap the active pokemon with the benched pokemon in the specified position. If the active pokemon is KO, the benched
@@ -142,24 +137,20 @@ object Controller {
     override def createCustomDeck(customDeck: CustomDeck): Unit = new Thread {
       override def run(): Unit = {
         DataLoader.saveCustomDeck(customDeck)
+        DataLoader.notifyObservers(Event.customDeckSavedEvent())
       }
     }.start()
 
     override def initGame(playerDeckCards: Seq[DeckCard], set: SetType): Unit = new Thread {
       override def run(): Unit = {
         val setCards: Seq[Card] = DataLoader.loadSet(set)
-        // TODO start - make AI choose its deck
-        val random = new Random()
         val opponentChosenDeckType = DeckType.values.filter(d => d.setType == set)
-          .toVector(random.nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
+          .toVector(new Random().nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
         val opponentDeckCards: Seq[DeckCard] = DataLoader.loadSingleDeck(set, opponentChosenDeckType)
-        // TODO end
         GameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
         TurnManager.flipACoin()
       }
     }.start()
-
-    override def startGame(): Unit = TurnManager.notifyObservers(Event.placeCardsEvent())
 
     override def playerReady(): Unit = {
       isPlayerReady = true
@@ -195,7 +186,7 @@ object Controller {
       }
     }
 
-    override def drawACard(): Unit = GameManager.drawCard()
+    override def drawCard(): Unit = GameManager.drawCard()
 
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
 

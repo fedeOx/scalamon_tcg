@@ -1,5 +1,6 @@
 package view
 
+import common.TurnOwner
 import javafx.geometry.Insets
 import model.game.Cards.{Card, PokemonCard}
 import model.game.EnergyType.EnergyType
@@ -41,9 +42,15 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
     hand = HandZone(isHumans, this)
     children += hand
     val endTurnButton: Box = new Box{
-      val buttonMaterial = new PhongMaterial()
+      var buttonMaterial = new PhongMaterial()
       buttonMaterial.diffuseMap = new Image("/assets/endturn.png")
       //buttonMaterial.diffuseColor = Color.Blue
+      if(gameWindow.asInstanceOf[GameBoardView].turnOwner == TurnOwner.Opponent) {
+        buttonMaterial.diffuseColor = Color.DarkGray
+        material = buttonMaterial
+      }
+      //else
+        //buttonMaterial.diffuseColor = Color.Transparent
       material = buttonMaterial
       width = 3
       height = 2
@@ -56,9 +63,13 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
         if(isFirstTurn) {
           isFirstTurn = false
           gameWindow.asInstanceOf[GameBoardView].controller.playerReady()
-        } else
-          gameWindow.asInstanceOf[GameBoardView].controller.endTurn()
-        println("fine turno")
+        } else {
+          if (gameWindow.asInstanceOf[GameBoardView].turnOwner == TurnOwner.Player) {
+            gameWindow.asInstanceOf[GameBoardView].controller.endTurn()
+            println("fine turno")
+          }
+        }
+
       }
     }
     children += endTurnButton

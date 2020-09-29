@@ -116,9 +116,11 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       humanBoard.updateBench()
       humanBoard.updateDiscardStack()
       if (!humanBoard.isFirstTurn) {
-        iABoard.updateBench()
-        iABoard.updateActive()
-        iABoard.updateDiscardStack()
+        Platform.runLater({
+          iABoard.updateBench()
+          iABoard.updateActive()
+          iABoard.updateDiscardStack()
+        })
       }
     })
   }
@@ -129,7 +131,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
       controller.activePokemonStatusCheck()
       Platform.runLater({
         PopupBuilder.openTurnScreen(this)
-        controller.drawACard()
+        controller.drawCard()
         humanBoard.updateHand()
       })
     }
