@@ -3,6 +3,7 @@ package view
 import controller.Controller
 import model.game.Cards.PokemonCard
 import scalafx.animation.{Interpolator, RotateTransition}
+import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Pos
 import scalafx.scene.{Node, Scene}
 import scalafx.scene.control.{Button, Label}
@@ -12,6 +13,7 @@ import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.{MeshView, TriangleMesh}
 import scalafx.scene.text.{Text, TextAlignment}
 import scalafx.scene.transform.Rotate
+import scalafx.stage
 import scalafx.stage.{Modality, Stage, StageStyle, Window}
 import scalafx.util.Duration
 
@@ -68,7 +70,6 @@ object PopupBuilder {
     }
     dialog.show()
     Thread.sleep(1000)
-    println("chiuso popup")
     dialog.close()
   }
 
@@ -193,5 +194,30 @@ object PopupBuilder {
     rotator.setInterpolator(Interpolator.Linear)
     rotator.setCycleCount(4)
     rotator
+  }
+
+  def openEndGameScreen(parent: Window, playerWon: Boolean) : Unit = {
+    val dialog: Stage = new Stage() {
+      val gameStage = parent
+      initOwner(parent)
+      initModality(Modality.ApplicationModal)
+      scene = new Scene(300, 200) {
+        content = new VBox() {
+          alignment = Pos.Center
+          children = List(new Label(if(playerWon)"You won!" else "You lose!"),
+            new Button("Back to menu") {
+              onAction = _ => {
+                scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close();
+                //gameStage.asInstanceOf[Stage].close()
+                StartGameGui.getPrimaryStage.asInstanceOf[Stage].scene = DeckSelection()
+              }
+          })
+        }
+      }
+      sizeToScene()
+      resizable = false
+      alwaysOnTop = true
+    }
+    dialog.show()
   }
 }

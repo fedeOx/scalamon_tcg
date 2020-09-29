@@ -22,6 +22,7 @@ object Ia extends Thread with Observer {
   private var playerBoard: Board = _
   private var myHand: Seq[Card] = _
   private var turn: TurnOwner = _
+  private var isCancelled: Boolean = false
 
 
   private def placeCards(hand: Seq[Card]): Unit = {
@@ -89,7 +90,7 @@ object Ia extends Thread with Observer {
 
   override def run() {
     try {
-      while (true) {
+      while (!isCancelled) {
         val event: Event = Ia.waitForNextEvent()
         event match {
           case event: Event.BuildGameField => {
@@ -105,6 +106,10 @@ object Ia extends Thread with Observer {
         }
       }
     }
+  }
+
+  def cancel() : Unit = {
+    isCancelled = true
   }
 
   private def checkForKo(): Unit = {

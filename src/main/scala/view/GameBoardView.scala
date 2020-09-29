@@ -159,7 +159,20 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
 
   //TODO: crea evento stopAI per la fine del gioco e l'endgame
   private def endGame() : Unit = {
+    println("fermo il gioco")
+    val playerBoard = humanBoard.myBoard
+    val opponentBoard = humanBoard.opponentBoard
+    var playerWon: Boolean = false
     //GameManager.notifyObservers(Event.StopAI())
+    if(playerBoard.prizeCards.isEmpty)
+      playerWon = true
+    else if (opponentBoard.prizeCards.isEmpty)
+      playerWon = false
+    else if (opponentBoard.activePokemon == Option.empty && !opponentBoard.pokemonBench.exists(card => card.isDefined))
+      playerWon = true
+    else
+      playerWon = false
+    Platform.runLater(PopupBuilder.openEndGameScreen(this, playerWon))
     controller.resetGame()
   }
 }
