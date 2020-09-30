@@ -5,7 +5,7 @@ import model.event.Events.Event
 import model.game.Cards.PokemonCard
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
-import model.effect.staticMethod.{atkTo, getAtkOrDef}
+import model.effect.utils.{atkTo, getAtkOrDef}
 
 
 case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEffect {
@@ -136,7 +136,7 @@ class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesN
 class DoesDmgToMultipleTarget_AND_DmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesDmgToMultipleTarget(dmgCount, pokemonToApply) with DmgMySelf
 
 
-private object staticMethod {
+private object utils {
 
   def getAtkOrDef(string: String, attackingPokemon: Option[PokemonCard], defendingPokemon: Option[PokemonCard]): Option[PokemonCard] = {
     string match {
