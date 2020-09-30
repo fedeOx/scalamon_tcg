@@ -9,8 +9,8 @@ import model.effect.utils.{atkTo, getAtkOrDef}
 
 
 case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEffect {
-  override def useEffect(attackingBoard:Board , defendingBoard:Board): Unit = {
-    atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench , defendingBoard.pokemonBench).foreach(pkm =>
+  override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
+    atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench, defendingBoard.pokemonBench).foreach(pkm =>
       if (pkm == defendingBoard.activePokemon)
         pkm.get.addDamage(totalDmgToEnemyPkm, attackingBoard.activePokemon.get.pokemonTypes)
       else
@@ -20,98 +20,118 @@ case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEff
     Thread.sleep(4000)
     GameManager.notifyObservers(Event.attackEnded())
   }
-  override var args: Map[String, Any] = Map.empty[String, Any]
+
+  override var params: Seq[params] = Seq()
   override var totalDmgToEnemyPkm: Int = totalDmgToEnemyPkm + baseDmgCount
 }
 
 sealed trait ForEachEnergyAttachedTo extends AttackEffect {
-  abstract override def useEffect(attackingBoard:Board , defendingBoard:Board): Unit = {
-    val pokemonToApply: Option[PokemonCard] = getAtkOrDef(getStringArgFromMap("atk_or_def"), attackingBoard.activePokemon, defendingBoard.activePokemon)
-    val limitedTo = getStringArgFromMap("limited").toInt
+  abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
+    val effectParams = params.find(p => p.isInstanceOf[eachEnergyParams]).get.asInstanceOf[eachEnergyParams]
+    val pokemonToApply: Option[PokemonCard] = getAtkOrDef(effectParams.pokemonToApply, attackingBoard.activePokemon, defendingBoard.activePokemon)
+    val limitedTo = effectParams.limitBy.toInt
     var dmgToAdd = pokemonToApply.get.totalEnergiesStored
 
     if (limitedTo > 0) {
-      dmgToAdd = pokemonToApply.get.totalEnergiesStored - pokemonToApply.get.attacks(getStringArgFromMap("attackPosition").toInt - 1).cost.size
+      dmgToAdd = pokemonToApply.get.totalEnergiesStored - pokemonToApply.get.attacks(effectParams.atkPosition.toInt - 1).cost.size
       if (dmgToAdd > limitedTo)
         dmgToAdd = limitedTo
     }
-    totalDmgToEnemyPkm += getIntArgFromMap("dmgCount") * dmgToAdd
-    super.useEffect(attackingBoard,defendingBoard)
+    totalDmgToEnemyPkm += effectParams.plusDmg.toInt * dmgToAdd
+    super.useEffect(attackingBoard, defendingBoard)
   }
 }
 
 sealed trait ForEachDamageCount extends AttackEffect {
-  abstract override def useEffect(attackingBoard:Board , defendingBoard:Board): Unit = {
-    val pokemonSelected = getAtkOrDef(getStringArgFromMap("atk_or_def"), attackingBoard.activePokemon, defendingBoard.activePokemon)
+  abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
+    val effectParams = params.find(p => p.isInstanceOf[eachDmgParams]).get.asInstanceOf[eachDmgParams]
+
+    val pokemonSelected = getAtkOrDef(effectParams.pokemonToApply, attackingBoard.activePokemon, defendingBoard.activePokemon)
     val dmgCount = pokemonSelected.get.initialHp - pokemonSelected.get.actualHp
-    if (getStringArgFromMap("plusOrMinus") == "+")
+    if (effectParams.signature == "+")
       totalDmgToEnemyPkm += dmgCount
     else
       totalDmgToEnemyPkm -= dmgCount
-    super.useEffect(attackingBoard,defendingBoard)
+    super.useEffect(attackingBoard, defendingBoard)
   }
 }
 
 sealed trait DiscardEnergy extends AttackEffect {
-  abstract override def useEffect(attackingBoard:Board , defendingBoard:Board): Unit = {
-    val pokemonToApply: Option[PokemonCard] = getAtkOrDef(getStringArgFromMap("atk_or_def"),attackingBoard.activePokemon, defendingBoard.activePokemon)
-    var energyCount = getIntArgFromMap("energyCount")
+  abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
+    val effectParams = params.find(p => p.isInstanceOf[discardEnergyParams]).get.asInstanceOf[discardEnergyParams]
+    val pokemonToApply: Option[PokemonCard] = getAtkOrDef(effectParams.pokemonToApply, attackingBoard.activePokemon, defendingBoard.activePokemon)
+    var energyCount = effectParams.discardAmount.toInt
 
     if (energyCount == -1)
       energyCount = pokemonToApply.get.totalEnergiesStored
-    getStringArgFromMap("energyType") match {
+
+    effectParams.energyType match {
       case "Colorless" => pokemonToApply.get.removeFirstNEnergies(energyCount)
       case specificEnergy =>
         for (_ <- 1 to energyCount)
-            pokemonToApply.get.removeEnergy(EnergyType.withNameWithDefault(specificEnergy))
+          pokemonToApply.get.removeEnergy(EnergyType.withNameWithDefault(specificEnergy))
     }
-    super.useEffect(attackingBoard,defendingBoard)
+    super.useEffect(attackingBoard, defendingBoard)
   }
 }
 
 sealed trait RecoverLife extends AttackEffect {
-  abstract override def useEffect(attackingBoard:Board , defendingBoard:Board): Unit = {
-    var recoveryAmount = getIntArgFromMap("recoveryAmount")
+  abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
+    val effectParams = params.find(p => p.isInstanceOf[recoveryParams]).get.asInstanceOf[recoveryParams]
+    val totalAmount = attackingBoard.activePokemon.get.initialHp - attackingBoard.activePokemon.get.actualHp
 
-    if (recoveryAmount == -1)
-      recoveryAmount = attackingBoard.activePokemon.get.initialHp - attackingBoard.activePokemon.get.actualHp
-    val pokemonToApply = getStringArgFromMap("recoveryApplyTo")
-    attackingBoard.activePokemon.get.actualHp += recoveryAmount
-    super.useEffect(attackingBoard,defendingBoard)
+    if (effectParams.recoveryAmount.toInt == -1) {
+      attackingBoard.activePokemon.get.actualHp += totalAmount
+    } else
+      attackingBoard.activePokemon.get.actualHp += effectParams.recoveryAmount.toInt
+
+    super.useEffect(attackingBoard, defendingBoard)
   }
 }
 
 sealed trait SetImmunity extends AttackEffect {
-  abstract override def useEffect(attackingBoard:Board , defendingBoard:Board): Unit = {
+  abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
     attackingBoard.activePokemon.get.immune = true
-    super.useEffect(attackingBoard,defendingBoard)
+    super.useEffect(attackingBoard, defendingBoard)
   }
 }
 
 sealed trait MultipleTargetDmg extends AttackEffect {
-  abstract override def useEffect(attackingBoard:Board , defendingBoard:Board): Unit = {
-    val pokemonToApply = getStringArgFromMap("target")
-    val dmgToDo = getIntArgFromMap("dmgToMultiple")
+  abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
+    val effectParams = params.find(p => p.isInstanceOf[nDmgParams]).last.asInstanceOf[nDmgParams]
 
-    atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench.filter(c => c.isDefined)).foreach(pkm => pkm.get.addDamage(dmgToDo, Seq(EnergyType.Colorless)))
-    super.useEffect(attackingBoard,defendingBoard)
+    atkTo(effectParams.enemyToAtk, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench.filter(c => c.isDefined)).foreach(pkm => pkm.get.addDamage(effectParams.basicDmg.toInt, Seq(EnergyType.Colorless)))
+    super.useEffect(attackingBoard, defendingBoard)
   }
 }
 
 sealed trait DmgMySelf extends AttackEffect {
-  abstract override def useEffect(attackingBoard:Board , defendingBoard:Board): Unit = {
-    attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - getIntArgFromMap("DmgMyself")
-    super.useEffect(attackingBoard,defendingBoard)
+  abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
+    if (params.exists(p => p.isInstanceOf[dmgMyselfParams])) {
+      val effectParamsDmgMyself = params.find(p => p.isInstanceOf[dmgMyselfParams]).last.asInstanceOf[dmgMyselfParams]
+      attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - effectParamsDmgMyself.dmgMyself.toInt
+    } else {
+      val dmgMyselfOrNot = params.find(p => p.isInstanceOf[dmgMyselfOrNotParams]).last.asInstanceOf[dmgMyselfOrNotParams]
+      if (EffectManager.getCoinFlipValue == "head")
+        attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - dmgMyselfOrNot.headDmg.toInt
+      else
+        attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - dmgMyselfOrNot.tailDmg.toInt
+    }
+    super.useEffect(attackingBoard, defendingBoard)
   }
 }
 
 sealed trait addStatus extends AttackEffect {
-  abstract override def useEffect(attackingBoard:Board , defendingBoard:Board): Unit = {
-    val statusToApply: StatusType = StatusType.withNameWithDefault(getStringArgFromMap("status"))
-    val pokemonToApply = getAtkOrDef(getStringArgFromMap("atk_or_def"), attackingBoard.activePokemon, defendingBoard.activePokemon)
+  abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
+    val effectParams = params.find(p => p.isInstanceOf[statusParams]).last.asInstanceOf[statusParams]
+    var statusToApply: StatusType = StatusType.withNameWithDefault(effectParams.firstStatusType)
+    if (effectParams.firstEffectCoin != "" || effectParams.secondEffectCoin != "")
+      if (EffectManager.getCoinFlipValue == "tail")
+        statusToApply = StatusType.withNameWithDefault(effectParams.secondStatus)
+    val pokemonToApply = getAtkOrDef(effectParams.pokemonToApply, attackingBoard.activePokemon, defendingBoard.activePokemon)
     if (pokemonToApply.get.status == StatusType.NoStatus)
       pokemonToApply.get.status = statusToApply
-    super.useEffect(attackingBoard,defendingBoard)
+    super.useEffect(attackingBoard, defendingBoard)
   }
 }
 

@@ -8,12 +8,8 @@ import model.effect.EffectType.effectType
 
 trait AttackEffect {
   def useEffect(attackingBoard: Board, defendingBoard: Board): Unit
-
-  var args: Map[String, Any]
+  var params: Seq[params]
   var totalDmgToEnemyPkm: Int
-  def getIntArgFromMap(keyToFind: String): Int = args.get(keyToFind).head.asInstanceOf[Int]
-  def getStringArgFromMap(keyToFind: String): String = args.get(keyToFind).head.asInstanceOf[String]
-
 }
 
 trait Effect {
