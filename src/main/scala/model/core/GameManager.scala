@@ -146,7 +146,7 @@ object GameManager extends Observable {
       if (!pokemonBench(board).exists(c => c.nonEmpty)) {
         this.notifyObservers(Event.endGameEvent()) // Win check
       } else {
-        this.notifyObservers(Event.pokemonKOEvent(isPokemonInCharge))
+        this.notifyObservers(Event.pokemonKOEvent(isPokemonInCharge,board))
         drawPrizeCard(otherBoard)
       }
     }

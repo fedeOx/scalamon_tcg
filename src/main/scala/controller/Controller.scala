@@ -6,6 +6,7 @@ import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
 import model.game.SetType.SetType
+import model.ia.Ia
 
 import scala.util.Random
 

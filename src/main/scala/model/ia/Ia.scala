@@ -6,13 +6,13 @@ import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import model.core.{GameManager, TurnManager}
 import model.event.Events.Event
-import model.event.Events.Event.BuildGameField
+import model.event.Events.Event.{BuildGameField, EndGame}
 import model.exception.InvalidOperationException
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
 
 
-object Ia extends Thread with Observer {
+case class Ia() extends Thread with Observer {
 
   private val eventQueue: BlockingQueue[Event] = new ArrayBlockingQueue[Event](20)
 
@@ -22,6 +22,7 @@ object Ia extends Thread with Observer {
   private var playerBoard: Board = _
   private var myHand: Seq[Card] = _
   private var turn: TurnOwner = _
+  private var isCancelled: Boolean = false
 
 
   private def placeCards(hand: Seq[Card]): Unit = {
@@ -32,6 +33,7 @@ object Ia extends Thread with Observer {
     //populate bench with basePokemon
     populateBench()
     Thread.sleep(1000)
+    println("ho messo le carte")
     TurnManager.playerReady()
   }
 
@@ -58,8 +60,7 @@ object Ia extends Thread with Observer {
       try {
         calculateIfWithdrawAndDo()
       } catch {
-        case exception : InvalidOperationException => println("non posso ritirare")
-        case _ =>
+        case _ : InvalidOperationException => println("non posso ritirare")
       }
     }
 
@@ -89,8 +90,8 @@ object Ia extends Thread with Observer {
 
   override def run() {
     try {
-      while (true) {
-        val event: Event = Ia.waitForNextEvent()
+      while (!isCancelled) {
+        val event: Event = waitForNextEvent()
         event match {
           case event: Event.BuildGameField => {
             opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
@@ -101,10 +102,18 @@ object Ia extends Thread with Observer {
           case event: Event.FlipCoin => turn = if(event.isHead) TurnOwner.Player else TurnOwner.Opponent
           case event: Event.NextTurn if event.turnOwner == TurnOwner.Opponent => doTurn()
           case event: Event.PokemonKO => checkForKo()
+          case _ : EndGame => isCancelled = true
           case _ =>
         }
       }
+      interrupt()
+    } catch {
+      case _ : Exception =>
     }
+  }
+
+  def cancel() : Unit = {
+    isCancelled = true
   }
 
   private def checkForKo(): Unit = {
@@ -112,8 +121,6 @@ object Ia extends Thread with Observer {
       if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
         calculateIfWithdrawAndDo()
       }
-      else
-        println("PERSO IA")
     }
   }
 

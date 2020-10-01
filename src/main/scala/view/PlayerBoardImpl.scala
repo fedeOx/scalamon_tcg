@@ -1,5 +1,6 @@
 package view
 
+import common.TurnOwner
 import javafx.geometry.Insets
 import model.game.Cards.{Card, PokemonCard}
 import model.game.EnergyType.EnergyType
@@ -15,6 +16,15 @@ import scalafx.scene.shape.Box
 import scalafx.scene.transform.Rotate
 import scalafx.stage.Window
 
+
+trait PlayerBoard extends Group {
+  def updateHand(): Unit
+  def updateActive() : Unit
+  def updateBench() : Unit
+  def updatePrizes() : Unit
+  def updateDiscardStack(): Unit
+}
+
 /***
  * Player board component representing one size of the game board
  * isHumans: true if it's the board of the human player
@@ -22,7 +32,7 @@ import scalafx.stage.Window
  *
  * @param isHumans : true if it's the human's board
  */
-class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
+class PlayerBoardImpl(isHumans: Boolean, parentWindow: Window) extends PlayerBoard {
   private val WIDTH = 55
   private val HEIGHT = 25
   val gameWindow : Window = parentWindow
@@ -34,16 +44,16 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
   var myBoard : Board = _
   var opponentBoard : Board = _
   var isFirstTurn : Boolean = true
+  private var endTurnButton: Box = _
 
   styleClass += "humanPB"
   children = List(prize, active, bench, deckDiscard)
   if (isHumans) {
     hand = HandZone(isHumans, this)
     children += hand
-    val endTurnButton: Box = new Box{
-      val buttonMaterial = new PhongMaterial()
+    endTurnButton = new Box{
+      var buttonMaterial = new PhongMaterial()
       buttonMaterial.diffuseMap = new Image("/assets/endturn.png")
-      //buttonMaterial.diffuseColor = Color.Blue
       material = buttonMaterial
       width = 3
       height = 2
@@ -56,9 +66,12 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
         if(isFirstTurn) {
           isFirstTurn = false
           gameWindow.asInstanceOf[GameBoardView].controller.playerReady()
-        } else
-          gameWindow.asInstanceOf[GameBoardView].controller.endTurn()
-        println("fine turno")
+        } else {
+          if (gameWindow.asInstanceOf[GameBoardView].turnOwner == TurnOwner.Player) {
+            gameWindow.asInstanceOf[GameBoardView].controller.endTurn()
+            println("fine turno")
+          }
+        }
       }
     }
     children += endTurnButton
@@ -76,6 +89,12 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
   def updateBench() : Unit = bench.updateView(myBoard.pokemonBench)
   def updatePrizes() : Unit = prize.updateView(myBoard.prizeCards)
   def updateDiscardStack() : Unit = if (myBoard.discardStack.nonEmpty) deckDiscard.updateView(myBoard.discardStack.last)
+  def alterButton(isDisabled: Boolean): Unit = {
+    if(isDisabled)
+      endTurnButton.material.value.asInstanceOf[javafx.scene.paint.PhongMaterial].diffuseColor = Color.DarkGray
+    else
+      endTurnButton.material.value.asInstanceOf[javafx.scene.paint.PhongMaterial].diffuseColor = Color.White
+  }
 }
 
 class ZoomZone extends HBox {
