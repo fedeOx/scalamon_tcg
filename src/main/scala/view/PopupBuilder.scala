@@ -208,10 +208,11 @@ object PopupBuilder {
           children = List(new Label(if(playerWon)"You won!" else "You lose!"),
             new Button("Back to menu") {
               onAction = _ => {
-                scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close();
-                StartGameGui.getPrimaryStage.asInstanceOf[Stage].scene = DeckSelection()
-                StartGameGui.getPrimaryStage.width = 1400
-                StartGameGui.getPrimaryStage.height = 1000
+                scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+                StartGameGui.stage.asInstanceOf[Stage].scene = StartGameScene
+                StartGameGui.stage.width = 500
+                StartGameGui.stage.height = 300
+
               }
           })
         }
