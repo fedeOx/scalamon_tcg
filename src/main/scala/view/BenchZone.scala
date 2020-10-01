@@ -14,7 +14,7 @@ import scala.collection.mutable
  * The field zone that contains the benched pokemon
  * @param isHumans: true if it's the human's board
  */
-case class BenchZone(isHumans: Boolean, board: PlayerBoard) extends HBox {
+case class BenchZone(isHumans: Boolean, board: PlayerBoardImpl) extends HBox {
   private val WIDTH = 35
   private val HEIGHT = 10
   private var bench : Seq[Box] = Seq()

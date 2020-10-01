@@ -60,8 +60,7 @@ case class Ia() extends Thread with Observer {
       try {
         calculateIfWithdrawAndDo()
       } catch {
-        case exception : InvalidOperationException => println("non posso ritirare")
-        case _ =>
+        case _ : InvalidOperationException => println("non posso ritirare")
       }
     }
 
@@ -108,6 +107,8 @@ case class Ia() extends Thread with Observer {
         }
       }
       interrupt()
+    } catch {
+      case _ : Exception =>
     }
   }
 
@@ -120,8 +121,6 @@ case class Ia() extends Thread with Observer {
       if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
         calculateIfWithdrawAndDo()
       }
-      else
-        println("PERSO IA")
     }
   }
 

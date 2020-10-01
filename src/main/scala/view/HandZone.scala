@@ -13,7 +13,7 @@ import model.game.Cards._
  * The zone for the player's hand
  * @param isHumans: true if it's the human's board
  */
-case class HandZone(isHumans: Boolean, board: PlayerBoard) extends HBox {
+case class HandZone(isHumans: Boolean, board: PlayerBoardImpl) extends HBox {
   private var hand : Seq[Box] = Seq()
   private val parentBoard = board
 

@@ -32,8 +32,8 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   private val HEIGHT = 1000
   private val TITLE = "Scalamon"
   //private val guiEl: GuiElements = GuiElements(this, new ZoomZone)
-  private val iABoard = new PlayerBoard(false,this)
-  private val humanBoard = new PlayerBoard(true,this)
+  private val iABoard = new PlayerBoardImpl(false,this)
+  private val humanBoard = new PlayerBoardImpl(true,this)
   private var loadingMessage : Stage = _
 
   title = TITLE
@@ -145,9 +145,13 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   }
 
   private def handleKO(event: PokemonKO): Unit = {
-    if (humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined))
-      Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
-        humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
+    //TODO: controllo sulla board
+    if(event.board.eq(humanBoard.myBoard)){
+      if (humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined)
+        && iABoard.myBoard.prizeCards.size > 1)
+        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
+          humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
+    }
     Platform.runLater({
       humanBoard.updateActive()
       humanBoard.updatePrizes()

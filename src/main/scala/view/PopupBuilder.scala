@@ -36,10 +36,7 @@ object PopupBuilder {
       scene = new Scene(300, 200) {
         stylesheets = List("/style/loadingScreen.css")
         content = new VBox {
-          prefWidth = 300
-          prefHeight = 200
-          alignment = Pos.Center
-          spacing = 20
+          styleClass += "message"
           children = List(new ImageView(new Image("/assets/loading.gif")) {
             fitWidth = 60
             fitHeight = 60
@@ -61,8 +58,13 @@ object PopupBuilder {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
+      //initStyle(StageStyle.Undecorated)
       scene = new Scene(300, 200) {
-        content = new Label("È il tuo turno")
+        stylesheets = List("/style/loadingScreen.css")
+        content = new VBox{
+          styleClass += "message"
+          children = Label("È il tuo turno")
+        }
       }
       sizeToScene()
       resizable = false
@@ -78,15 +80,13 @@ object PopupBuilder {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
       scene = new Scene(300, 200) {
+        stylesheets = List("/style/loadingScreen.css")
         content = new VBox() {
-          prefWidth = 300
-          prefHeight = 200
-          alignment = Pos.Center
-          spacing = 10
+          styleClass += "message"
           children = List(new Label(message) {
             prefWidth = 300
             maxHeight(200)
-            prefHeight = 50
+            //prefHeight = 100
             wrapText = true
             textAlignment = TextAlignment.Center
           }, new Button("Ok") {
@@ -141,7 +141,6 @@ object PopupBuilder {
 
   def openCoinFlipScreen(parent: Window, isHead: Boolean): Unit = {
     val dialog = new Stage() {
-      println("popup builder: "+Thread.currentThread().getId)
       initOwner(parent)
       initModality(Modality.ApplicationModal)
       initStyle(StageStyle.Undecorated)
@@ -155,7 +154,7 @@ object PopupBuilder {
         val rotator = createRotator(coin, isHead)
         rotator.play()
         rotator.setOnFinished(e => {
-          Thread.sleep(1000)
+          Thread.sleep(800)
           scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
         })
         val container = new VBox() {
@@ -184,7 +183,7 @@ object PopupBuilder {
 
   private def createRotator(coin: Node, isHead: Boolean) = {
     val rotator = new RotateTransition() {
-      duration = Duration.apply(2000)
+      duration = Duration.apply(1500)
       node = coin
     }
     rotator.setAxis(Rotate.YAxis)

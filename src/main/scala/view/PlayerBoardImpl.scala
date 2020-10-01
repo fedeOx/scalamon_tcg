@@ -16,6 +16,15 @@ import scalafx.scene.shape.Box
 import scalafx.scene.transform.Rotate
 import scalafx.stage.Window
 
+
+trait PlayerBoard extends Group {
+  def updateHand(): Unit
+  def updateActive() : Unit
+  def updateBench() : Unit
+  def updatePrizes() : Unit
+  def updateDiscardStack(): Unit
+}
+
 /***
  * Player board component representing one size of the game board
  * isHumans: true if it's the board of the human player
@@ -23,7 +32,7 @@ import scalafx.stage.Window
  *
  * @param isHumans : true if it's the human's board
  */
-class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
+class PlayerBoardImpl(isHumans: Boolean, parentWindow: Window) extends PlayerBoard {
   private val WIDTH = 55
   private val HEIGHT = 25
   val gameWindow : Window = parentWindow
@@ -80,7 +89,6 @@ class PlayerBoard(isHumans: Boolean, parentWindow: Window) extends Group {
   def updateBench() : Unit = bench.updateView(myBoard.pokemonBench)
   def updatePrizes() : Unit = prize.updateView(myBoard.prizeCards)
   def updateDiscardStack() : Unit = if (myBoard.discardStack.nonEmpty) deckDiscard.updateView(myBoard.discardStack.last)
-
   def alterButton(isDisabled: Boolean): Unit = {
     if(isDisabled)
       endTurnButton.material.value.asInstanceOf[javafx.scene.paint.PhongMaterial].diffuseColor = Color.DarkGray

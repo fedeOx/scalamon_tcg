@@ -18,7 +18,7 @@ import view.CardCreator._
  * @param isHumans: true if it's the human's board
  * @param board: the board where the zone is located
  */
-case class ActivePkmnZone(isHumans: Boolean, board: PlayerBoard) extends HBox{
+case class ActivePkmnZone(isHumans: Boolean, board: PlayerBoardImpl) extends HBox{
   private val WIDTH = 32
   private val HEIGHT = 15
   private var isEmpty : Boolean = _
