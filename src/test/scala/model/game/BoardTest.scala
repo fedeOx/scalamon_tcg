@@ -7,7 +7,7 @@ import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 
 class BoardTest extends AnyFlatSpec with GivenWhenThen {
-
+/*
   val cards: Seq[Card] = DataLoader.loadSet(SetType.Base)
   val board: Board = Board(cards)
 
@@ -72,4 +72,6 @@ class BoardTest extends AnyFlatSpec with GivenWhenThen {
     assert(board.activePokemon.isEmpty)
   }
 
+
+ */
 }

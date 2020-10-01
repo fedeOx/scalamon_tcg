@@ -1,13 +1,13 @@
 package model.pokemonEffect
 
-
 import model.core.GameManager
 import model.event.Events.Event
-import model.event.Events.Event.FlipCoin
-
-import scala.util.Random
 
 object EffectManager {
+
+  private var _gameManager: GameManager = _
+
+  def setGameManager(gameManager: GameManager): Unit = _gameManager = gameManager
 
   def convertJsonEffectToAttackEffect(jsonEffect: Option[Seq[Effect]]): Option[AttackEffect] = {
     val mainEffect: Effect = jsonEffect.get.head
@@ -152,19 +152,13 @@ object EffectManager {
     item
   }
 
+  import common.CoinUtil
+  import common.CoinUtil.CoinValue
 
-  private def getCoinFlipValue: String = {
-    Random.nextInt(99) + 1 match {
-      case n if n<= 50 => {
-        GameManager.notifyObservers(Event.flipCoinEvent(true)); "head"
-      }
-      case _ => {
-        GameManager.notifyObservers(Event.flipCoinEvent(false)); "tail"
-      }
-    }
-
+  private def getCoinFlipValue: String = CoinUtil.flipACoin() match {
+    case CoinValue.Head => _gameManager.notifyObservers(Event.flipCoinEvent(true)); CoinValue.Head.toString
+    case CoinValue.Tail => _gameManager.notifyObservers(Event.flipCoinEvent(false)); CoinValue.Tail.toString
   }
-
 
 }
 
