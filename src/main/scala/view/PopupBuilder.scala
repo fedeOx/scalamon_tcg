@@ -209,7 +209,7 @@ object PopupBuilder {
             new Button("Back to menu") {
               onAction = _ => {
                 scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close();
-                GameLauncher.stage.asInstanceOf[Stage].scene = StartGameScene
+                GameLauncher.stage.asInstanceOf[Stage].scene = StartGameScene()
                 GameLauncher.stage.width = 500
                 GameLauncher.stage.height = 300
               }

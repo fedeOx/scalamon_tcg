@@ -8,7 +8,7 @@ object GameLauncher extends JFXApp {
     title = "ScalaMon TCG"
     width = 500
     height = 300
-    scene = StartGameScene
+    scene = StartGameScene()
   }
 }
 
