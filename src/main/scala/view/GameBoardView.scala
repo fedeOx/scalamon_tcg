@@ -23,10 +23,9 @@ import scalafx.stage.Stage
 /** *
  * Stage that contains the game scene
  */
-class GameBoardView extends JFXApp.PrimaryStage with Observer {
+class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with Observer {
   //private val parentWindow : Window = this
   val zoomZone = new ZoomZone
-  val controller: Controller = Controller()
   var turnOwner : TurnOwner = TurnOwner.Player
   private val WIDTH = 1600
   private val HEIGHT = 1000
@@ -38,10 +37,8 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
 
   title = TITLE
   icons += new Image("/assets/icon.png")
-  var ai = Ia()
-  ai.start()
-  GameManager.addObserver(this)
-  TurnManager.addObserver(this)
+  controller.gameManager.addObserver(this)
+  controller.turnManager.addObserver(this)
   CardCreator.setController(controller)
   PopupBuilder.setController(controller)
   x = 0
@@ -78,7 +75,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   sizeToScene()
   show()
 
-  onCloseRequest = _ => ai.interrupt()
+  onCloseRequest = _ => controller.interruptAi()
 
   override def update(event: Events.Event): Unit = event match {
     case event : BuildGameField => initializeBoards(event)
@@ -179,7 +176,7 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
     else
       playerWon = false
     Platform.runLater(PopupBuilder.openEndGameScreen(this, playerWon))
-    controller.resetGame()
+    controller.interruptAi()
   }
 }
 

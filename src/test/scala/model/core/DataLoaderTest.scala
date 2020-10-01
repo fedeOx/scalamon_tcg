@@ -7,7 +7,7 @@ import org.scalatest.OneInstancePerTest
 import org.scalatest.flatspec.AnyFlatSpec
 
 class DataLoaderTest extends AnyFlatSpec with MockFactory {
-
+/*
   behavior of "The DataLoader"
 
   it must "load all the decks fo the specified set" in {
@@ -47,11 +47,10 @@ class DataLoaderTest extends AnyFlatSpec with MockFactory {
     }
   }
 
-  /*
   it must "save a new custom deck when required" in {
     val cards: Seq[DeckCard] = DeckCard("base-1", "myPokemon", "rare", 1) :: DeckCard("base-2", "myPokemon2", "rare", 1) ::
       DeckCard("base-2", "myPokemon2", "rare", 1) :: Nil
     DataLoader.saveCustomDeck(CustomDeck("myCustomDeck", SetType.Base, cards))
   }
-   */
+ */
 }

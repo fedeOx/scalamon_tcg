@@ -6,7 +6,7 @@ import model.game.EnergyType.EnergyType
 import org.scalatest.{FlatSpec, GivenWhenThen}
 
 class EffectTest() extends FlatSpec with GivenWhenThen {
-
+/*
   GameManager.reset()
   TurnManager.reset()
   DataLoader.reset()
@@ -185,4 +185,6 @@ class EffectTest() extends FlatSpec with GivenWhenThen {
       pokemon.addEnergy(energyCards.find(energy => energy.asInstanceOf[EnergyCard].energyType == energyType).get.asInstanceOf[EnergyCard])
   }
 
+
+ */
 }

@@ -1,6 +1,7 @@
 package view
 
 import controller.Controller
+import model.core.DataLoader
 import scalafx.scene.Scene
 import scalafx.scene.control.Button
 import scalafx.scene.layout.BorderPane
@@ -17,11 +18,11 @@ object StartGameScene extends Scene {
       text = "Select Deck"
       onAction = _ => {
 
-        StartGameGui.getPrimaryStage.scene = new DeckSelection
-        StartGameGui.getPrimaryStage.width = 1400
-        StartGameGui.getPrimaryStage.height = 1000
-        StartGameGui.getPrimaryStage.x = 200
-        StartGameGui.getPrimaryStage.y = 20
+        GameLauncher.stage.scene = new DeckSelection(controller)
+        GameLauncher.stage.width = 1400
+        GameLauncher.stage.height = 1000
+        GameLauncher.stage.x = 200
+        GameLauncher.stage.y = 20
       }
     }
   }

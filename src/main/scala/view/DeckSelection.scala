@@ -1,6 +1,6 @@
 package view
 
-import common.Observer
+import common.{Observable, Observer}
 import controller.Controller
 import model.core.DataLoader
 import model.event.Events
@@ -24,16 +24,14 @@ case class CardView(id: String, name: String, rarity: String, var count: Int) {
   var countCard = new ObjectProperty(this, "count", count)
 }
 
-case class DeckSelection() extends Scene with Observer {
-
+case class DeckSelection(controller: Controller) extends Scene with Observer {
   var cardsTableItem: ObservableBuffer[CardView] = ObservableBuffer[CardView]()
   val tableView: TableView[CardView] = viewUtils.createTableView(cardsTableItem)
   var deckMap: Map[String, Seq[DeckCard]] = Map()
   val scrollPane: ScrollPane = new ScrollPane()
-  val controller: Controller = Controller()
   val cssStyle: String = getClass.getResource("/style/deckSelection.css").toExternalForm
   stylesheets += cssStyle
-  DataLoader.addObserver(this)
+  controller.dataLoader.addObserver(this)
   controller.loadDecks(SetType.Base)
 
   root = new BorderPane {
@@ -48,8 +46,8 @@ case class DeckSelection() extends Scene with Observer {
       onAction = _ => {
         //go to game
         if (cardsTableItem.nonEmpty) {
-          StartGameGui.getPrimaryStage.close()
-          new GameBoardView
+          GameLauncher.stage.close()
+          new GameBoardView(controller)
           var seqDeck: Seq[DeckCard] = Seq()
           cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count))
           controller.initGame(seqDeck, SetType.Base)
@@ -74,7 +72,7 @@ case class DeckSelection() extends Scene with Observer {
       addDeckCustom.id = "addDeck"
       addDeckCustom.text = ""
       addDeckCustom.onMouseClicked = _ => {
-        StartGameGui.getPrimaryStage.scene = CustomizeDeck(SetType.Base)
+        GameLauncher.stage.scene = CustomizeDeck(SetType.Base, controller)
       }
       add(addDeckCustom, columnIndexcnt, rowIndexcnt)
       columnIndexcnt += 1

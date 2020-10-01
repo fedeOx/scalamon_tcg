@@ -151,13 +151,13 @@ object PopupBuilder {
         fill = Color.Transparent
         material.setDiffuseMap(new Image("/assets/coin.png"))
         coin.setMaterial(material)
-        val rotator = createRotator(coin, isHead)
+        val rotator: RotateTransition = createRotator(coin, isHead)
         rotator.play()
         rotator.setOnFinished(e => {
           Thread.sleep(800)
           scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
         })
-        val container = new VBox() {
+        val container: VBox = new VBox() {
           alignment = Pos.Center
           prefWidth = 200
           prefHeight = 200
@@ -209,9 +209,9 @@ object PopupBuilder {
             new Button("Back to menu") {
               onAction = _ => {
                 scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close();
-                StartGameGui.getPrimaryStage.asInstanceOf[Stage].scene = DeckSelection()
-                StartGameGui.getPrimaryStage.width = 1400
-                StartGameGui.getPrimaryStage.height = 1000
+                GameLauncher.stage.asInstanceOf[Stage].scene = StartGameScene
+                GameLauncher.stage.width = 500
+                GameLauncher.stage.height = 300
               }
           })
         }
