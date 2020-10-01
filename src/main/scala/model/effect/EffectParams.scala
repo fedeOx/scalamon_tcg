@@ -3,65 +3,65 @@ package model.effect
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
 
-sealed trait params {
+sealed trait Params {
   def name: String
 }
 
-sealed trait nDmgParams extends params {
+sealed trait NDmgParams extends Params {
   def basicDmg: String
   def coinFlipNumber: String
   def coinSide: String
   def enemyToAtk: String
 }
-sealed trait eachDmgParams extends params {
+sealed trait EachDmgParams extends Params {
   def dmgToAdd: String
   def pokemonToApply: String
   def signature: String
 }
-sealed trait eachEnergyParams extends params {
+sealed trait EachEnergyParams extends Params {
   def plusDmg: String
   def pokemonToApply: String
   def limitBy: String
   def atkPosition: String
 }
-sealed trait dmgMyselfParams extends params {
+sealed trait DmgMyselfParams extends Params {
   def dmgMyself: String
 }
-sealed trait statusParams extends params {
+sealed trait StatusParams extends Params {
   def pokemonToApply: String
   def firstStatusType: String
   def firstEffectCoin: String
   def secondEffectCoin: String
   def secondStatus: String
 }
-sealed trait setImmunityParams extends params {
+sealed trait SetImmunityParams extends Params {
   def tailBounded: String
   def headBounded: String
 }
-sealed trait recoveryParams extends params {
+sealed trait RecoveryParams extends Params {
   def recoveryAmount: String
   def pokemonToApply: String
 }
-sealed trait discardEnergyParams extends params {
+sealed trait DiscardEnergyParams extends Params {
   def discardAmount: String
   def energyType: String
   def pokemonToApply: String
 }
-sealed trait dmgMyselfOrNotParams extends params {
+sealed trait DmgMyselfOrNotParams extends Params {
   def tailDmg: String
   def headDmg: String
 }
 
-object nDmgParams {
-  implicit val decoder: Decoder[nDmgParams] = new Decoder[nDmgParams] {
-    override def apply(c: HCursor): Result[nDmgParams] =
+object NDmgParams {
+  implicit val decoder: Decoder[NDmgParams] = new Decoder[NDmgParams] {
+    override def apply(c: HCursor): Result[NDmgParams] =
       for {
         _dmg <- c.downField("basicDmgToDo").as[Option[String]]
         _coinFlipNumber <- c.downField("coinFlipNumber").as[Option[String]]
         _coinSide <- c.downField("coinSide").as[Option[String]]
         _enemyToAtk <- c.downField("enemyToAtk").as[Option[String]]
       } yield {
-        new nDmgParams {
+        new NDmgParams {
           override def basicDmg: String = _dmg.get
           override def coinFlipNumber: String = _coinFlipNumber.get
           override def coinSide: String = _coinSide.get
@@ -72,11 +72,11 @@ object nDmgParams {
   }
 
 }
-object eachDmgParams {
-  def apply(name: String, dmgToAdd: String, pokemonToApply: String, signature: String): eachDmgParams = eachDmgParamsImpl(name, dmgToAdd, pokemonToApply, signature)
+object EachDmgParams {
+  def apply(name: String, dmgToAdd: String, pokemonToApply: String, signature: String): EachDmgParams = eachDmgParamsImpl(name, dmgToAdd, pokemonToApply, signature)
 
-  implicit val decoder: Decoder[eachDmgParams] = new Decoder[eachDmgParams] {
-    override def apply(c: HCursor): Result[eachDmgParams] =
+  implicit val decoder: Decoder[EachDmgParams] = new Decoder[EachDmgParams] {
+    override def apply(c: HCursor): Result[EachDmgParams] =
       for {
         _dmg <- c.downField("dmgToAdd").as[Option[String]]
         _pkmToApply <- c.downField("pokemonToApply").as[Option[String]]
@@ -86,14 +86,14 @@ object eachDmgParams {
       }
   }
 
-  private case class eachDmgParamsImpl(name: String, dmgToAdd: String, pokemonToApply: String, signature: String) extends eachDmgParams
+  private case class eachDmgParamsImpl(name: String, dmgToAdd: String, pokemonToApply: String, signature: String) extends EachDmgParams
 
 }
-object eachEnergyParams {
-  def apply(name: String, plusDmg: String, pokemonToApply: String, limitBy: String, atkPosition: String): eachEnergyParams = eachEnergyParamsImpl(name, plusDmg, pokemonToApply, limitBy, atkPosition)
+object EachEnergyParams {
+  def apply(name: String, plusDmg: String, pokemonToApply: String, limitBy: String, atkPosition: String): EachEnergyParams = eachEnergyParamsImpl(name, plusDmg, pokemonToApply, limitBy, atkPosition)
 
-  implicit val decoder: Decoder[eachEnergyParams] = new Decoder[eachEnergyParams] {
-    override def apply(c: HCursor): Result[eachEnergyParams] =
+  implicit val decoder: Decoder[EachEnergyParams] = new Decoder[EachEnergyParams] {
+    override def apply(c: HCursor): Result[EachEnergyParams] =
       for {
         _plusDmg <- c.downField("plusDmg").as[Option[String]]
         _pkmToApply <- c.downField("pokemonToApply").as[Option[String]]
@@ -104,14 +104,14 @@ object eachEnergyParams {
       }
   }
 
-  private case class eachEnergyParamsImpl(name: String, plusDmg: String, pokemonToApply: String, limitBy: String, atkPosition: String) extends eachEnergyParams
+  private case class eachEnergyParamsImpl(name: String, plusDmg: String, pokemonToApply: String, limitBy: String, atkPosition: String) extends EachEnergyParams
 
 }
-object dmgMyselfParams {
-  def apply(name: String, dmgMyself: String): dmgMyselfParams = dmgMyselfParamsImpl(name, dmgMyself)
+object DmgMyselfParams {
+  def apply(name: String, dmgMyself: String): DmgMyselfParams = dmgMyselfParamsImpl(name, dmgMyself)
 
-  implicit val decoder: Decoder[dmgMyselfParams] = new Decoder[dmgMyselfParams] {
-    override def apply(c: HCursor): Result[dmgMyselfParams] =
+  implicit val decoder: Decoder[DmgMyselfParams] = new Decoder[DmgMyselfParams] {
+    override def apply(c: HCursor): Result[DmgMyselfParams] =
       for {
         _dmgMyself <- c.downField("dmgMyself").as[Option[String]]
       } yield {
@@ -119,14 +119,14 @@ object dmgMyselfParams {
       }
   }
 
-  private case class dmgMyselfParamsImpl(name: String, dmgMyself: String) extends dmgMyselfParams
+  private case class dmgMyselfParamsImpl(name: String, dmgMyself: String) extends DmgMyselfParams
 
 }
-object statusParams {
-  def apply(name: String, pokemonToApply: String, firstStatusType: String, firstEffectCoin: String, secondEffectCoin: String, secondStatus: String): statusParams = statusParamsImpl(name, pokemonToApply, firstStatusType, firstEffectCoin, secondEffectCoin, secondStatus)
+object StatusParams {
+  def apply(name: String, pokemonToApply: String, firstStatusType: String, firstEffectCoin: String, secondEffectCoin: String, secondStatus: String): StatusParams = statusParamsImpl(name, pokemonToApply, firstStatusType, firstEffectCoin, secondEffectCoin, secondStatus)
 
-  implicit val decoder: Decoder[statusParams] = new Decoder[statusParams] {
-    override def apply(c: HCursor): Result[statusParams] =
+  implicit val decoder: Decoder[StatusParams] = new Decoder[StatusParams] {
+    override def apply(c: HCursor): Result[StatusParams] =
       for {
         _pokemonToApply <- c.downField("pokemonToApply").as[Option[String]]
         _firstStatusType <- c.downField("firstStatusType").as[Option[String]]
@@ -138,14 +138,14 @@ object statusParams {
       }
   }
 
-  private case class statusParamsImpl(name: String, pokemonToApply: String, firstStatusType: String, firstEffectCoin: String, secondEffectCoin: String, secondStatus: String) extends statusParams
+  private case class statusParamsImpl(name: String, pokemonToApply: String, firstStatusType: String, firstEffectCoin: String, secondEffectCoin: String, secondStatus: String) extends StatusParams
 
 }
-object setImmunityParams {
-  def apply(name: String, tailBounded: String, headBounded: String): setImmunityParams = setImmunityParamsImpl(name, tailBounded, headBounded)
+object SetImmunityParams {
+  def apply(name: String, tailBounded: String, headBounded: String): SetImmunityParams = setImmunityParamsImpl(name, tailBounded, headBounded)
 
-  implicit val decoder: Decoder[setImmunityParams] = new Decoder[setImmunityParams] {
-    override def apply(c: HCursor): Result[setImmunityParams] =
+  implicit val decoder: Decoder[SetImmunityParams] = new Decoder[SetImmunityParams] {
+    override def apply(c: HCursor): Result[SetImmunityParams] =
       for {
         _tailBounded <- c.downField("tailBounded").as[Option[String]]
         _headBounded <- c.downField("headBounded").as[Option[String]]
@@ -153,13 +153,13 @@ object setImmunityParams {
         setImmunityParamsImpl(EffectType.doesNDmgAndSetImmunity.toString, _tailBounded.get, _headBounded.get)
       }
   }
-  private case class setImmunityParamsImpl(name: String, tailBounded: String, headBounded: String) extends setImmunityParams
+  private case class setImmunityParamsImpl(name: String, tailBounded: String, headBounded: String) extends SetImmunityParams
 
 }
-object recoveryParams {
-  def apply(name: String, recoveryAmount: String, pokemonToApply: String): recoveryParams = recoveryParamsImpl(name, recoveryAmount, pokemonToApply)
-  implicit val decoder: Decoder[recoveryParams] = new Decoder[recoveryParams] {
-    override def apply(c: HCursor): Result[recoveryParams] =
+object RecoveryParams {
+  def apply(name: String, recoveryAmount: String, pokemonToApply: String): RecoveryParams = recoveryParamsImpl(name, recoveryAmount, pokemonToApply)
+  implicit val decoder: Decoder[RecoveryParams] = new Decoder[RecoveryParams] {
+    override def apply(c: HCursor): Result[RecoveryParams] =
       for {
         _recoveryAmount <- c.downField("recoveryAmount").as[Option[String]]
         _pokemonToApply <- c.downField("pokemonToApply").as[Option[String]]
@@ -167,13 +167,13 @@ object recoveryParams {
         recoveryParamsImpl(EffectType.recovery.toString, _recoveryAmount.get, _pokemonToApply.get)
       }
   }
-  private case class recoveryParamsImpl( name: String, recoveryAmount: String, pokemonToApply: String) extends recoveryParams
+  private case class recoveryParamsImpl( name: String, recoveryAmount: String, pokemonToApply: String) extends RecoveryParams
 
 }
-object discardEnergyParams {
-  def apply(name: String, discardAmount: String, energyType: String, pokemonToApply:String): discardEnergyParams = discardEnergyParamsImpl(name, discardAmount, energyType, pokemonToApply)
-  implicit val decoder: Decoder[discardEnergyParams] = new Decoder[discardEnergyParams] {
-    override def apply(c: HCursor): Result[discardEnergyParams] =
+object DiscardEnergyParams {
+  def apply(name: String, discardAmount: String, energyType: String, pokemonToApply:String): DiscardEnergyParams = discardEnergyParamsImpl(name, discardAmount, energyType, pokemonToApply)
+  implicit val decoder: Decoder[DiscardEnergyParams] = new Decoder[DiscardEnergyParams] {
+    override def apply(c: HCursor): Result[DiscardEnergyParams] =
       for {
         _discardAmount <- c.downField("discardAmount").as[Option[String]]
         _energyType <- c.downField("energyType").as[Option[String]]
@@ -183,13 +183,13 @@ object discardEnergyParams {
         discardEnergyParamsImpl(EffectType.discardEnergy.toString, _discardAmount.get, _energyType.get,_pokemonToApply.get)
       }
   }
-  private case class discardEnergyParamsImpl(name: String, discardAmount: String, energyType: String, pokemonToApply:String) extends discardEnergyParams
+  private case class discardEnergyParamsImpl(name: String, discardAmount: String, energyType: String, pokemonToApply:String) extends DiscardEnergyParams
 
 }
-object dmgMyselfOrNotParams {
-  def apply(name: String, tailDmg: String, headDmg: String): dmgMyselfOrNotParams = dmgMyselfOrNotParamsImpl(name, tailDmg, headDmg)
-  implicit val decoder: Decoder[dmgMyselfOrNotParams] = new Decoder[dmgMyselfOrNotParams] {
-    override def apply(c: HCursor): Result[dmgMyselfOrNotParams] =
+object DmgMyselfOrNotParams {
+  def apply(name: String, tailDmg: String, headDmg: String): DmgMyselfOrNotParams = dmgMyselfOrNotParamsImpl(name, tailDmg, headDmg)
+  implicit val decoder: Decoder[DmgMyselfOrNotParams] = new Decoder[DmgMyselfOrNotParams] {
+    override def apply(c: HCursor): Result[DmgMyselfOrNotParams] =
       for {
         _tailDmg <- c.downField("tailDmg").as[Option[String]]
         _headDmg <- c.downField("headDmg").as[Option[String]]
@@ -197,7 +197,7 @@ object dmgMyselfOrNotParams {
         dmgMyselfOrNotParamsImpl(EffectType.doesNDmgAndHitMyself_OR_doesNdmg.toString, _tailDmg.get, _headDmg.get)
       }
   }
-  private case class dmgMyselfOrNotParamsImpl(name: String, tailDmg: String, headDmg: String) extends dmgMyselfOrNotParams
+  private case class dmgMyselfOrNotParamsImpl(name: String, tailDmg: String, headDmg: String) extends DmgMyselfOrNotParams
 
 }
 

@@ -4184,7 +4184,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "doesNDmgAndSetImmunity",
