@@ -1,11 +1,11 @@
 package model.effect
 
-import model.core.GameManager
-import model.event.Events.Event
+import common.CoinUtil.CoinValue
 import model.game.Cards.PokemonCard
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
 import model.effect.utils.{atkTo, getAtkOrDef}
+import model.effect.EffectManager._
 
 
 case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEffect {
@@ -15,10 +15,8 @@ case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEff
         pkm.get.addDamage(totalDmgToEnemyPkm, attackingBoard.activePokemon.get.pokemonTypes)
       else
         pkm.get.addDamage(totalDmgToEnemyPkm, Seq(EnergyType.Colorless)))
-    //TODO: Manda evento fine attacco
-    println(Thread.currentThread().getName)
-    Thread.sleep(4000)
-    GameManager.notifyObservers(Event.attackEnded())
+
+    Thread.sleep(2500)
   }
 
   override var params: Seq[Params] = Seq()
@@ -112,7 +110,7 @@ sealed trait DmgMySelf extends AttackEffect {
       attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - effectParamsDmgMyself.dmgMyself.toInt
     } else {
       val dmgMyselfOrNot = params.find(p => p.isInstanceOf[DmgMyselfOrNotParams]).last.asInstanceOf[DmgMyselfOrNotParams]
-      if (EffectManager.getCoinFlipValue == "head")
+      if (getCoinFlipValue == CoinValue.Head)
         attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - dmgMyselfOrNot.headDmg.toInt
       else
         attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - dmgMyselfOrNot.tailDmg.toInt
@@ -125,9 +123,11 @@ sealed trait addStatus extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[StatusParams]).last.asInstanceOf[StatusParams]
     var statusToApply: StatusType = StatusType.withNameWithDefault(effectParams.firstStatusType)
+
     if (effectParams.firstEffectCoin != "" || effectParams.secondEffectCoin != "")
-      if (EffectManager.getCoinFlipValue == "tail")
+      if (getCoinFlipValue == CoinValue.Tail)
         statusToApply = StatusType.withNameWithDefault(effectParams.secondStatus)
+
     val pokemonToApply = getAtkOrDef(effectParams.pokemonToApply, attackingBoard.activePokemon, defendingBoard.activePokemon)
     if (pokemonToApply.get.status == StatusType.NoStatus)
       pokemonToApply.get.status = statusToApply
@@ -151,13 +151,12 @@ class DiscardEnergyAndSetImmunity(dmgCount: Int, pokemonToApply: String) extends
 
 class DoesDmgToMultipleTarget(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with MultipleTargetDmg
 
-class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with addStatus
+class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String ) extends DoesNDmg(dmgCount, pokemonToApply) with addStatus
 
 class DoesDmgToMultipleTarget_AND_DmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesDmgToMultipleTarget(dmgCount, pokemonToApply) with DmgMySelf
 
 
 private object utils {
-
   def getAtkOrDef(string: String, attackingPokemon: Option[PokemonCard], defendingPokemon: Option[PokemonCard]): Option[PokemonCard] = {
     string match {
       case "atk" => attackingPokemon

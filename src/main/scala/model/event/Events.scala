@@ -22,7 +22,7 @@ object Events {
 
     def updateBoardsEvent(): Event = UpdateBoards()
 
-    def pokemonKOEvent(isPokemonInCharge: Boolean = false): Event = PokemonKO(isPokemonInCharge)
+    def pokemonKOEvent(isPokemonInCharge: Boolean = false, board: Board): Event = PokemonKO(isPokemonInCharge,board)
 
     def endGameEvent(): Event = EndGame()
 
@@ -34,7 +34,7 @@ object Events {
     case class FlipCoin(isHead: Boolean) extends Event
     case class NextTurn(turnOwner: TurnOwner) extends Event
     case class UpdateBoards() extends Event
-    case class PokemonKO(isPokemonInCharge: Boolean) extends Event
+    case class PokemonKO(isPokemonInCharge: Boolean, board: Board) extends Event
     case class AttackEnded() extends Event
     case class EndGame() extends Event
     case class CustomDeckSaved() extends Event

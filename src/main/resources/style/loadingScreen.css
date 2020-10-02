@@ -1,7 +1,15 @@
 VBox {
-    -fx-fill: black;
-    -fx-background-color: black;
+    -fx-fill: rgba(0,0,0,1);
+    -fx-background-color: rgba(0,0,0,1);
     -fx-font-size: 20px;
+}
+
+.message {
+    -fx-fill: rgba(0,0,0,1);
+    -fx-alignment: Center;
+    -fx-pref-width: 300;
+    -fx-pref-height: 200;
+    -fx-spacing: 20;
 }
 
 Label {

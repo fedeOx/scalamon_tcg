@@ -1,17 +1,24 @@
 package model.effect
+
+
+import controller.Controller
 import model.core.DataLoader
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.EnergyType.EnergyType
 import model.game.{Board, EnergyType, SetType, StatusType}
-import org.scalatest.GivenWhenThen
+import model.game.Cards._
+import model.game.EnergyType.EnergyType
 import org.scalatest.flatspec.AnyFlatSpec
+
 object BoardTmp {
   var iaBoard : Board = Board(Seq())
   var playerBoard : Board = Board(Seq())
 }
+
+import org.scalatest.GivenWhenThen
+
 class EffectTest() extends AnyFlatSpec with GivenWhenThen {
 
-  val cardList: Seq[Card] = DataLoader.loadSet(SetType.Base)
+  val controller : Controller = Controller()
+  val cardList: Seq[Card] = DataLoader().loadSet(SetType.Base)
     .filter(c => c.isInstanceOf[Card])
   val pokemonCards: Seq[Card] = cardList.filter(p => p.isInstanceOf[PokemonCard])
   val energyCards: Seq[Card] = cardList.filter(p => p.isInstanceOf[EnergyCard])
@@ -169,11 +176,12 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
 
   it should "confuse the enemy if head" in {
     Given("a pokemon with this effect")
-    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Alakazam")
+    BoardTmp.playerBoard.activePokemon.get.actualHp = BoardTmp.playerBoard.activePokemon.get.initialHp
+    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Vulpix")
     Then("apply effect")
     And("the attacking pokemon should confuse enemy")
     BoardTmp.iaBoard.activePokemon.get.attacks.head.effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard)
-    assert(BoardTmp.playerBoard.activePokemon.get.status == StatusType.NoStatus || BoardTmp.playerBoard.activePokemon.get.status == StatusType.Confused)
+    assert((BoardTmp.playerBoard.activePokemon.get.status == StatusType.NoStatus || BoardTmp.playerBoard.activePokemon.get.status == StatusType.Confused) && BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp-10)
   }
 
   def getSpecificPokemon(_name: String): Option[PokemonCard] = {

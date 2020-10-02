@@ -1,7 +1,7 @@
 package view
 
 
-import common.Observer
+import common.{Observable, Observer}
 import controller.Controller
 import model.core.DataLoader
 import model.event.Events
@@ -19,15 +19,13 @@ import scalafx.scene.layout._
 import scalafx.stage.Stage
 
 
-case class CustomizeDeck(setType: SetType) extends Scene with Observer {
+case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene with Observer {
 
-  DataLoader.addObserver(this)
+  controller.dataLoader.addObserver(this)
   var deckCard: Seq[Card] = List()
   val loadingMessage: Stage = PopupBuilder.openLoadingScreen(window.getValue.asInstanceOf[scalafx.stage.Window])
   Platform.runLater(loadingMessage.show())
 
-  //TODO PASSAMI IL CONTROLLER LORENZO SIMONCINI 2
-  val controller: Controller = Controller()
   controller.loadSet(setType)
   val textFieldName: TextField = new TextField {
     maxWidth = 200
@@ -105,9 +103,9 @@ case class CustomizeDeck(setType: SetType) extends Scene with Observer {
           minWidth = 20
           padding = Insets(5, 10, 5, 10)
           children = Seq(new Button("+") {
-            onMouseClicked = _ => addOrRemove(true, card)
+            onMouseClicked = _ => addOrRemove(add = true, card)
           }, new Button("-") {
-            onMouseClicked = _ => addOrRemove(false, card)
+            onMouseClicked = _ => addOrRemove(add = false, card)
           })
         })
     }
@@ -117,7 +115,7 @@ case class CustomizeDeck(setType: SetType) extends Scene with Observer {
     new HBox(new Button {
       id = "backButton";
       onMouseClicked = _ => {
-        StartGameGui.getPrimaryStage.scene = new DeckSelection
+        GameLauncher.stage.scene = DeckSelection(controller)
       }
     }, new VBox(new HBox(new Label("Inserisci nome del deck ") {
       id = "deckNameLabel"; margin = Insets(0, 10, 0, 10)
@@ -151,7 +149,7 @@ case class CustomizeDeck(setType: SetType) extends Scene with Observer {
       })
     case event if event.isInstanceOf[CustomDeckSaved] =>
       Platform.runLater(() => {
-        StartGameGui.getPrimaryStage.scene = new DeckSelection
+        GameLauncher.stage.scene = DeckSelection(controller)
       })
     case _ =>
   }

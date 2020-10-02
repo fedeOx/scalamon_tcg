@@ -1,11 +1,16 @@
 package model.effect
-
+import common.CoinUtil
+import common.CoinUtil.CoinValue
+import common.CoinUtil.CoinValue.CoinValue
 import model.core.GameManager
 import model.event.Events.Event
-import scala.util.Random
 
 object EffectManager {
   private var totalParamsSeq :Seq[Params] = Seq()
+
+  private var _gameManager: GameManager = _
+
+  def setGameManager(gameManager: GameManager): Unit = _gameManager = gameManager
 
   def convertJsonEffectToAttackEffect(jsonEffect: Option[Seq[Effect]]): Option[AttackEffect] = {
     val mainEffect: Effect = jsonEffect.get.head
@@ -37,7 +42,7 @@ object EffectManager {
           def modifyDmgCount(iterationLeft: Int): Int = iterationLeft match {
             case 0 => newBasicDmgToDo
             case _ =>
-              if (getCoinFlipValue == basicCoinSide)
+              if (CoinUtil.flipACoin().toString == basicCoinSide)
                 newBasicDmgToDo += basicDmgToDo
               modifyDmgCount(iterationLeft - 1)
           }
@@ -93,7 +98,7 @@ object EffectManager {
         val isTailBounded: String = effectParams.tailBounded
         val isHeadBounded: String = effectParams.headBounded
         if (t.isEmpty) {
-          if ((isHeadBounded == "true" && getCoinFlipValue == "head") || (isTailBounded == "true" && getCoinFlipValue == "tail") || (isTailBounded == "" && isHeadBounded == ""))
+          if ((isHeadBounded == "true" && getCoinFlipValue == CoinValue.Head) || (isTailBounded == "true" &&  getCoinFlipValue == CoinValue.Tail) || (isTailBounded == "" && isHeadBounded == ""))
             returnedAttack = returnedEffect(new DoesNDmgAndSetImmunity(basicDmgToDo, basicEnemyToAtk), effectParams)
           else
             returnedAttack = returnedEffect(DoesNDmg(basicDmgToDo, basicEnemyToAtk), effectParams)
@@ -129,19 +134,11 @@ object EffectManager {
     item
   }
 
-   def getCoinFlipValue: String = {
-    Random.nextInt(99) + 1 match {
-      case n if n <= 50 => {
-        GameManager.notifyObservers(Event.flipCoinEvent(true));
-        "head"
-      }
-      case _ => {
-        GameManager.notifyObservers(Event.flipCoinEvent(false));
-        "tail"
-      }
-    }
-
+   def getCoinFlipValue: CoinValue = CoinUtil.flipACoin() match {
+    case CoinValue.Head => _gameManager.notifyObservers(Event.flipCoinEvent(true)); CoinValue.Head
+    case CoinValue.Tail => _gameManager.notifyObservers(Event.flipCoinEvent(false)); CoinValue.Tail
   }
+
 
 }
 

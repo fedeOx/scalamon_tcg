@@ -10,6 +10,7 @@ import org.scalatest.{GivenWhenThen, OneInstancePerTest}
 import org.scalatest.flatspec.AnyFlatSpec
 
 class CardTest extends AnyFlatSpec with GivenWhenThen {
+  /*
   val pokemonCardList: Seq[PokemonCard] = DataLoader.loadSet(SetType.Base)
     .filter(c => c.isInstanceOf[PokemonCard])
     .map(c => c.asInstanceOf[PokemonCard])
@@ -141,5 +142,7 @@ class CardTest extends AnyFlatSpec with GivenWhenThen {
     assert(anotherPokemonCard.hasEnergies(Seq(specialEnergyCard.energyType, specialEnergyCard.energyType)))
     assert(!anotherPokemonCard.hasEnergies(Seq(differentEnergyCard.energyType)))
   }
+
+   */
 
 }

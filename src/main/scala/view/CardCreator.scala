@@ -2,7 +2,6 @@ package view
 
 import common.TurnOwner
 import controller.Controller
-import javafx.animation.Animation.Status
 import model.game.{Board, StatusType}
 import scalafx.scene.Node
 import scalafx.scene.image.Image
@@ -37,6 +36,7 @@ object CardCreator {
     case CardType.Bench => {
       card.onMouseClicked = _ => {
         if (gameWindow.get.asInstanceOf[GameBoardView].turnOwner.equals(TurnOwner.Player)) {
+          zone.get.asInstanceOf[BenchZone].cardClicked = true
           try {
             controller.selectBenchLocation(cardIndex)
           } catch {
@@ -106,16 +106,10 @@ object CardCreator {
             case cardType if cardType.equals(CardType.Active) => zoomZone.get.showContent(board.get.activePokemon.get)
           }
         }
-        if (cardType.equals(CardType.Bench)) {
-          zone.get.asInstanceOf[BenchZone].isOverChildren = true
-        }
       }
       onMouseExited = _ => {
         if (zoomZone.isDefined)
           zoomZone.get.children.remove(0,zoomZone.get.children.size())
-        if (cardType.equals(CardType.Bench)) {
-          zone.get.asInstanceOf[BenchZone].isOverChildren = false
-        }
       }
       if (isHumans.isDefined && isHumans.get)
         addAction(this, cardType, cardIndex, zone, board, gameWindow)

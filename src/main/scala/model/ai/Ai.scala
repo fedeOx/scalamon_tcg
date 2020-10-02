@@ -6,50 +6,53 @@ import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import model.core.{GameManager, TurnManager}
 import model.event.Events.Event
-import model.event.Events.Event.BuildGameField
+import model.event.Events.Event.{BuildGameField, EndGame}
 import model.exception.InvalidOperationException
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
 
 
-object Ai extends Thread with Observer {
+case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread with Observer {
+
+
   private val eventQueue: BlockingQueue[Event] = new ArrayBlockingQueue[Event](20)
-  TurnManager.addObserver(this)
-  GameManager.addObserver(this)
+  turnManager.addObserver(this)
+  gameManager.addObserver(this)
   private var opponentBoard: Board = _
   private var playerBoard: Board = _
   private var turn: TurnOwner = _
+  private var isCancelled: Boolean = false
 
 
   private def placeCards(hand: Seq[Card]): Unit = {
     val basePokemons: Seq[PokemonCard] = hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
     val pokemonWithMaxWeight = basePokemons.flatMap(pkm => createWeightedCard(pkm, calculateweightForPlaceCard)).reduceLeft(getMax)
     //drop active pokemon from hand
-    GameManager.setActivePokemon(Some(pokemonWithMaxWeight.pokemonCard), opponentBoard)
+    gameManager.setActivePokemon(Some(pokemonWithMaxWeight.pokemonCard), opponentBoard)
     //populate bench with basePokemon
     populateBench()
     Thread.sleep(1000)
-    TurnManager.playerReady()
+    turnManager.playerReady()
   }
 
   private def doTurn(): Unit = {
-    GameManager.activePokemonStartTurnChecks(opponentBoard, playerBoard)
-    GameManager.drawCard(opponentBoard)
+    gameManager.activePokemonStartTurnChecks(opponentBoard, playerBoard)
+    gameManager.drawCard(opponentBoard)
     populateBench()
-    GameManager.notifyObservers(Event.updateBoardsEvent())
+    gameManager.notifyObservers(Event.updateBoardsEvent())
     Thread.sleep(1500)
 
     //evolve all pkm
     evolveAll()
-    GameManager.notifyObservers(Event.updateBoardsEvent())
+    gameManager.notifyObservers(Event.updateBoardsEvent())
     Thread.sleep(1500)
 
     //calculate if the retreat of the active pokemon is convenient and Do it
-    if (!GameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
+    if (!gameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
       try {
         calculateIfWithdrawAndDo()
       } catch {
-        case exception : InvalidOperationException => println("can't retreat")
+        case _: InvalidOperationException => println("can't retreat")
         case _ =>
       }
     }
@@ -58,41 +61,48 @@ object Ai extends Thread with Observer {
     val getEnergy = opponentBoard.hand.filter(energy => energy.isInstanceOf[EnergyCard])
     if (getEnergy.nonEmpty)
       calculateAssignEnergy()
-    GameManager.notifyObservers(Event.updateBoardsEvent())
+    gameManager.notifyObservers(Event.updateBoardsEvent())
     Thread.sleep(1000)
 
     try {
       if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
-        GameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.last)
+        gameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.last)
       } else if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.head.cost)) {
-        GameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.head)
+        gameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.head)
       }
     }
     catch {
       case ex: Exception => println("Exception caught : " + ex)
     }
 
-    GameManager.activePokemonEndTurnChecks(opponentBoard.activePokemon.get)
-    TurnManager.switchTurn()
+    gameManager.activePokemonEndTurnChecks(opponentBoard.activePokemon.get)
+    turnManager.switchTurn()
   }
 
   override def run() {
     try {
-      while (true) {
-        val event: Event = Ai.waitForNextEvent()
+      while (!isCancelled) {
+        val event: Event = waitForNextEvent()
         event match {
           case event: Event.BuildGameField => {
             opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
             playerBoard = event.asInstanceOf[BuildGameField].playerBoard
             placeCards(opponentBoard.hand)
           }
-          case event: Event.FlipCoin => turn = if(event.isHead) TurnOwner.Player else TurnOwner.Opponent
+          case event: Event.FlipCoin => turn = if (event.isHead) TurnOwner.Player else TurnOwner.Opponent
           case event: Event.NextTurn if event.turnOwner == TurnOwner.Opponent => doTurn()
-          case _: Event.PokemonKO => checkForKo()
+          case event: Event.PokemonKO => checkForKo()
+          case _: EndGame => isCancelled = true
           case _ =>
         }
       }
+    } catch {
+      case _: Exception =>
     }
+  }
+
+  def cancel(): Unit = {
+    isCancelled = true
   }
 
   private def checkForKo(): Unit = {
@@ -100,8 +110,6 @@ object Ai extends Thread with Observer {
       if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
         calculateIfWithdrawAndDo()
       }
-      else
-        println("PERSO IA")
     }
   }
 
@@ -110,7 +118,7 @@ object Ai extends Thread with Observer {
     val basePokemons: Seq[PokemonCard] = opponentBoard.hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
     basePokemons.zipWithIndex.foreach {
       case (pkm, i) => if (opponentBoard.pokemonBench.count(card => card.nonEmpty) < 5) {
-        GameManager.putPokemonToBench(Some(pkm), opponentBoard.pokemonBench.count(card => card.nonEmpty), opponentBoard)
+        gameManager.putPokemonToBench(Some(pkm), opponentBoard.pokemonBench.count(card => card.nonEmpty), opponentBoard)
       }
     }
   }
@@ -162,10 +170,10 @@ object Ai extends Thread with Observer {
     @scala.annotation.tailrec
     def evolve(pokemons: Seq[PokemonCard]): Unit = pokemons match {
       case evolution :: t if opponentBoard.activePokemon.get.name == evolution.evolutionName => {
-        opponentBoard.activePokemon = GameManager.evolvePokemon(opponentBoard.activePokemon.get, evolution, opponentBoard)
+        opponentBoard.activePokemon = gameManager.evolvePokemon(opponentBoard.activePokemon.get, evolution, opponentBoard)
         evolve(t)
       }
-      case evolution :: t if !GameManager.isBenchLocationEmpty(0, opponentBoard) => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
+      case evolution :: t if !gameManager.isBenchLocationEmpty(0, opponentBoard) => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
       case List() =>
       case _ =>
     }
@@ -176,7 +184,7 @@ object Ai extends Thread with Observer {
         case List() =>
         case benchPkm :: _ if benchPkm.get.name == evolution.evolutionName => {
           val getbenchedIndex: Int = opponentBoard.pokemonBench.filter(card => card.isDefined).indexWhere(pkm => pkm.get.name == benchPkm.get.name)
-          GameManager.putPokemonToBench(GameManager.evolvePokemon(benchPkm.get, evolution, opponentBoard), getbenchedIndex, opponentBoard)
+          gameManager.putPokemonToBench(gameManager.evolvePokemon(benchPkm.get, evolution, opponentBoard), getbenchedIndex, opponentBoard)
         } //pokemon found in bench
         case _ :: t => evolveBench(t, evolution)
       }
@@ -190,9 +198,9 @@ object Ai extends Thread with Observer {
 
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
       if (!opponentBoard.activePokemon.get.isKO) {
-        GameManager.retreatActivePokemon(benchIndex, opponentBoard)
+        gameManager.retreatActivePokemon(benchIndex, opponentBoard)
       } else {
-        GameManager.destroyActivePokemon(benchIndex, opponentBoard)
+        gameManager.destroyActivePokemon(benchIndex, opponentBoard)
       }
     }
   }
@@ -232,7 +240,8 @@ object Ai extends Thread with Observer {
       }
 
       if (energyIndex >= 0)
-        GameManager.addEnergyToPokemon(pokemon, opponentBoard.hand(energyIndex).asInstanceOf[EnergyCard], opponentBoard)
+        gameManager.addEnergyToPokemon(pokemon, opponentBoard.hand(energyIndex).asInstanceOf[EnergyCard], opponentBoard)
+
     }
     energyIndex
   }

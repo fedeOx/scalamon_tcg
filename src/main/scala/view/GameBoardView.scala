@@ -1,17 +1,15 @@
 package view
 
-import java.time.Duration
-
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import controller.Controller
 import javafx.scene.paint.ImagePattern
 import model.core.{GameManager, TurnManager}
 import model.event.Events
+import model.event.Events.Event
 import model.event.Events.Event._
 import model.ai.Ai
 import scalafx.Includes._
-import scalafx.animation.{KeyFrame, Timeline}
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
 import scalafx.scene.image.Image
@@ -19,30 +17,28 @@ import scalafx.scene.paint.PhongMaterial
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing}
-import scalafx.stage.{Modality, Stage, Window}
+import scalafx.stage.Stage
 
 
 /** *
  * Stage that contains the game scene
  */
-class GameBoardView extends JFXApp.PrimaryStage with Observer {
+class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with Observer {
   //private val parentWindow : Window = this
   val zoomZone = new ZoomZone
-  val controller: Controller = Controller()
-  var turnOwner : TurnOwner = TurnOwner.Player
+  var turnOwner: TurnOwner = TurnOwner.Player
   private val WIDTH = 1600
   private val HEIGHT = 1000
   private val TITLE = "Scalamon"
   //private val guiEl: GuiElements = GuiElements(this, new ZoomZone)
-  private val iABoard = new PlayerBoard(false,this)
-  private val humanBoard = new PlayerBoard(true,this)
-  private var loadingMessage : Stage = _
+  private val iABoard = new PlayerBoardImpl(false, this)
+  private val humanBoard = new PlayerBoardImpl(true, this)
+  private var loadingMessage: Stage = _
 
   title = TITLE
   icons += new Image("/assets/icon.png")
-  Ai.start()
-  GameManager.addObserver(this)
-  TurnManager.addObserver(this)
+  controller.gameManager.addObserver(this)
+  controller.turnManager.addObserver(this)
   CardCreator.setController(controller)
   PopupBuilder.setController(controller)
   x = 0
@@ -78,85 +74,108 @@ class GameBoardView extends JFXApp.PrimaryStage with Observer {
   resizable = true
   sizeToScene()
   show()
-
-  onCloseRequest = _ => Ai.interrupt()
+  onCloseRequest = _ => controller.interruptAi()
 
   override def update(event: Events.Event): Unit = event match {
-    case event if  event.isInstanceOf[BuildGameField] => {
-      humanBoard.myBoard = event.asInstanceOf[BuildGameField].playerBoard
-      humanBoard.opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
-      iABoard.myBoard = event.asInstanceOf[BuildGameField].opponentBoard
-      iABoard.opponentBoard = event.asInstanceOf[BuildGameField].playerBoard
-      Platform.runLater(humanBoard.updateHand())
-      Platform.runLater(humanBoard.updateActive())
-      Platform.runLater({
-        humanBoard.updatePrizes()
-        iABoard.updatePrizes()
-      })
-      Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
-    }
-    case event : FlipCoin =>{
-      println("lancio animazione moneta: " + event.isHead)
-      var w = this
-      Platform.runLater({
-        println("Moneta: "+Thread.currentThread().getId)
-        PopupBuilder.openCoinFlipScreen(this, event.isHead)
-      })
-    }
-    case event : UpdateBoards => {
-      Platform.runLater({
-        humanBoard.updateActive()
-        humanBoard.updateHand()
-        humanBoard.updateBench()
-        humanBoard.updateDiscardStack()
-        if (!humanBoard.isFirstTurn) {
+    case event: BuildGameField => initializeBoards(event)
+    case event: FlipCoin => flipCoin(event)
+    case _: UpdateBoards => updateBoards()
+    case event: NextTurn => handleTurnStart(event)
+    case event: PokemonKO => handleKO(event)
+    case _: AttackEnded => handleAttackEnd()
+    case _: EndGame => endGame()
+    case _ =>
+  }
+
+  private def initializeBoards(event: BuildGameField): Unit = {
+    humanBoard.myBoard = event.playerBoard
+    humanBoard.opponentBoard = event.opponentBoard
+    iABoard.myBoard = event.opponentBoard
+    iABoard.opponentBoard = event.playerBoard
+    Platform.runLater({
+      humanBoard.updateHand()
+      humanBoard.updatePrizes()
+      humanBoard.updateActive()
+      iABoard.updatePrizes()
+    })
+    Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
+  }
+
+  private def flipCoin(event: FlipCoin): Unit = {
+    Platform.runLater(PopupBuilder.openCoinFlipScreen(this, event.isHead))
+  }
+
+  private def updateBoards(): Unit = {
+    Platform.runLater({
+      humanBoard.updateActive()
+      humanBoard.updateHand()
+      humanBoard.updateBench()
+      humanBoard.updateDiscardStack()
+      if (!humanBoard.isFirstTurn) {
+        Platform.runLater({
           iABoard.updateBench()
           iABoard.updateActive()
           iABoard.updateDiscardStack()
-        }
-      })
-    }
-    case event : NextTurn => {
-      turnOwner = event.turnOwner
-      if(event.turnOwner == TurnOwner.Player) {
-        controller.activePokemonStatusCheck()
-        Platform.runLater({
-            PopupBuilder.openTurnScreen(this)
-            controller.drawCard()
-            humanBoard.updateHand()
-          })
-      }
-      Platform.runLater({
-        iABoard.updateBench()
-        iABoard.updateActive()
-        iABoard.updateDiscardStack()
-      })
-    }
-    case event : PokemonKO => {
-      println("pokemonKO event")
-
-      if (humanBoard.myBoard.activePokemon.get.isKO)
-        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
-      Platform.runLater({
-        humanBoard.updateActive()
-        humanBoard.updatePrizes()
-        iABoard.updatePrizes()
-        iABoard.updateActive()
-      })
-    }
-    case event : AttackEnded => {
-      println("attack ended")
-      if(turnOwner.equals(TurnOwner.Player) && !humanBoard.myBoard.activePokemon.get.isKO) {
-        Platform.runLater({
-          //Thread.sleep(5000)
-          println("Fine turno: "+Thread.currentThread().getId)
-          println("fine turno")
-          //PopupBuilder.openInvalidOperationMessage(this, "aaa")
-          controller.endTurn()
         })
       }
+    })
+  }
+
+  private def handleTurnStart(event: NextTurn): Unit = {
+    turnOwner = event.turnOwner
+    if (event.turnOwner == TurnOwner.Player) {
+      humanBoard.alterButton(false)
+      controller.activePokemonStatusCheck()
+      Platform.runLater({
+        PopupBuilder.openTurnScreen(this)
+        controller.drawCard()
+        humanBoard.updateHand()
+      })
+    } else
+      humanBoard.alterButton(true)
+    Platform.runLater({
+      iABoard.updateBench()
+      iABoard.updateActive()
+      iABoard.updateDiscardStack()
+    })
+  }
+
+  private def handleKO(event: PokemonKO): Unit = {
+    //TODO: controllo sulla board
+    if (event.board.eq(humanBoard.myBoard)) {
+      if (humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined)
+        && iABoard.myBoard.prizeCards.size > 1)
+        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
+          humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
     }
-    case _ =>
+    Platform.runLater({
+      humanBoard.updateActive()
+      humanBoard.updatePrizes()
+      iABoard.updatePrizes()
+      iABoard.updateActive()
+    })
+  }
+
+  private def handleAttackEnd(): Unit = {
+    if (turnOwner.equals(TurnOwner.Player) && !humanBoard.myBoard.activePokemon.get.isKO) {
+      Platform.runLater(controller.endTurn())
+    }
+  }
+
+  private def endGame(): Unit = {
+    println("fermo il gioco")
+    val playerBoard = humanBoard.myBoard
+    val opponentBoard = humanBoard.opponentBoard
+    var playerWon: Boolean = false
+    if (playerBoard.prizeCards.isEmpty ||
+      (opponentBoard.activePokemon.get.isKO && !opponentBoard.pokemonBench.exists(card => card.isDefined)))
+      playerWon = true
+    else if (opponentBoard.prizeCards.isEmpty)
+      playerWon = false
+    else
+      playerWon = false
+    Platform.runLater(PopupBuilder.openEndGameScreen(this, playerWon))
+    controller.interruptAi()
   }
 }
 

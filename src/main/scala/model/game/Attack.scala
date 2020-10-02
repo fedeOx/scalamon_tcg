@@ -1,7 +1,6 @@
 package model.game
 
 import io.circe.Decoder.Result
-
 import model.effect.{AttackEffect, DoesNDmg, Effect, EffectManager}
 import io.circe.{Decoder, HCursor}
 import model.game.EnergyType.EnergyType
