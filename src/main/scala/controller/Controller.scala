@@ -1,6 +1,9 @@
 package controller
 
+import common.Observable
+import model.ai.Ai
 import model.core.{DataLoader, GameManager, TurnManager}
+import model.effect.EffectManager
 import model.event.Events.Event
 import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
@@ -10,6 +13,11 @@ import model.game.SetType.SetType
 import scala.util.Random
 
 trait Controller {
+
+  def dataLoader: Observable
+  def gameManager: Observable
+  def turnManager: Observable
+
   /**
    * It makes [[model.core.DataLoader]] loads all the available decks and notify them to all observers.
    * @param set the card set chosen by the user
@@ -39,11 +47,6 @@ trait Controller {
   def initGame(cardList: Seq[DeckCard], set: SetType): Unit
 
   /**
-   * It makes [[model.core.TurnManager]] propagate event for players cards placing.
-   */
-  def startGame(): Unit
-
-  /**
    * It inform [[model.core.TurnManager]] when the user has finished his placement turn.
    * @throws model.exception.CoinNotLaunchedException if [[model.core.TurnManager]] has not launched the initial coin yet
    */
@@ -67,7 +70,7 @@ trait Controller {
   /**
    * Makes the player draw a card from his deck
    */
-  def drawACard(): Unit
+  def drawCard(): Unit
 
   /**
    * Swap the active pokemon with the benched pokemon in the specified position. If the active pokemon is KO, the benched
@@ -112,13 +115,25 @@ trait Controller {
   /**
    * It resets the current game in order to start a new one.
    */
-  def resetGame(): Unit
+  def interruptAi(): Unit
 }
 
 object Controller {
-  def apply(): Controller = ControllerImpl()
+  def apply(): Controller = {
+    val dataLoader = DataLoader()
+    val gameManager = GameManager()
+    val turnManager = TurnManager()
+    val ai = Ai(gameManager, turnManager)
+    ai.start()
+    EffectManager.setGameManager(gameManager)
+    ControllerImpl(dataLoader, gameManager, turnManager, ai)
+  }
 
-  private case class ControllerImpl(override var handCardSelected: Option[Card] = None) extends Controller {
+  private case class ControllerImpl(override val dataLoader: DataLoader,
+                                    override val gameManager: GameManager,
+                                    override val turnManager: TurnManager,
+                                    private val ai: Ai,
+                                    override var handCardSelected: Option[Card] = None) extends Controller {
 
     private var isPlayerReady = false
     private var energyCardAlreadyAssigned = false
@@ -126,91 +141,86 @@ object Controller {
 
     override def loadDecks(set: SetType): Unit = new Thread {
       override def run(): Unit = {
-        val deckCards: Map[String, Seq[DeckCard]] = DataLoader.loadDecks(set)
-        DataLoader.notifyObservers(Event.showDeckCardsEvent(deckCards))
+        val deckCards: Map[String, Seq[DeckCard]] = dataLoader.loadDecks(set)
+        dataLoader.notifyObservers(Event.showDeckCardsEvent(deckCards))
       }
     }.start()
 
     override def loadSet(set: SetType): Unit = new Thread {
       override def run(): Unit = {
-        val setCards: Seq[Card] = DataLoader.loadSet(set)
-        DataLoader.notifyObservers(Event.showSetCardsEvent(setCards))
+        val setCards: Seq[Card] = dataLoader.loadSet(set)
+        dataLoader.notifyObservers(Event.showSetCardsEvent(setCards))
       }
     }.start()
 
     override def createCustomDeck(customDeck: CustomDeck): Unit = new Thread {
       override def run(): Unit = {
-        DataLoader.saveCustomDeck(customDeck)
-        DataLoader.notifyObservers(Event.customDeckSavedEvent())
+        dataLoader.saveCustomDeck(customDeck)
+        dataLoader.notifyObservers(Event.customDeckSavedEvent())
       }
     }.start()
 
     override def initGame(playerDeckCards: Seq[DeckCard], set: SetType): Unit = new Thread {
       override def run(): Unit = {
-        val setCards: Seq[Card] = DataLoader.loadSet(set)
-        // TODO start - make AI choose its deck
-        val random = new Random()
+        val setCards: Seq[Card] = dataLoader.loadSet(set)
         val opponentChosenDeckType = DeckType.values.filter(d => d.setType == set)
-          .toVector(random.nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
-        val opponentDeckCards: Seq[DeckCard] = DataLoader.loadSingleDeck(set, opponentChosenDeckType)
-        // TODO end
-        GameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
-        TurnManager.flipACoin()
+          .toVector(new Random().nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
+        val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(set, opponentChosenDeckType)
+        gameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
+        turnManager.flipACoin()
       }
     }.start()
 
-    override def startGame(): Unit = TurnManager.notifyObservers(Event.placeCardsEvent())
-
     override def playerReady(): Unit = {
       isPlayerReady = true
-      TurnManager.playerReady()
+      turnManager.playerReady()
     }
 
     override def endTurn(): Unit = {
       energyCardAlreadyAssigned = false
       pokemonAlreadyRetreated = false
-      if (!GameManager.isActivePokemonEmpty(GameManager.playerBoard)) {
-        GameManager.activePokemonEndTurnChecks(GameManager.activePokemon().get)
+      if (!gameManager.isActivePokemonEmpty(gameManager.playerBoard)) {
+        gameManager.activePokemonEndTurnChecks(gameManager.activePokemon().get)
       }
-      TurnManager.switchTurn()
+      turnManager.switchTurn()
     }
 
     override def activePokemonStatusCheck(): Unit = {
-      if (!GameManager.isActivePokemonEmpty()) {
-        GameManager.activePokemonStartTurnChecks(GameManager.playerBoard, GameManager.opponentBoard)
+      if (!gameManager.isActivePokemonEmpty()) {
+        gameManager.activePokemonStartTurnChecks(gameManager.playerBoard, gameManager.opponentBoard)
       }
     }
 
     def swap(position: Int): Unit = {
-      if (!GameManager.isActivePokemonEmpty() && !GameManager.isBenchLocationEmpty(position)) {
-        if (GameManager.activePokemon().get.isKO) {
-          GameManager.destroyActivePokemon(position)
+      if (!gameManager.isActivePokemonEmpty() && !gameManager.isBenchLocationEmpty(position)) {
+        if (gameManager.activePokemon().get.isKO) {
+          gameManager.destroyActivePokemon(position)
         } else if (!pokemonAlreadyRetreated) {
-          val oldActivePokemon: PokemonCard = GameManager.activePokemon().get
-          GameManager.retreatActivePokemon(position)
-          pokemonAlreadyRetreated = oldActivePokemon ne GameManager.activePokemon().get
+          val oldActivePokemon: PokemonCard = gameManager.activePokemon().get
+          gameManager.retreatActivePokemon(position)
+          pokemonAlreadyRetreated = oldActivePokemon ne gameManager.activePokemon().get
         } else {
           throw new InvalidOperationException("You have already retreat a pokemon in this turn")
         }
       }
     }
 
-    override def drawACard(): Unit = GameManager.drawCard()
+    override def drawCard(): Unit = gameManager.drawCard()
 
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
 
-      case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !GameManager.isActivePokemonEmpty() && !energyCardAlreadyAssigned =>
-        GameManager.addEnergyToPokemon(GameManager.activePokemon().get, c.asInstanceOf[EnergyCard])
+      case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !gameManager.isActivePokemonEmpty() && !energyCardAlreadyAssigned =>
+        gameManager.addEnergyToPokemon(gameManager.activePokemon().get, c.asInstanceOf[EnergyCard])
         energyCardAlreadyAssigned = true
         handCardSelected = None
 
-      case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isActivePokemonEmpty() =>
-        GameManager.setActivePokemon(Some(c.asInstanceOf[PokemonCard])); handCardSelected = None
+      case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && gameManager.isActivePokemonEmpty() =>
+        gameManager.setActivePokemon(Some(c.asInstanceOf[PokemonCard])); handCardSelected = None
 
-      case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isActivePokemonEmpty() && isPlayerReady
-        && c.asInstanceOf[PokemonCard].evolutionName == GameManager.activePokemon().get.name =>
-        val evolvedPokemon = GameManager.evolvePokemon(GameManager.activePokemon().get, c.asInstanceOf[PokemonCard])
-        GameManager.setActivePokemon(evolvedPokemon)
+      case Some(c) if c.isInstanceOf[PokemonCard] && !gameManager.isActivePokemonEmpty() && isPlayerReady
+        && c.asInstanceOf[PokemonCard].evolutionName == gameManager.activePokemon().get.name =>
+        val evolvedPokemon = gameManager.evolvePokemon(gameManager.activePokemon().get, c.asInstanceOf[PokemonCard])
+        gameManager.setActivePokemon(evolvedPokemon)
         handCardSelected = None
 
       case _ => throw new InvalidOperationException("Operation not allowed on active pokemon location")
@@ -218,18 +228,18 @@ object Controller {
 
     override def selectBenchLocation(position: Int): Unit = handCardSelected match {
 
-      case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !GameManager.isBenchLocationEmpty(position) && !energyCardAlreadyAssigned =>
-        GameManager.addEnergyToPokemon(GameManager.pokemonBench()(position).get, c.asInstanceOf[EnergyCard])
+      case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !gameManager.isBenchLocationEmpty(position) && !energyCardAlreadyAssigned =>
+        gameManager.addEnergyToPokemon(gameManager.pokemonBench()(position).get, c.asInstanceOf[EnergyCard])
         energyCardAlreadyAssigned = true
         handCardSelected = None
 
-      case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && GameManager.isBenchLocationEmpty(position) =>
-        GameManager.putPokemonToBench(Some(c.asInstanceOf[PokemonCard]), position); handCardSelected = None
+      case Some(c) if c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase && gameManager.isBenchLocationEmpty(position) =>
+        gameManager.putPokemonToBench(Some(c.asInstanceOf[PokemonCard]), position); handCardSelected = None
 
-      case Some(c) if c.isInstanceOf[PokemonCard] && !GameManager.isBenchLocationEmpty(position) && isPlayerReady
-        && c.asInstanceOf[PokemonCard].evolutionName == GameManager.playerBoard.pokemonBench(position).get.name =>
-        val evolvedPokemon = GameManager.evolvePokemon(GameManager.pokemonBench()(position).get, c.asInstanceOf[PokemonCard])
-        GameManager.putPokemonToBench(evolvedPokemon, position)
+      case Some(c) if c.isInstanceOf[PokemonCard] && !gameManager.isBenchLocationEmpty(position) && isPlayerReady
+        && c.asInstanceOf[PokemonCard].evolutionName == gameManager.playerBoard.pokemonBench(position).get.name =>
+        val evolvedPokemon = gameManager.evolvePokemon(gameManager.pokemonBench()(position).get, c.asInstanceOf[PokemonCard])
+        gameManager.putPokemonToBench(evolvedPokemon, position)
         handCardSelected = None
 
       case _ => throw new InvalidOperationException("Operation not allowed on pokemon bench location")
@@ -237,14 +247,10 @@ object Controller {
 
     override def declareAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Unit = new Thread {
       override def run() : Unit = {
-        GameManager.confirmAttack(attackingBoard, defendingBoard, attack)
+        gameManager.confirmAttack(attackingBoard, defendingBoard, attack)
       }
     }.start()
 
-    override def resetGame(): Unit = {
-      GameManager.reset()
-      TurnManager.reset()
-      DataLoader.reset()
-    }
+    override def interruptAi(): Unit = ai.interrupt()
   }
 }

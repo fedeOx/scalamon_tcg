@@ -14,13 +14,13 @@ import scala.collection.mutable
  * The field zone that contains the benched pokemon
  * @param isHumans: true if it's the human's board
  */
-case class BenchZone(isHumans: Boolean, board: PlayerBoard) extends HBox {
+case class BenchZone(isHumans: Boolean, board: PlayerBoardImpl) extends HBox {
   private val WIDTH = 35
   private val HEIGHT = 10
   private var bench : Seq[Box] = Seq()
   private var isEmpty : Boolean = _
   private val parentBoard = board
-  var isOverChildren = false
+  var cardClicked = false
 
   updateView()
   def updateView(cards: Seq[Option[PokemonCard]] = Seq()): Unit = {
@@ -53,23 +53,28 @@ case class BenchZone(isHumans: Boolean, board: PlayerBoard) extends HBox {
   translateX = 10
   translateY = 15
   onMouseClicked = _ => {
-    if (isHumans && !isOverChildren && !bench.size.equals(5)) {
-      if (isEmpty) {
-        try {
-          board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(0)
-        } catch {
-          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
-        }
-        println("panchina vuota")
-      }
+    if (isHumans && !bench.size.equals(5)) {
+      if (cardClicked)
+        cardClicked = false
       else {
-        try {
-          board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(bench.size)
-        } catch {
-          case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
+        if (isEmpty) {
+          try {
+            board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(0)
+          } catch {
+            case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
+          }
+          println("panchina vuota")
         }
+        else {
+          try {
+            board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(bench.size)
+          } catch {
+            case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
+          }
 
+        }
       }
+
     }
   }
 }
