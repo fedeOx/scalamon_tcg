@@ -4,11 +4,8 @@ import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import controller.Controller
 import javafx.scene.paint.ImagePattern
-import model.core.{GameManager, TurnManager}
 import model.event.Events
-import model.event.Events.Event
 import model.event.Events.Event._
-import model.ia.Ia
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
@@ -24,15 +21,13 @@ import scalafx.stage.Stage
  * Stage that contains the game scene
  */
 class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with Observer {
-  //private val parentWindow : Window = this
-  val zoomZone = new ZoomZone
+  val zoomZone: ZoomZone = ZoomZone()
   var turnOwner : TurnOwner = TurnOwner.Player
   private val WIDTH = 1600
   private val HEIGHT = 1000
   private val TITLE = "Scalamon"
-  //private val guiEl: GuiElements = GuiElements(this, new ZoomZone)
-  private val iABoard = new PlayerBoardImpl(false,this)
-  private val humanBoard = new PlayerBoardImpl(true,this)
+  private val iABoard = PlayerBoard(isHumans = false,this)
+  private val humanBoard = PlayerBoard(isHumans = true,this)
   private var loadingMessage : Stage = _
 
   title = TITLE
@@ -72,7 +67,8 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   }
 
   resizable = true
-  sizeToScene()
+  maximized = true
+  //fullScreen = true
   show()
 
   onCloseRequest = _ => controller.interruptAi()
@@ -142,13 +138,10 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   }
 
   private def handleKO(event: PokemonKO): Unit = {
-    //TODO: controllo sulla board
-    if(event.board.eq(humanBoard.myBoard)){
-      if (humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined)
-        && iABoard.myBoard.prizeCards.size > 1)
-        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
-          humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
-    }
+    if (event.board.eq(humanBoard.myBoard) && humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined)
+      && iABoard.myBoard.prizeCards.size > 1)
+      Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
+        humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
     Platform.runLater({
       humanBoard.updateActive()
       humanBoard.updatePrizes()

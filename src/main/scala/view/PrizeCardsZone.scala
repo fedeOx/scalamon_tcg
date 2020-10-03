@@ -12,7 +12,7 @@ import view.CardCreator.createCard
 /***
  * The Zone for the prize cards
  */
-case class PrizeCardsZone(isHumans: Boolean, board: PlayerBoardImpl) extends VBox {
+case class PrizeCardsZone(isHumans: Boolean, board: PlayerBoard) extends VBox {
   private val WIDTH = 10
   private val HEIGHT = 25
 

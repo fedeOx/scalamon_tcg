@@ -24,6 +24,7 @@ case class DeckDiscardZone() extends VBox {
   styleClass += "deckDiscard"
   translateX = 45
 
+  //TODO: pattern strategy
   def updateView(card: Card) : Unit = {
     discardStack = createCard("/assets/"+card.belongingSetCode+"/"+card.imageId+".jpg", cardType = CardType.DiscardStack)
     children = List(deck, discardStack)

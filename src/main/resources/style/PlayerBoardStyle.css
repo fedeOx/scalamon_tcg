@@ -5,10 +5,6 @@
     -fx-background-position: center center;
 }
 
-.zz {
-    -fx-background-color: gold;
-}
-
 .activeMenu {
     -fx-fill: grey;
 }

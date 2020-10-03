@@ -3,21 +3,19 @@ package view
 import controller.Controller
 import model.game.Cards.PokemonCard
 import scalafx.animation.{Interpolator, RotateTransition}
-import scalafx.application.JFXApp.PrimaryStage
 import scalafx.geometry.Pos
-import scalafx.scene.{Node, Scene}
 import scalafx.scene.control.{Button, Label}
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.layout.{HBox, VBox}
+import scalafx.scene.layout.{BorderPane, HBox, VBox}
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.{MeshView, TriangleMesh}
-import scalafx.scene.text.{Text, TextAlignment}
+import scalafx.scene.text.TextAlignment
 import scalafx.scene.transform.Rotate
-import scalafx.stage
+import scalafx.scene.{Node, Scene}
 import scalafx.stage.{Modality, Stage, StageStyle, Window}
 import scalafx.util.Duration
 
-/***
+/** *
  * Object that creates popup messages for the game
  */
 object PopupBuilder {
@@ -28,19 +26,19 @@ object PopupBuilder {
     controller = c
   }
 
-  def openLoadingScreen(parent: Window) : Stage = {
+  def openLoadingScreen(parent: Window): Stage = {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
       initStyle(StageStyle.Undecorated)
       scene = new Scene(300, 200) {
-        stylesheets = List("/style/loadingScreen.css")
+        stylesheets = List("/style/popup.css")
         content = new VBox {
           styleClass += "message"
           children = List(new ImageView(new Image("/assets/loading.gif")) {
             fitWidth = 60
             fitHeight = 60
-          },new Label("Caricamento..."))
+          }, new Label("Caricamento..."))
         }
       }
       sizeToScene()
@@ -50,20 +48,19 @@ object PopupBuilder {
     dialog
   }
 
-  def closeLoadingScreen(loadingMessage: Stage) : Unit = {
+  def closeLoadingScreen(loadingMessage: Stage): Unit = {
     loadingMessage.close()
   }
 
-  def openTurnScreen(parent: Window) : Unit = {
+  def openTurnScreen(parent: Window): Unit = {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
-      //initStyle(StageStyle.Undecorated)
       scene = new Scene(300, 200) {
-        stylesheets = List("/style/loadingScreen.css")
-        content = new VBox{
+        stylesheets = List("/style/popup.css")
+        content = new VBox {
           styleClass += "message"
-          children = Label("È il tuo turno")
+          children = Label("Your turn")
         }
       }
       sizeToScene()
@@ -75,12 +72,12 @@ object PopupBuilder {
     dialog.close()
   }
 
-  def openInvalidOperationMessage(parent: Window, message: String) : Unit = {
+  def openInvalidOperationMessage(parent: Window, message: String): Unit = {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
       scene = new Scene(300, 200) {
-        stylesheets = List("/style/loadingScreen.css")
+        stylesheets = List("/style/popup.css")
         content = new VBox() {
           styleClass += "message"
           children = List(new Label(message) {
@@ -102,23 +99,38 @@ object PopupBuilder {
   }
 
   def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]], isAttackingPokemonKO: Boolean): Unit = {
+    val windowHeight = 600
+    val windowWidth = 1300
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
       initStyle(StageStyle.Undecorated)
-      scene = new Scene(1000, 400) {
-        private val cardContainer: HBox = new HBox{
-          prefWidth = 1000
-          prefHeight = 350
-          spacing = 10
+      initStyle(StageStyle.Transparent)
+      scene = new Scene(windowWidth, windowHeight) {
+        fill = Color.Transparent
+        stylesheets = List("/style/popup.css")
+        private val cardContainer: HBox = new HBox {
+
+          prefWidth = windowWidth
+          prefHeight = windowHeight - 100
+          spacing = 20
           alignment = Pos.Center
         }
-        var cardList : Seq[ImageView] = Seq()
-        bench.filter(c => c.isDefined).zipWithIndex.foreach{case (card,cardIndex) => {
-          cardList = cardList :+ new ImageView(new Image("/assets/"+card.get.belongingSetCode+"/"+card.get.imageId+".jpg")) {
-            fitWidth = 180
-            fitHeight = 280
-            onMouseClicked = event => {
+        var cardList: Seq[BorderPane] = Seq()
+        bench.filter(c => c.isDefined).zipWithIndex.foreach { case (card, cardIndex) => {
+          cardList = cardList :+ new BorderPane {
+            center = new ImageView(new Image("/assets/" + card.get.belongingSetCode + "/" + card.get.imageId + ".jpg")) {
+              fitWidth = 230
+              fitHeight = 322
+            }
+            prefWidth = 230
+            maxHeight = 322
+
+            onMouseEntered = _ => {
+              style = "-fx-border-color: red; -fx-border-style: solid; -fx-border-width: 4px;"
+            }
+            onMouseExited = _ => style = ""
+            onMouseClicked = _ => {
               controller.swap(cardIndex)
               scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
               if (isAttackingPokemonKO) {
@@ -126,13 +138,23 @@ object PopupBuilder {
               }
             }
           }
-        }}
+        }
+        }
         cardContainer.children = cardList
-        content = cardContainer
+        private val container = new VBox {
+          styleClass += "benchSelection"
+          prefWidth = windowWidth
+          prefHeight = windowHeight
+          alignment = Pos.Center
+          children = List(new Label("Choose a Pokémon from bench") {
+            prefHeight = 100
+            prefWidth = windowWidth - 150
+            textAlignment = TextAlignment.Left
+          }, cardContainer)
+        }
+        content = container
       }
       sizeToScene()
-      //x = parentWindow.getX + parentWindow.getWidth / 1.6
-      //y = parentWindow.getY + parentWindow.getHeight / 2.8
       resizable = false
       alwaysOnTop = true
     }
@@ -195,7 +217,7 @@ object PopupBuilder {
     rotator
   }
 
-  def openEndGameScreen(parent: Window, playerWon: Boolean) : Unit = {
+  def openEndGameScreen(parent: Window, playerWon: Boolean): Unit = {
     val dialog: Stage = new Stage() {
       private val gameStage = parent
       initOwner(parent)
@@ -205,7 +227,7 @@ object PopupBuilder {
           prefWidth = 300
           prefHeight = 200
           alignment = Pos.Center
-          children = List(new Label(if(playerWon)"You won!" else "You lose!"),
+          children = List(new Label(if (playerWon) "You won!" else "You lose!"),
             new Button("Back to menu") {
               onAction = _ => {
                 scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close();
@@ -213,7 +235,7 @@ object PopupBuilder {
                 GameLauncher.stage.width = 500
                 GameLauncher.stage.height = 300
               }
-          })
+            })
         }
       }
       sizeToScene()
