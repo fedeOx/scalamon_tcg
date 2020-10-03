@@ -6,32 +6,51 @@ import scalafx.scene.image.Image
 import scalafx.scene.layout.VBox
 import scalafx.scene.paint.PhongMaterial
 import scalafx.scene.shape.Box
-import scalafx.scene.transform.Rotate
 import view.CardCreator.createCard
 
-/***
- * The Zone for the prize cards
+/**
+ * The field zone for the prize cards
  */
-case class PrizeCardsZone(isHumans: Boolean, board: PlayerBoard) extends VBox {
-  private val WIDTH = 10
-  private val HEIGHT = 25
-
-  alignment = Pos.Center
-  prefWidth = WIDTH
-  prefHeight = HEIGHT
-  styleClass += "prizeCards"
-
-  def updateView(prizes: Seq[Card]) : Unit = {
-    children = List(createCard("/assets/cardBack.jpg",cardType = CardType.Prize), new Box {
-      val numberMaterial = new PhongMaterial()
-      numberMaterial.diffuseMap = new Image("/assets/prize"+prizes.size+".png")
-      material = numberMaterial
-      width = 3
-      height = 4
-      depth = 0.5
-      if (!isHumans)
-        rotate = 180
-    })
-  }
-
+trait PrizeCardsZone extends VBox {
+  /**
+   * Updates the Vbox children
+   *
+   * @param prizes : the prize cards
+   */
+  def updateView(prizes: Seq[Card]): Unit
 }
+
+object PrizeCardsZone {
+  /**
+   * Creates an instance of PrizesCardZone
+   *
+   * @param isHumans : true if it's the human's PrizeCardsZone
+   * @param board    : the parent PlayerBoard
+   * @return an instance of PrizesCardZone
+   */
+  def apply(isHumans: Boolean, board: PlayerBoard): PrizeCardsZone = PrizeCardsZoneImpl(isHumans, board)
+
+  private case class PrizeCardsZoneImpl(isHumans: Boolean, board: PlayerBoard) extends PrizeCardsZone {
+    private val WIDTH = 10
+    private val HEIGHT = 25
+
+    alignment = Pos.Center
+    prefWidth = WIDTH
+    prefHeight = HEIGHT
+    styleClass += "prizeCards"
+
+    def updateView(prizes: Seq[Card]): Unit = {
+      children = List(createCard("/assets/cardBack.jpg", cardType = CardType.Prize), new Box {
+        val numberMaterial = new PhongMaterial()
+        numberMaterial.diffuseMap = new Image("/assets/prize" + prizes.size + ".png")
+        material = numberMaterial
+        width = 3
+        height = 4
+        depth = 0.5
+        if (!isHumans)
+          rotate = 180
+      })
+    }
+  }
+}
+

@@ -21,7 +21,7 @@ trait HandZone extends HBox {
 }
 
 object HandZone {
-  /***
+  /**
    * Creates an instance of HandZone
    * @param isHumans: true if it's the human's board
    * @param board: the parent PlayerBoard
@@ -52,6 +52,5 @@ object HandZone {
     transforms += new Rotate(10, Rotate.XAxis)
     margin = new Insets(0, 0,0,5)
   }
-
 }
 

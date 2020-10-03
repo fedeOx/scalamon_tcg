@@ -15,7 +15,63 @@ import scalafx.scene.{Node, Scene}
 import scalafx.stage.{Modality, Stage, StageStyle, Window}
 import scalafx.util.Duration
 
-/** *
+trait PopupBuilder {
+  /**
+   * Sets the object's controller field
+   * @param c: the controller
+   */
+  def setController(c: Controller): Unit
+
+  /**
+   * Opens the loading screen that appears at the start of the game
+   * @param parentWindow: the loading screen's parent window
+   * @return the loading screen
+   */
+  def openLoadingScreen(parentWindow: Window): Stage
+
+  /**
+   * Closes the loading screen
+   * @param loadingMessage: the stage to close
+   */
+  def closeLoadingScreen(loadingMessage: Stage): Unit
+
+  /**
+   * Opens the screen that informs the player of the start of his turn
+   * @param parent: the screen's parent window
+   */
+  def openTurnScreen(parent: Window): Unit
+
+  /**
+   * Opens the screen that appears when the player performs an invalid operation
+   * @param parent: the screen's parent window
+   * @param message: the message to visualize
+   */
+  def openInvalidOperationMessage(parent: Window, message: String): Unit
+
+  /**
+   * Opens the screen that lets the player choose a pokémon from his bench to set it as active
+   * @param parent: the screen's parent window
+   * @param bench: the cards in the player's bench
+   * @param isAttackingPokemonKO: true if this screen opens after the player's attacking pokémon goes KO
+   */
+  def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]], isAttackingPokemonKO: Boolean): Unit
+
+  /**
+   * Opens a screen that visualizes the coin flip animation
+   * @param parent: the screen's parent window
+   * @param isHead: true if the coin result is head
+   */
+  def openCoinFlipScreen(parent: Window, isHead: Boolean): Unit
+
+  /**
+   * Opens the end game screen
+   * @param parent: the screen's parent window
+   * @param playerWon: true if the player won the game
+   */
+  def openEndGameScreen(parent: Window, playerWon: Boolean): Unit
+}
+
+/**
  * Object that creates popup messages for the game
  */
 object PopupBuilder {
@@ -81,7 +137,7 @@ object PopupBuilder {
         content = new VBox() {
           styleClass += "message"
           children = List(new Label(message) {
-            prefWidth = 300
+            minWidth = 300
             maxHeight(200)
             //prefHeight = 100
             wrapText = true
@@ -203,7 +259,7 @@ object PopupBuilder {
     mesh
   }
 
-  private def createRotator(coin: Node, isHead: Boolean) = {
+  private def createRotator(coin: Node, isHead: Boolean): RotateTransition = {
     val rotator = new RotateTransition() {
       duration = Duration.apply(1500)
       node = coin
@@ -223,7 +279,9 @@ object PopupBuilder {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
       scene = new Scene(300, 200) {
+        stylesheets = List("/style/popup.css")
         content = new VBox() {
+          styleClass += "message"
           prefWidth = 300
           prefHeight = 200
           alignment = Pos.Center
