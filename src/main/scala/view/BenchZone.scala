@@ -7,7 +7,7 @@ import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import view.CardCreator.createCard
 
-/***
+/**
  * The field zone that contains the benched pokemon
  */
 trait BenchZone extends HBox {
@@ -72,29 +72,24 @@ object BenchZone {
     translateX = 10
     translateY = 15
     onMouseClicked = _ => {
-      if (isHumans && !bench.size.equals(5)) {
-        if (cardClicked)
-          cardClicked = false
-        else {
-          //TODO: modifica
-          if (isEmpty) {
-            try {
-              board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(0)
-            } catch {
-              case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
-            }
-            println("panchina vuota")
-          }
+      if (parentBoard.myBoard.activePokemon.isDefined) {
+        if (isHumans && !bench.size.equals(5)) {
+          if (cardClicked)
+            cardClicked = false
           else {
+            var position: Int = 0
+            if(!isEmpty)
+              position = bench.size
             try {
-              board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(bench.size)
+              board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(position)
             } catch {
               case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
             }
           }
         }
+      } else {
+        PopupBuilder.openInvalidOperationMessage(board.gameWindow, "Put an active pokémon first")
       }
     }
   }
 }
-
