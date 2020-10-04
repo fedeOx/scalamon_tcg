@@ -54,7 +54,7 @@ object BenchZone {
         isEmpty = false
         bench = Seq[Box]()
         cards.filter(c => c.isDefined).zipWithIndex.foreach{case (card,cardIndex) => {
-          bench = bench :+ createCard("/assets/"+card.get.belongingSetCode+"/"+card.get.imageId+".jpg",
+          bench = bench :+ createCard("/assets/"+card.get.belongingSetCode+"/"+card.get.imageId+".png",
             Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), CardType.Bench, cardIndex = cardIndex,
             isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard),
             gameWindow = Some(board.gameWindow))

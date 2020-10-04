@@ -7,7 +7,6 @@ import scalafx.scene.Group
 import scalafx.scene.image.Image
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
-import scalafx.scene.transform.Rotate
 import scalafx.stage.Window
 
 /**
@@ -59,11 +58,11 @@ trait PlayerBoard extends Group {
   /**
    * Updates the PlayerBoard's owner DeckDiscardZone
    */
-  def updateDiscardStack(): Unit
+  def updateDeckAndDiscardStack(): Unit
 
   /**
    * Edit the appearance of the endTurnButton
-   * @param isDisabled true if the button has to appear disabled
+   * @param isDisabled: true if the button has to appear disabled
    */
   def alterButton(isDisabled: Boolean): Unit
 }
@@ -91,7 +90,6 @@ object PlayerBoard {
     private var hand : HandZone = _
     private var endTurnButton: Box = _
 
-    styleClass += "humanPB"
     children = List(prize, active, bench, deckDiscard)
     if (isHumans) {
       hand = HandZone(isHumans, this)
@@ -115,7 +113,6 @@ object PlayerBoard {
           } else {
             if (gameWindow.asInstanceOf[GameBoardView].turnOwner == TurnOwner.Player) {
               gameWindow.asInstanceOf[GameBoardView].controller.endTurn()
-              println("fine turno")
             }
           }
         }
@@ -134,7 +131,7 @@ object PlayerBoard {
     def updateActive() : Unit = active.updateView(myBoard.activePokemon)
     def updateBench() : Unit = bench.updateView(myBoard.pokemonBench)
     def updatePrizes() : Unit = prize.updateView(myBoard.prizeCards)
-    def updateDiscardStack() : Unit = if (myBoard.discardStack.nonEmpty) deckDiscard.updateView(myBoard.discardStack.last)
+    def updateDeckAndDiscardStack() : Unit = deckDiscard.updateView(myBoard.deck, myBoard.discardStack)
     def alterButton(isDisabled: Boolean): Unit = {
       if(isDisabled)
         endTurnButton.material.value.asInstanceOf[javafx.scene.paint.PhongMaterial].diffuseColor = Color.DarkGray

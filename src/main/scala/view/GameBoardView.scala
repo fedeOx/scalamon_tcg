@@ -26,7 +26,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   private val WIDTH = 1600
   private val HEIGHT = 1000
   private val TITLE = "Scalamon"
-  private val iABoard = PlayerBoard(isHumans = false,this)
+  private val aIBoard = PlayerBoard(isHumans = false,this)
   private val humanBoard = PlayerBoard(isHumans = true,this)
   private var loadingMessage : Stage = _
   private var gameEnded : Boolean = false
@@ -61,7 +61,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
       minWidth(55)
       minHeight(50)
       alignmentInParent = Pos.Center
-      children = Seq(iABoard, humanBoard)
+      children = Seq(aIBoard, humanBoard)
     }, zoomZone)
     loadingMessage = PopupBuilder.openLoadingScreen(this.window.value)
     loadingMessage.show()
@@ -69,7 +69,6 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
 
   resizable = true
   maximized = true
-  //fullScreen = true
   show()
 
   onCloseRequest = _ => controller.interruptAi()
@@ -88,13 +87,13 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   private def initializeBoards(event: BuildGameField): Unit = {
     humanBoard.myBoard = event.playerBoard
     humanBoard.opponentBoard = event.opponentBoard
-    iABoard.myBoard = event.opponentBoard
-    iABoard.opponentBoard = event.playerBoard
+    aIBoard.myBoard = event.opponentBoard
+    aIBoard.opponentBoard = event.playerBoard
     Platform.runLater({
       humanBoard.updateHand()
       humanBoard.updatePrizes()
       humanBoard.updateActive()
-      iABoard.updatePrizes()
+      aIBoard.updatePrizes()
     })
     Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
   }
@@ -108,18 +107,19 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
       humanBoard.updateActive()
       humanBoard.updateHand()
       humanBoard.updateBench()
-      humanBoard.updateDiscardStack()
+      humanBoard.updateDeckAndDiscardStack()
       if (!humanBoard.isFirstTurn) {
         Platform.runLater({
-          iABoard.updateBench()
-          iABoard.updateActive()
-          iABoard.updateDiscardStack()
+          aIBoard.updateBench()
+          aIBoard.updateActive()
+          aIBoard.updateDeckAndDiscardStack()
         })
       }
     })
   }
 
   private def handleTurnStart(event: NextTurn) : Unit = {
+    Platform.runLater(humanBoard.updateDeckAndDiscardStack())
     if(!gameEnded){
       turnOwner = event.turnOwner
       if(event.turnOwner == TurnOwner.Player) {
@@ -133,23 +133,23 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
       } else
         humanBoard.alterButton(true)
       Platform.runLater({
-        iABoard.updateBench()
-        iABoard.updateActive()
-        iABoard.updateDiscardStack()
+        aIBoard.updateBench()
+        aIBoard.updateActive()
+        aIBoard.updateDeckAndDiscardStack()
       })
     }
   }
 
   private def handleKO(event: PokemonKO): Unit = {
     if (event.board.eq(humanBoard.myBoard) && humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined)
-      && iABoard.myBoard.prizeCards.size > 1)
+      && aIBoard.myBoard.prizeCards.size > 1)
       Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
         humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
     Platform.runLater({
       humanBoard.updateActive()
       humanBoard.updatePrizes()
-      iABoard.updatePrizes()
-      iABoard.updateActive()
+      aIBoard.updatePrizes()
+      aIBoard.updateActive()
     })
   }
 

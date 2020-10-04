@@ -32,9 +32,3 @@
     -fx-fill: white;
     -fx-effect: dropshadow( gaussian , #a30000 , 0,0,0,2 );
 }
-
-ImageView {
-    -fx-border-radius: 5px;
-    -fx-border-style: solid;
-    -fx-border-width: 5px;
-}

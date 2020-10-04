@@ -12,9 +12,10 @@ import view.CardCreator.createCard
 trait DeckDiscardZone extends VBox {
   /**
    * Updates the VBox children
-   * @param card: the card on top of the discard stack
+   * @param deck: the board's deck
+   * @param discardStack: the board's discard stack
    */
-  def updateView(card: Card): Unit
+  def updateView(deck: Seq[Card], discardStack: Seq[Card]): Unit
 }
 
 object DeckDiscardZone {
@@ -27,9 +28,9 @@ object DeckDiscardZone {
   private case class DeckDiscardZoneImpl() extends DeckDiscardZone {
     private val WIDTH = 10
     private val HEIGHT = 25
-    private val deck = createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
-    private var discardStack : Box = _
-    children = deck
+    private val deckBox = createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
+    private var discardStackBox : Box = _
+    children = deckBox
 
     alignment = Pos.Center
     prefWidth = WIDTH
@@ -37,10 +38,16 @@ object DeckDiscardZone {
     styleClass += "deckDiscard"
     translateX = 45
 
-    //TODO: pattern strategy
-    def updateView(card: Card) : Unit = {
-      discardStack = createCard("/assets/"+card.belongingSetCode+"/"+card.imageId+".jpg", cardType = CardType.DiscardStack)
-      children = List(deck, discardStack)
+    def updateView(deck: Seq[Card], discardStack: Seq[Card]) : Unit = {
+      var list = Seq[Box]()
+      if (deck.nonEmpty)
+        list = list :+ deckBox
+      if(discardStack.nonEmpty) {
+        discardStackBox = createCard("/assets/"+discardStack.last.belongingSetCode+"/"+
+          discardStack.last.imageId+".png", cardType = CardType.DiscardStack)
+        list = list :+ discardStackBox
+      }
+      children = list
     }
   }
 }

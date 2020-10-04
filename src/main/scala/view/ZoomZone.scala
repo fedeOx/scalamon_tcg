@@ -41,7 +41,7 @@ object ZoomZone {
 
     def showContent(card: Card): Unit = {
       val cardMaterial = new PhongMaterial()
-      cardMaterial.diffuseMap = new Image(new Image("/assets/"+card.belongingSetCode+"/"+card.imageId+".jpg"))
+      cardMaterial.diffuseMap = new Image(new Image("/assets/"+card.belongingSetCode+"/"+card.imageId+".png"))
       children = Seq(new Box {
         depth = 0.1
         width = 13
