@@ -165,7 +165,7 @@ object Controller {
         val setCards: Seq[Card] = dataLoader.loadSet(set)
         val opponentChosenDeckType = DeckType.values.filter(d => d.setType == set)
           .toVector(new Random().nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
-        val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(set, opponentChosenDeckType)
+        val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(opponentChosenDeckType)
         gameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
         turnManager.flipACoin()
       }

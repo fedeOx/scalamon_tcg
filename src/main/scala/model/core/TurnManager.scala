@@ -5,18 +5,25 @@ import common.TurnOwner.TurnOwner
 import model.event.Events.Event
 import model.exception.CoinNotLaunchedException
 
-import scala.util.Random
-
 trait TurnManager extends Observable {
+  /**
+   * Flips the initial game coin.
+   */
   def flipACoin(): Unit
 
+  /**
+   * To be called when a player has completed his initial turn.
+   * @throws model.exception.CoinNotLaunchedException if the initial game coin is not been launched yet.
+   */
   @throws(classOf[CoinNotLaunchedException])
   def playerReady(): Unit
 
+  /**
+   * To be called when a player completes his turn.
+   * @throws model.exception.CoinNotLaunchedException if the initial game coin is not been launched yet.n
+   */
   @throws(classOf[CoinNotLaunchedException])
   def switchTurn(): Unit
-
-  def reset(): Unit
 }
 
 object TurnManager {
@@ -62,11 +69,6 @@ object TurnManager {
       } else {
         throw new CoinNotLaunchedException("It is required to flip a coin before")
       }
-    }
-
-    override def reset(): Unit = {
-      super.reset()
-      acks = 0
     }
   }
 

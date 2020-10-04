@@ -17,10 +17,39 @@ import scala.collection.mutable
 import scala.io.Source
 
 trait DataLoader extends Observable {
+  /**
+   * Loads all decks (custom decks included) of the specified cards set.
+   * @param set the set whose decks must be loaded
+   * @return a map whose entries contains the deck name as key and the deck's list of cards as value
+   */
   def loadDecks(set: SetType): Map[String, Seq[DeckCard]]
-  def loadSingleDeck(set: SetType, deck: DeckType): Seq[DeckCard]
+
+  /**
+   * Loads the specified deck belonging to the specified set.
+   * @param deck the deck to be loaded
+   * @return the deck's list of cards
+   */
+  def loadSingleDeck(deck: DeckType): Seq[DeckCard]
+
+  /**
+   * Loads the specified custom deck belonging to the specified set.
+   * @param set the set whose custom decks must be loaded
+   * @param deckName the name of the deck to be loaded
+   * @return the deck's list of cards or an empty list if the deck name specified does not exist
+   */
   def loadCustomSingleDeck(set: SetType, deckName: String): Seq[DeckCard]
-  def loadSet(setType: SetType): Seq[Card]
+
+  /**
+   * Loads all the card belonging to the specified set.
+   * @param set the set whose cards must be loaded
+   * @return the list of card belonging to the specified set
+   */
+  def loadSet(set: SetType): Seq[Card]
+
+  /**
+   * Saves the specified custom deck.
+   * @param deck the new custom deck to be saved
+   */
   def saveCustomDeck(deck: CustomDeck): Unit
 }
 
@@ -31,31 +60,32 @@ object DataLoader {
     private val SaveDirectory: Path = Paths.get(System.getProperty("user.home") + File.separator + ".scalamon")
     private val CustomDeckFileName: String = "/d_custom.json"
 
+    import common.MyMapHelpers._
+
     override def loadDecks(set: SetType): Map[String, Seq[DeckCard]] = {
       val map: mutable.Map[String, Seq[DeckCard]] = mutable.Map()
-      DeckType.values.filter(v => v.setType == set).foreach(v => map += (v.name -> loadSingleDeck(set, v)))
+      DeckType.values.filter(v => v.setType == set).foreach(v => map += (v.name -> loadSingleDeck(v)))
       loadCustomDecksNames(set).map(n => map += (n -> loadCustomSingleDeck(set, n)))
-      Map(map.toSeq: _*)
+      map.toImmutableMap
     }
 
-    override def loadSingleDeck(set: SetType, deck: DeckType): Seq[DeckCard] =
-      buildDeck(buildCursor(getClass.getResourceAsStream("/jsons/d_" + set + ".json")), deck.name)
+    override def loadSingleDeck(deck: DeckType): Seq[DeckCard] =
+      buildDeck(buildCursor(getClass.getResourceAsStream("/jsons/d_" + deck.setType + ".json")), deck.name)
 
     override def loadCustomSingleDeck(set: SetType, deckName: String): Seq[DeckCard] =
       buildDeck(buildCursor(new FileInputStream(SaveDirectory + CustomDeckFileName)), deckName)
 
-    override def loadSet(setType: SetType): Seq[Card] =
-      buildSet(buildCursor(getClass.getResourceAsStream("/jsons/" + setType + ".json")))
+    override def loadSet(set: SetType): Seq[Card] =
+      buildSet(buildCursor(getClass.getResourceAsStream("/jsons/" + set + ".json")))
 
     override def saveCustomDeck(deck: CustomDeck): Unit = {
       var deckCards: Seq[CustomDeck] = List()
+      if (!Files.exists(SaveDirectory)) {
+        Files.createDirectory(SaveDirectory)
+      }
       if (Files.exists(Paths.get(SaveDirectory + CustomDeckFileName))) {
         val cursor = buildCursor(new FileInputStream(SaveDirectory + CustomDeckFileName))
         deckCards = cursor.values.get.map(v => v.as[CustomDeck].toOption.get).toList
-      }
-
-      if (!Files.exists(SaveDirectory)) {
-        Files.createDirectory(SaveDirectory)
       }
       val pw = new PrintWriter(SaveDirectory + CustomDeckFileName)
       pw.write((deckCards :+ deck).asJson.toString)

@@ -40,7 +40,7 @@ object Cards {
     @throws(classOf[InvalidOperationException])
     def removeEnergy(energy: EnergyType): Unit
 
-    def removeFirstNEnergies(nEnergies : Int) : Unit
+    def removeFirstNEnergies(nEnergies: Int): Unit
 
     def hasEnergies(energies: Seq[EnergyType]): Boolean
 
@@ -96,15 +96,7 @@ object Cards {
                                override var status : StatusType,
                                override var energiesMap: Map[EnergyType, Int] = Map()) extends PokemonCard {
 
-      object MyMapHelpers { // pimp my library to improve cast between mutable and immutable maps
-        implicit class MyImmutableMap[A, B](map: Map[A, B]) {
-          def toMutableMap: mutable.Map[A, B] = mutable.Map(map.toSeq: _*)
-        }
-        implicit class MyMutableMap[A, B](map: mutable.Map[A, B]) {
-          def toImmutableMap: Map[A, B] = Map(map.toSeq: _*)
-        }
-      }
-      import MyMapHelpers._
+      import common.MyMapHelpers._
 
       override def addEnergy(energyCard: EnergyCard): Unit = {
         val mutableEnergiesMap = energiesMap.toMutableMap
@@ -248,7 +240,4 @@ object Cards {
       override def cloneEnergyCard: EnergyCard = copy(imageId, name, rarity, belongingSetCode, energyType, energyCardType)
     }
   }
-
-  // + a trait for TrainerCard
-  // + a case class for TrainerCardImpl
 }

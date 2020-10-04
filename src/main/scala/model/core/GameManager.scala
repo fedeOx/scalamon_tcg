@@ -9,22 +9,120 @@ import model.game.{Attack, Board, DeckCard, StatusType}
 import scala.util.Random
 
 trait GameManager extends Observable {
+
+  /**
+   * Initializes player and opponent boards.
+   * @param playerDeckCards the players deck cards
+   * @param opponentDeckCards the opponent deck cards
+   * @param cardsSet the card set to which the deck cards belong to
+   */
   def initBoards(playerDeckCards: Seq[DeckCard], opponentDeckCards: Seq[DeckCard], cardsSet: Seq[Card]): Unit
+
   def playerBoard: Board
+
   def opponentBoard: Board
+
+  /**
+   * Checks if the active pokemon of the specified board is empty.
+   * @param board the board whose active pokemon must be checked
+   * @return true if the active pokemon is empty
+   */
   def isActivePokemonEmpty(board: Board = playerBoard): Boolean
+
+  /**
+   * Checks if the specified bench position of the specified board is empty.
+   * @param position the bench position
+   * @param board the board whose bench position must be checked
+   * @return true if the bench position is empty
+   */
   def isBenchLocationEmpty(position: Int, board: Board = playerBoard): Boolean
+
+  /**
+   * Gets the active pokemon of the specified board
+   * @param board the board whose active pokemon must be get
+   * @return the active pokemon of the specified board
+   */
   def activePokemon(board: Board = playerBoard): Option[PokemonCard]
+
+  /**
+   * Sets the active pokemon of the specified board
+   * @param pokemonCard the pokemon to be set
+   * @param board the board whose active pokemon must be set
+   */
   def setActivePokemon(pokemonCard: Option[PokemonCard], board: Board = playerBoard): Unit
+
+  /**
+   * Gets the pokemon bench of the specified board
+   * @param board the board whose pokemon bench must be get
+   * @return the pokemon bench of the specified board
+   */
   def pokemonBench(board: Board = playerBoard): Seq[Option[PokemonCard]]
+
+  /**
+   * Puts a pokemon to the specified position of the bench of the specified board
+   * @param pokemonCard the pokemon to be putted
+   * @param position the position of the bench
+   * @param board the board whose the bench belongs
+   */
   def putPokemonToBench(pokemonCard: Option[PokemonCard], position: Int, board: Board = playerBoard): Unit
+
+  /**
+   * Draw a card from the deck of the specified board
+   * @param board the board whose deck must be popped
+   */
   def drawCard(board: Board = playerBoard): Unit
+
+  /**
+   * Destroys the active pokemon of the specified board and replace it with the pokemon in the specified bench position.
+   * @param replacementBenchPosition the bench position where the new pokemon is
+   * @param board the board whose active pokemon must be destroyed
+   */
   def destroyActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Unit
+
+  /**
+   * Retreats the active pokemon of the specified board.
+   * @param replacementBenchPosition the bench position where the new pokemon is
+   * @param board the board whose active pokemon must be retreated
+   */
   def retreatActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Unit
+
+  /**
+   * Fulfills all the needed checks on active pokemons status at the beginning of the turn.
+   * @param board the board of the turn owner
+   * @param opponentBoard the board of the opponent
+   */
   def activePokemonStartTurnChecks(board: Board, opponentBoard: Board): Unit
+
+  /**
+   * Fulfills all the needed checks on active pokemon status at the end of the turn.
+   * @param activePokemon the pokemon on which the checks must be done
+   */
   def activePokemonEndTurnChecks(activePokemon: PokemonCard): Unit
+
+  /**
+   * Adds an energy card to a pokemon.
+   * @param pokemonCard the pokemon to which the energy card must be added
+   * @param energyCard the energy card to add
+   * @param board the board to which the pokemon belongs
+   */
   def addEnergyToPokemon(pokemonCard: PokemonCard, energyCard: EnergyCard, board: Board = playerBoard): Unit
+
+  /**
+   * Evolves a pokemon.
+   * @param pokemonCard the pokemon to be evolved
+   * @param evolution the evolution of the pokemon
+   * @param board the board to which the pokemon belongs
+   * @return the evolved pokemon
+   */
   def evolvePokemon(pokemonCard: PokemonCard, evolution: PokemonCard, board: Board = playerBoard): Option[PokemonCard]
+
+  /**
+   * Manages the attack of a pokemon.
+   * @param attackingBoard the attacking board
+   * @param defendingBoard the defenfing board
+   * @param attack the attack to be done
+   * @throws model.exception.InvalidOperationException if the active pokemon of the attacking board is paralyzed or asleep
+   */
   @throws(classOf[InvalidOperationException])
   def confirmAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Unit
 }
