@@ -6,7 +6,7 @@ import java.nio.file.{Files, Path, Paths}
 import common.Observable
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
-import io.circe.{HCursor, Json}
+import io.circe.{HCursor, Json, JsonObject}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.DeckType.DeckType
 import model.game.{CustomDeck, DeckCard, DeckType}
@@ -49,16 +49,21 @@ trait DataLoader extends Observable {
   /**
    * Saves the specified custom deck.
    * @param deck the new custom deck to be saved
+   * @return true if the save was successful
    */
-  def saveCustomDeck(deck: CustomDeck): Unit
+  def saveCustomDeck(deck: CustomDeck): Boolean
 }
 
 object DataLoader {
   def apply(): DataLoader = DataLoaderImpl()
 
+  val SaveDirectory: Path = Paths.get(System.getProperty("user.home") + File.separator + ".scalamon")
+  val CustomDeckFileName: String = "/d_custom.json"
+  val CardsDirectory: String = "/jsons"
+  val DeckResCode: String = "/d_"
+  val ResExtension: String = ".json"
+
   private case class DataLoaderImpl() extends DataLoader {
-    private val SaveDirectory: Path = Paths.get(System.getProperty("user.home") + File.separator + ".scalamon")
-    private val CustomDeckFileName: String = "/d_custom.json"
 
     import common.MyMapHelpers._
 
@@ -70,32 +75,37 @@ object DataLoader {
     }
 
     override def loadSingleDeck(deck: DeckType): Seq[DeckCard] =
-      buildDeck(buildCursor(getClass.getResourceAsStream("/jsons/d_" + deck.setType + ".json")), deck.name)
+      buildDeck(buildCursor(inputStream(CardsDirectory + DeckResCode + deck.setType + ResExtension, fromResource = true)), deck.name)
 
     override def loadCustomSingleDeck(set: SetType, deckName: String): Seq[DeckCard] =
-      buildDeck(buildCursor(new FileInputStream(SaveDirectory + CustomDeckFileName)), deckName)
+      buildDeck(buildCursor(inputStream(SaveDirectory + CustomDeckFileName, fromResource = false)), deckName)
 
     override def loadSet(set: SetType): Seq[Card] =
-      buildSet(buildCursor(getClass.getResourceAsStream("/jsons/" + set + ".json")))
+      buildSet(buildCursor(inputStream(CardsDirectory + File.separator + set + ResExtension, fromResource = true)))
 
-    override def saveCustomDeck(deck: CustomDeck): Unit = {
+    override def saveCustomDeck(deck: CustomDeck): Boolean = {
+      var success = false
       var deckCards: Seq[CustomDeck] = List()
       if (!Files.exists(SaveDirectory)) {
         Files.createDirectory(SaveDirectory)
       }
       if (Files.exists(Paths.get(SaveDirectory + CustomDeckFileName))) {
-        val cursor = buildCursor(new FileInputStream(SaveDirectory + CustomDeckFileName))
+        val cursor = buildCursor(inputStream(SaveDirectory + CustomDeckFileName, fromResource = false))
         deckCards = cursor.values.get.map(v => v.as[CustomDeck].toOption.get).toList
       }
-      val pw = new PrintWriter(SaveDirectory + CustomDeckFileName)
-      pw.write((deckCards :+ deck).asJson.toString)
-      pw.close()
+      if (!deckCards.exists(d => d.name == deck.name)) {
+        val pw = new PrintWriter(SaveDirectory + CustomDeckFileName)
+        pw.write((deckCards :+ deck).asJson.toString)
+        pw.close()
+        success = true
+      }
+      success
     }
 
     private def loadCustomDecksNames(set: SetType): Seq[String] = {
       var list: Seq[String] = List.empty
       if (Files.exists(Paths.get(SaveDirectory + CustomDeckFileName))) {
-        val cursor = buildCursor(new FileInputStream(SaveDirectory + CustomDeckFileName))
+        val cursor = buildCursor(inputStream(SaveDirectory + CustomDeckFileName, fromResource = false))
         if (cursor.values.nonEmpty) {
           list = cursor.values.get.filter(c => c.hcursor.downField("set").as[SetType].toOption.get == set)
             .map(c => c.hcursor.downField("name").as[String].toOption.get).toList
@@ -104,10 +114,10 @@ object DataLoader {
       list
     }
 
-    private def buildCursor(inputFile: InputStream): HCursor = {
-      val source = Source.fromInputStream(inputFile)
+    private def buildCursor(inputFile: Option[InputStream]): HCursor = {
       var lines = ""
-      if (inputFile != null) {
+      if (inputFile.nonEmpty) {
+        val source = Source.fromInputStream(inputFile.get)
         lines = try source.getLines() mkString "\n" finally source.close()
       }
       val parseResult: Json = parse(lines).getOrElse(Json.Null)
@@ -116,10 +126,12 @@ object DataLoader {
 
     private def buildDeck(cursor: HCursor, deckName: String): Seq[DeckCard] = {
       var deckCards: Seq[DeckCard] = List()
-      for (i <- cursor.values.get) {
-        val internalCursor = i.hcursor
-        if (internalCursor.downField("name").as[String].toOption.get == deckName) {
-          deckCards = internalCursor.downField("cards").as[Seq[DeckCard]].toOption.get
+      if (cursor.values.nonEmpty) {
+        for (i <- cursor.values.get) {
+          val internalCursor = i.hcursor
+          if (internalCursor.downField("name").as[String].toOption.get == deckName) {
+            deckCards = internalCursor.downField("cards").as[Seq[DeckCard]].toOption.get
+          }
         }
       }
       deckCards.filter(c => c.imageId.toInt < 70 || c.imageId.toInt > 95) // excludes Trainer cards
@@ -139,6 +151,12 @@ object DataLoader {
         }
       }
       pokemonCards ++ energyCards
+    }
+
+    private def inputStream(resourcePath: String, fromResource: Boolean): Option[InputStream] = fromResource match {
+      case true => Option(getClass.getResourceAsStream(resourcePath))
+      case false if Files.exists(Paths.get(resourcePath)) => Some(new FileInputStream(resourcePath))
+      case _ => None
     }
   }
 }

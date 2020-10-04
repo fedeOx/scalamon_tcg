@@ -1,18 +1,25 @@
 package model.core
 
-import common.Observer
+import java.io.{FileInputStream, InputStream, PrintWriter}
+
+import io.circe.{HCursor, Json}
+import io.circe.parser.parse
+import io.circe.syntax._
 import model.game.{CustomDeck, DeckCard, DeckType, SetType}
-import org.scalamock.scalatest.MockFactory
-import org.scalatest.OneInstancePerTest
+import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 
-class DataLoaderTest extends AnyFlatSpec with MockFactory {
-/*
+import scala.io.Source
+
+class DataLoaderTest extends AnyFlatSpec with GivenWhenThen {
+
   behavior of "The DataLoader"
 
-  it must "load all the decks fo the specified set" in {
+  val dataLoader: DataLoader = DataLoader()
+
+  it must "load all the decks for the specified set" in {
     for (set <- SetType.values) {
-      val decks: Map[String, Seq[DeckCard]] = DataLoader.loadDecks(set)
+      val decks: Map[String, Seq[DeckCard]] = dataLoader.loadDecks(set)
       for (deck <- DeckType.values
            if deck.setType == set) {
         assert(decks.contains(deck.name))
@@ -21,36 +28,69 @@ class DataLoaderTest extends AnyFlatSpec with MockFactory {
   }
 
   it must "load a not empty list when loading a single deck" in {
-    val l = DataLoader.loadSingleDeck(SetType.Base, DeckType.Base1)
+    val l = dataLoader.loadSingleDeck(DeckType.Base1)
     assert(l.nonEmpty)
   }
 
   it must "load a not empty list when loading a card set" in {
-    val l = DataLoader.loadSet(SetType.Base)
+    val l = dataLoader.loadSet(SetType.Base)
     assert(l.nonEmpty)
   }
 
-  it must "work with every indexed set types" in {
+  it must "load cards for every indexed set types" in {
     for (set <- SetType.values) {
-      val l = DataLoader.loadSet(set)
+      val l = dataLoader.loadSet(set)
       assert(l.nonEmpty)
     }
   }
 
-  it must "work with every indexed decks" in {
+  it must "load cards with every indexed decks" in {
     for (set <- SetType.values) {
       for (deck <- DeckType.values
            if deck.setType == set) {
-        val l = DataLoader.loadSingleDeck(SetType.Base, DeckType.Base1)
+        val l = dataLoader.loadSingleDeck(DeckType.Base1)
         assert(l.nonEmpty)
       }
     }
   }
 
-  it must "save a new custom deck when required" in {
-    val cards: Seq[DeckCard] = DeckCard("base-1", "myPokemon", "rare", 1) :: DeckCard("base-2", "myPokemon2", "rare", 1) ::
-      DeckCard("base-2", "myPokemon2", "rare", 1) :: Nil
-    DataLoader.saveCustomDeck(CustomDeck("myCustomDeck", SetType.Base, cards))
+  it must "save and load custom decks correctly" in {
+    Given("a custom deck")
+    val deckName: String = "myCustomDeckName"
+    val customDeck: Seq[DeckCard] = DeckCard("1", "myPokemon", "rare", 1) :: DeckCard("2", "myPokemon2", "rare", 1) ::
+      DeckCard("3", "myPokemon2", "rare", 1) :: Nil
+
+    When("the custom deck is saved")
+    dataLoader.saveCustomDeck(CustomDeck(deckName, SetType.Base, customDeck))
+
+    Then("it should be able to be found in the destination file")
+    var cursor = buildCursor(new FileInputStream(DataLoader.SaveDirectory + DataLoader.CustomDeckFileName))
+    assert(cursor.values.get.map(i => i.hcursor.downField("name")).exists(i => i.as[String].toOption.get == deckName))
+
+    When("an existent custom deck is choosen")
+    val existentCustomDeck: Seq[DeckCard] = dataLoader.loadCustomSingleDeck(SetType.Base, deckName)
+
+    Then("the card list of the specified custom deck must be loaded")
+    assert(existentCustomDeck.nonEmpty && existentCustomDeck == customDeck)
+
+    resetCustomDecksFile(deckName)
   }
- */
+
+  private def buildCursor(inputFile: InputStream): HCursor = {
+    val source = Source.fromInputStream(inputFile)
+    var lines = ""
+    if (inputFile != null) {
+      lines = try source.getLines() mkString "\n" finally source.close()
+    }
+    val parseResult: Json = parse(lines).getOrElse(Json.Null)
+    parseResult.hcursor
+  }
+
+  private def resetCustomDecksFile(deckName: String): Unit = {
+    var cursor = buildCursor(new FileInputStream(DataLoader.SaveDirectory + DataLoader.CustomDeckFileName))
+    val deckCards = cursor.values.get.map(v => v.as[CustomDeck].toOption.get).toList
+    val pw = new PrintWriter(DataLoader.SaveDirectory + DataLoader.CustomDeckFileName)
+    pw.write((deckCards.filter(d => d.name != deckName)).asJson.toString)
+    pw.close()
+  }
 }
