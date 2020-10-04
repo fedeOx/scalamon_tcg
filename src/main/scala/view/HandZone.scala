@@ -53,4 +53,3 @@ object HandZone {
     margin = new Insets(0, 0,0,5)
   }
 }
-

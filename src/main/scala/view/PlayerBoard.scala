@@ -104,13 +104,14 @@ object PlayerBoard {
         height = 2
         translateX = 42
         translateY = 5
-        transforms += new Rotate(45, Rotate.XAxis)
-        depth = 2
+        depth = 0.6
 
         onMouseClicked = _ => {
-          if(isFirstTurn) {
-            isFirstTurn = false
-            gameWindow.asInstanceOf[GameBoardView].controller.playerReady()
+          if(isFirstTurn ) {
+            if (myBoard.activePokemon.isDefined) {
+              isFirstTurn = false
+              gameWindow.asInstanceOf[GameBoardView].controller.playerReady()
+            }
           } else {
             if (gameWindow.asInstanceOf[GameBoardView].turnOwner == TurnOwner.Player) {
               gameWindow.asInstanceOf[GameBoardView].controller.endTurn()
@@ -142,8 +143,3 @@ object PlayerBoard {
     }
   }
 }
-
-
-
-
-

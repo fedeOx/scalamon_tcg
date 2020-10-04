@@ -29,6 +29,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   private val iABoard = PlayerBoard(isHumans = false,this)
   private val humanBoard = PlayerBoard(isHumans = true,this)
   private var loadingMessage : Stage = _
+  private var gameEnded : Boolean = false
 
   title = TITLE
   icons += new Image("/assets/icon.png")
@@ -119,22 +120,24 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   }
 
   private def handleTurnStart(event: NextTurn) : Unit = {
-    turnOwner = event.turnOwner
-    if(event.turnOwner == TurnOwner.Player) {
-      humanBoard.alterButton(false)
-      controller.activePokemonStatusCheck()
+    if(!gameEnded){
+      turnOwner = event.turnOwner
+      if(event.turnOwner == TurnOwner.Player) {
+        humanBoard.alterButton(false)
+        controller.activePokemonStatusCheck()
+        Platform.runLater({
+          PopupBuilder.openTurnScreen(this)
+          controller.drawCard()
+          humanBoard.updateHand()
+        })
+      } else
+        humanBoard.alterButton(true)
       Platform.runLater({
-        PopupBuilder.openTurnScreen(this)
-        controller.drawCard()
-        humanBoard.updateHand()
+        iABoard.updateBench()
+        iABoard.updateActive()
+        iABoard.updateDiscardStack()
       })
-    } else
-      humanBoard.alterButton(true)
-    Platform.runLater({
-      iABoard.updateBench()
-      iABoard.updateActive()
-      iABoard.updateDiscardStack()
-    })
+    }
   }
 
   private def handleKO(event: PokemonKO): Unit = {
@@ -157,10 +160,10 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   }
 
   private def endGame() : Unit = {
-    println("fermo il gioco")
     val playerBoard = humanBoard.myBoard
     val opponentBoard = humanBoard.opponentBoard
     var playerWon: Boolean = false
+    gameEnded = true
     if(playerBoard.prizeCards.isEmpty ||
       (opponentBoard.activePokemon.get.isKO && !opponentBoard.pokemonBench.exists(card => card.isDefined)))
       playerWon = true
