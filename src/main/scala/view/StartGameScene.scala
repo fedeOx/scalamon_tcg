@@ -19,7 +19,7 @@ case class StartGameScene() extends Scene {
       text = "Select Deck"
       onAction = _ => {
 
-        GameLauncher.stage.scene = new DeckSelection(controller)
+        GameLauncher.stage.scene =  DeckSelection(controller)
         GameLauncher.stage.width = 1400
         GameLauncher.stage.height = 1000
         GameLauncher.stage.x = 200

@@ -5,10 +5,6 @@
     -fx-background-position: center center;
 }
 
-.zz {
-    -fx-background-color: gold;
-}
-
 .activeMenu {
     -fx-fill: grey;
 }
@@ -31,13 +27,8 @@
     -fx-padding: 10 15 13 15;
     -fx-background-insets: 2 0 0 0,2 0 3 0, 2 0 4 0, 2 0 5 0;
 }
+
 .activeMenuButton Text {
     -fx-fill: white;
     -fx-effect: dropshadow( gaussian , #a30000 , 0,0,0,2 );
-}
-
-ImageView {
-    -fx-border-radius: 5px;
-    -fx-border-style: solid;
-    -fx-border-width: 5px;
 }

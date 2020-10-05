@@ -1,15 +1,14 @@
 package controller
 
 import common.Observable
+import model.ai.Ai
 import model.core.{DataLoader, GameManager, TurnManager}
+import model.effect.EffectManager
 import model.event.Events.Event
 import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
 import model.game.SetType.SetType
-import model.ia.Ia
-import model.pokemonEffect.EffectManager
-
 import scala.util.Random
 
 trait Controller {
@@ -123,7 +122,7 @@ object Controller {
     val dataLoader = DataLoader()
     val gameManager = GameManager()
     val turnManager = TurnManager()
-    val ai = Ia(gameManager, turnManager)
+    val ai = Ai(gameManager, turnManager)
     ai.start()
     EffectManager.setGameManager(gameManager)
     ControllerImpl(dataLoader, gameManager, turnManager, ai)
@@ -132,7 +131,7 @@ object Controller {
   private case class ControllerImpl(override val dataLoader: DataLoader,
                                     override val gameManager: GameManager,
                                     override val turnManager: TurnManager,
-                                    private val ai: Ia,
+                                    private val ai: Ai,
                                     override var handCardSelected: Option[Card] = None) extends Controller {
 
     private var isPlayerReady = false

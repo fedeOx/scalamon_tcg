@@ -42,11 +42,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","confused","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "confused","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -103,11 +103,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1","","single"]
+            "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "EachEnergy",
-            "params":["10","atk","2","1"]
+            "params":[{"plusDmg":"10","pokemonToApply":"atk","limitBy":"2","atkPosition": "1"}]
           }
         ]
       }
@@ -155,11 +155,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "doesNDmgAndSetImmunity",
-            "params":["","true"]
+            "params":[{"tailBounded":"","headBounded":"true"}]
           }
         ]
       },
@@ -177,11 +177,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["80","1","","single"]
+            "params":[{"basicDmgToDo": "80","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself",
-            "params":["80"]
+            "params":[{"dmgMyself":"80"}]
           }
         ]
       }
@@ -248,11 +248,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["100","1","","single"]
+            "params":[{"basicDmgToDo": "100","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["2","Colorless","atk"]
+            "params":[{"discardAmount":"2","energyType":"Colorless","pokemonToApply":"atk"}]
           }
         ]
       }
@@ -305,11 +305,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","asleep","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "asleep","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       },
@@ -326,7 +326,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -387,7 +387,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -405,11 +405,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1","","single"]
+            "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
 
@@ -464,7 +464,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -481,7 +481,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1","","single"]
+            "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -539,8 +539,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["60","1","","single"]
-          }
+            "params":[{"basicDmgToDo": "60","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]          }
         ]
       }
     ],
@@ -589,11 +588,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       },
@@ -611,15 +610,15 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["80","1","","single"]
+            "params":[{"basicDmgToDo": "80","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name": "ndmg",
-            "params":["20","1","","bothBench"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"bothBench"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself",
-            "params":["80"]
+            "params":[{"dmgMyself":"80"}]
           }
         ]
       }
@@ -672,11 +671,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "EachEnergy",
-            "params":["10","def","0","0"]
+            "params":[{"plusDmg":"10","pokemonToApply":"def","limitBy":"0","atkPosition": "0"}]
           }
         ]
       },
@@ -692,15 +691,15 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Psychic","atk"]
+            "params":[{"discardAmount":"1","energyType":"Psychic","pokemonToApply":"atk"}]
           },
           {
             "name" : "doesNDmgAndSetImmunity",
-            "params":["",""]
+            "params":[{"tailBounded":"","headBounded":""}]
           }
         ]
       }
@@ -752,11 +751,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
-            "params":["10","10"]
+            "params":[{"tailDmg":"10","headDmg":"10"}]
           }
         ]
 
@@ -774,11 +773,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1","","single"]
+            "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","poisoned","","","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "poisoned","firstEffectCoin": "","secondEffectCoin": "","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -827,7 +826,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -845,11 +844,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["80","1","","single"]
+            "params":[{"basicDmgToDo": "80","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Fire","atk"]
+            "params":[{"discardAmount":"1","energyType":"Fire","pokemonToApply":"atk"}]
           }
         ]
       }
@@ -901,11 +900,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "EachEnergy",
-            "params":["10","atk","2","1"]
+            "params":[{"plusDmg":"10","pokemonToApply":"atk","limitBy":"2","atkPosition": "1"}]
           }
         ]
       },
@@ -923,11 +922,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1","","single"]
+            "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Colorless","def"]
+            "params":[{"discardAmount":"1","energyType":"Colorless","pokemonToApply":"def"}]
           }
         ]
       }
@@ -977,11 +976,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "doesNDmgAndSetImmunity",
-            "params":["","true"]
+            "params":[{"tailBounded":"","headBounded":"true"}]
           }
         ]
       },
@@ -999,11 +998,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["60","1","","single"]
+            "params":[{"basicDmgToDo": "60","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
-            "params":["30","0"]
+            "params":[{"tailDmg":"30","headDmg":"0"}]
           }
         ]
       }
@@ -1060,7 +1059,8 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["60","1","","single"]
+            "params":[{"basicDmgToDo": "60","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
+
           }
         ]
       }
@@ -1112,11 +1112,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["60","1","","single"]
+            "params":[{"basicDmgToDo": "60","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
-            "params":["30","0"]
+            "params":[{"tailDmg":"30","headDmg":"0"}]
           }
         ]
       },
@@ -1134,11 +1134,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["100","1","","single"]
+            "params":[{"basicDmgToDo": "100","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["-1","Colorless","atk"]
+            "params":[{"discardAmount":"-1","energyType":"Colorless","pokemonToApply":"atk"}]
           }
         ]
       }
@@ -1184,7 +1184,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","2","head","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"2","coinSide":"head","enemyToAtk":"single"}]
           }
         ]
       },
@@ -1201,11 +1201,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1","","single"]
+            "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","poisoned","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "poisoned","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -1262,7 +1262,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","2","head","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"2","coinSide":"head","enemyToAtk":"single"}]
           }
         ]
       },
@@ -1280,11 +1280,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Colorless","def"]
+            "params":[{"discardAmount":"1","energyType":"Colorless","pokemonToApply":"def"}]
           }
         ]
       }
@@ -1338,7 +1338,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1","","single"]
+            "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -1356,11 +1356,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["70","1","","single"]
+            "params":[{"basicDmgToDo": "70","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name": "ndmg",
-            "params":["10","1","","myBench"]
+            "params":[{"basicDmgToDo": "80","coinFlipNumber":"1","coinSide":"","enemyToAtk":"myBench"}]
           }
         ]
 
@@ -1415,11 +1415,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
 
@@ -1436,11 +1436,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
-            "params":["10","10"]
+            "params":[{"tailDmg":"10","headDmg":"10"}]
           }
         ]
       }
@@ -1498,11 +1498,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
-            "params":["10","0"]
+            "params":[{"tailDmg":"10","headDmg":"0"}]
           }
         ]
       }
@@ -1551,7 +1551,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -1568,7 +1568,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -1629,11 +1629,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Fire","atk"]
+            "params":[{"discardAmount":"1","energyType":"Fire","pokemonToApply":"atk"}]
           }
         ]
       },
@@ -1651,11 +1651,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["80","1","","single"]
+            "params":[{"basicDmgToDo": "80","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself",
-            "params":["30","0"]
+            "params":[{"dmgMyself":"30"}]
           }
         ]
       }
@@ -1705,7 +1705,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -1722,11 +1722,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Fire","atk"]
+            "params":[{"discardAmount":"1","energyType":"Fire","pokemonToApply":"atk"}]
           }
         ]
       }
@@ -1781,7 +1781,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -1799,7 +1799,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -1846,7 +1846,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -1896,7 +1896,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","tail","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"tail","enemyToAtk":"single"}]
           }
         ]
       },
@@ -1913,7 +1913,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -1970,7 +1970,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -2021,11 +2021,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","asleep","","","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "asleep","firstEffectCoin": "","secondEffectCoin": "","secondStatus": "noStatus"}]
           }
         ]
       },
@@ -2041,7 +2041,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -2094,7 +2094,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -2111,11 +2111,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","poisoned","","","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "poisoned","firstEffectCoin": "","secondEffectCoin": "","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -2166,7 +2166,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","2","head","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"2","coinSide":"head","enemyToAtk":"single"}]
           }
         ]
       },
@@ -2183,11 +2183,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "EachDmg",
-            "params":["10","def","+"]
+            "params":[{"dmgToAdd":"10","pokemonToApply":"atk","signature":"+"}]
           }
         ]
       }
@@ -2238,15 +2238,15 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Psychic","atk"]
+            "params":[{"discardAmount":"1","energyType":"Psychic","pokemonToApply":"atk"}]
           },
           {
             "name" : "recovery",
-            "params":["-1","atk"]
+            "params":[{"recoveryAmount":"-1","pokemonToApply":"atk"}]
           }
         ]
       },
@@ -2263,7 +2263,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -2316,11 +2316,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "doesNDmgAndSetImmunity",
-            "params":["","true"]
+            "params":[{"tailBounded":"","headBounded":"true"}]
           }
         ]
       },
@@ -2336,11 +2336,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","poisoned","","","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "poisoned","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -2395,11 +2395,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "EachDmg",
-            "params":["10","atk","-"]
+            "params":[{"dmgToAdd":"10","pokemonToApply":"atk","signature":"-"}]
           }
         ]
       },
@@ -2417,11 +2417,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["60","1","","single"]
+            "params":[{"basicDmgToDo": "60","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself",
-            "params":["20"]
+            "params":[{"dmgMyself":"20"}]
           }
         ]
       }
@@ -2471,7 +2471,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -2486,11 +2486,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "EachDmg",
-            "params":["10","atk","+"]
+            "params":[{"dmgToAdd":"10","pokemonToApply":"atk","signature":"+"}]
           }
         ]
       }
@@ -2542,7 +2542,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -2559,11 +2559,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Fire","atk"]
+            "params":[{"discardAmount":"1","energyType":"Fire","pokemonToApply":"atk"}]
           }
         ]
       }
@@ -2616,7 +2616,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","2","head","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"2","coinSide":"head","enemyToAtk":"single"}]
           }
         ]
       },
@@ -2634,7 +2634,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["50","1","","single"]
+            "params":[{"basicDmgToDo": "50","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -2686,7 +2686,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -2703,7 +2703,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","2","head","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"2","coinSide":"head","enemyToAtk":"single"}]
           }
         ]
       }
@@ -2754,7 +2754,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -2770,7 +2770,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -2827,7 +2827,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -2844,7 +2844,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -2897,7 +2897,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -2949,11 +2949,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "doesNDmgAndSetImmunity",
-            "params":["","true"]
+            "params":[{"tailBounded":"","headBounded":"true"}]
           }
         ]
       },
@@ -2970,7 +2970,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1","","single"]
+            "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -3016,11 +3016,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -3071,7 +3071,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -3121,11 +3121,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -3175,7 +3175,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -3191,11 +3191,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Fire","atk"]
+            "params":[{"discardAmount":"1","energyType":"Fire","pokemonToApply":"atk"}]
           }
         ]
       }
@@ -3241,7 +3241,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -3257,7 +3257,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -3309,7 +3309,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","2","head","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"2","coinSide":"head","enemyToAtk":"single"}]
           }
         ]
       }
@@ -3361,7 +3361,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -3377,11 +3377,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","confused","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "confused","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -3427,11 +3427,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","asleep","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "asleep","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       },
@@ -3447,7 +3447,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -3498,11 +3498,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","poisoned","head","tail","confused"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "poisoned","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "confused"}]
           }
         ]
 
@@ -3553,7 +3553,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -3603,11 +3603,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
 
@@ -3624,15 +3624,15 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["40","1","","single"]
+            "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name": "ndmg",
-            "params":["10","1","","bothBench"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"bothBench"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself",
-            "params":["40"]
+            "params":[{"dmgMyself":"40"}]
           }
         ]
       }
@@ -3685,11 +3685,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "doesNDmgAndSetImmunity",
-            "params":["","true"]
+            "params":[{"tailBounded":"","headBounded":"true"}]
           }
         ]
       },
@@ -3705,11 +3705,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
 
@@ -3760,11 +3760,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
-            "params":["0","30"]
+            "params":[{"tailDmg":"0","headDmg":"30"}]
           }
         ]
       }
@@ -3816,7 +3816,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -3832,7 +3832,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
 
@@ -3884,7 +3884,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
 
@@ -3941,7 +3941,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "110","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -3957,11 +3957,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
-            "params":["10","0"]
+            "params":[{"tailDmg":"10","headDmg":"0"}]
           }
         ]
       }
@@ -4011,11 +4011,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "EachEnergy",
-            "params":["10","atk","2","1"]
+            "params":[{"plusDmg":"10","pokemonToApply":"atk","limitBy":"2","atkPosition": "1"}]
           }
         ]
       }
@@ -4066,7 +4066,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       },
@@ -4082,7 +4082,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["30","1","","single"]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -4128,7 +4128,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -4184,11 +4184,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "doesNDmgAndSetImmunity",
-            "params":["true",""]
+            "params":[{"tailBounded":"true","headBounded":""}]
           }
         ]
 
@@ -4245,11 +4245,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
 
@@ -4266,11 +4266,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "doesNDmgAndSetImmunity",
-            "params":["","true"]
+            "params":[{"tailBounded":"","headBounded":"true"}]
           }
         ]
       }
@@ -4322,15 +4322,15 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["0","1","","single"]
+            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "DiscardEnergy",
-            "params":["1","Water","atk"]
+            "params":[{"discardAmount":"1","energyType":"Water","pokemonToApply":"atk"}]
           },
           {
             "name" : "recovery",
-            "params":["-1","atk"]
+            "params":[{"recoveryAmount":"-1","pokemonToApply":"atk"}]
           }
         ]
       },
@@ -4347,11 +4347,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
 
@@ -4399,7 +4399,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -4451,11 +4451,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","paralyzed","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       },
@@ -4472,11 +4472,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["20","1","","single"]
+            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","poisoned","","","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "poisoned","firstEffectCoin": "","secondEffectCoin": "","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -4526,7 +4526,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           }
         ]
       }
@@ -4577,11 +4577,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","confused","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "confused","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       }
@@ -4631,11 +4631,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":["10","1","","single"]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
             "name" : "status",
-            "params":["def","poisoned","head","tail","noStatus"]
+            "params":[{"pokemonToApply": "def","firstStatusType": "poisoned","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
       }
