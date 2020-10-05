@@ -12,8 +12,6 @@ trait AttackEffect {
   def useEffect(attackingBoard: Board, defendingBoard: Board): Unit
   var params: Seq[Params]
   var totalDmgToEnemyPkm: Int
-  //TODO CONTROLLARE
-  var gameManager :GameManager = _
 }
 
 trait Effect {

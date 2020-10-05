@@ -59,7 +59,6 @@ sealed trait DiscardEnergy extends AttackEffect {
     val effectParams = params.find(p => p.isInstanceOf[DiscardEnergyParams]).get.asInstanceOf[DiscardEnergyParams]
     val pokemonToApply: Option[PokemonCard] = getAtkOrDef(effectParams.pokemonToApply, attackingBoard.activePokemon, defendingBoard.activePokemon)
     var energyCount = effectParams.discardAmount.toInt
-
     if (energyCount == -1)
       energyCount = pokemonToApply.get.totalEnergiesStored
 
@@ -82,7 +81,6 @@ sealed trait RecoverLife extends AttackEffect {
       attackingBoard.activePokemon.get.actualHp += totalAmount
     } else
       attackingBoard.activePokemon.get.actualHp += effectParams.recoveryAmount.toInt
-
     super.useEffect(attackingBoard, defendingBoard)
   }
 }
@@ -97,7 +95,6 @@ sealed trait SetImmunity extends AttackEffect {
 sealed trait MultipleTargetDmg extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[NDmgParams]).last.asInstanceOf[NDmgParams]
-
     atkTo(effectParams.enemyToAtk, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench.filter(c => c.isDefined)).foreach(pkm => pkm.get.addDamage(effectParams.basicDmg.toInt, Seq(EnergyType.Colorless)))
     super.useEffect(attackingBoard, defendingBoard)
   }
@@ -170,10 +167,9 @@ private object utils {
       case "myBench" => myBench
       case "enemyBench" => enemyBench
       case "single" => Seq(defendingPokemon)
-      case "bothBench" => {
+      case "bothBench" =>
         seq = seq ++ enemyBench ++ myBench
         seq
-      }
     }
   }
 }

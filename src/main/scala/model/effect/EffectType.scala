@@ -2,7 +2,6 @@ package model.effect
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
-import model.effect.EffectType.effectType
 
 object EffectType extends Enumeration {
   type effectType = Value

@@ -13,8 +13,6 @@ import model.game.{Board, EnergyType}
 
 
 case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread with Observer {
-
-
   private val eventQueue: BlockingQueue[Event] = new ArrayBlockingQueue[Event](20)
   turnManager.addObserver(this)
   gameManager.addObserver(this)
@@ -22,7 +20,6 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
   private var playerBoard: Board = _
   private var turn: TurnOwner = _
   private var isCancelled: Boolean = false
-
 
   private def placeCards(hand: Seq[Card]): Unit = {
     val basePokemons: Seq[PokemonCard] = hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
@@ -41,12 +38,10 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     populateBench()
     gameManager.notifyObservers(Event.updateBoardsEvent())
     Thread.sleep(1500)
-
     //evolve all pkm
     evolveAll()
     gameManager.notifyObservers(Event.updateBoardsEvent())
     Thread.sleep(1500)
-
     //calculate if the retreat of the active pokemon is convenient and Do it
     if (!gameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
       try {
@@ -63,7 +58,6 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
       calculateAssignEnergy()
     gameManager.notifyObservers(Event.updateBoardsEvent())
     Thread.sleep(1000)
-
     try {
       if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
         gameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.last)
@@ -74,7 +68,6 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     catch {
       case ex: Exception => println("Exception caught : " + ex)
     }
-
     gameManager.activePokemonEndTurnChecks(opponentBoard.activePokemon.get)
     turnManager.switchTurn()
   }
@@ -228,20 +221,16 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     var energyIndex = -1
     val pokemonType = pokemon.pokemonTypes.head
     var totalEnergyCount = 0
-
     if (!pokemon.hasEnergies(pokemon.attacks.last.cost)) {
       energyIndex = opponentBoard.hand.indexWhere(card => card.isInstanceOf[EnergyCard] && card.asInstanceOf[EnergyCard].energyType == pokemonType)
-
       if (energyIndex == -1) {
         val numberOfColorlessNeededForAtk: Int = pokemon.attacks.last.cost.count(card => card.isInstanceOf[EnergyCard] && card.asInstanceOf[EnergyCard].energyType == EnergyType.Colorless)
         pokemon.energiesMap.filter(p => p._1 != pokemonType).foreach(map => totalEnergyCount += map._2)
         if (numberOfColorlessNeededForAtk < totalEnergyCount)
           energyIndex = opponentBoard.hand.indexWhere(card => card.isInstanceOf[EnergyCard])
       }
-
       if (energyIndex >= 0)
         gameManager.addEnergyToPokemon(pokemon, opponentBoard.hand(energyIndex).asInstanceOf[EnergyCard], opponentBoard)
-
     }
     energyIndex
   }

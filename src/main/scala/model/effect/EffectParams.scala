@@ -7,6 +7,7 @@ sealed trait Params {
   def name: String
 }
 
+
 sealed trait NDmgParams extends Params {
   def basicDmg: String
   def coinFlipNumber: String
