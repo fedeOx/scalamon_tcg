@@ -1,0 +1,25 @@
+.message {
+    -fx-fill: rgba(0,0,0,1);
+    -fx-background-color: rgba(0,0,0,1);
+    -fx-alignment: Center;
+    -fx-pref-width: 300;
+    -fx-pref-height: 200;
+    -fx-spacing: 20;
+}
+
+.message Label {
+    -fx-font-size: 20px;
+}
+
+.benchSelection {
+    -fx-fill: rgba(0, 0, 0, 0.7);
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+}
+
+.benchSelection Label {
+    -fx-font-size: 40px;
+}
+
+Label {
+    -fx-text-fill: white;
+}
