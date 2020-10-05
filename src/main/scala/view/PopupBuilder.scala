@@ -74,7 +74,7 @@ trait PopupBuilder {
 /**
  * Object that creates popup messages for the game
  */
-object PopupBuilder {
+object PopupBuilder extends PopupBuilder {
 
   private var controller: Controller = _
 
@@ -156,7 +156,7 @@ object PopupBuilder {
 
   def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]], isAttackingPokemonKO: Boolean): Unit = {
     val windowHeight = 600
-    val windowWidth = 1300
+    val windowWidth = 1500
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
@@ -175,7 +175,7 @@ object PopupBuilder {
         var cardList: Seq[BorderPane] = Seq()
         bench.filter(c => c.isDefined).zipWithIndex.foreach { case (card, cardIndex) => {
           cardList = cardList :+ new BorderPane {
-            center = new ImageView(new Image("/assets/" + card.get.belongingSetCode + "/" + card.get.imageId + ".jpg")) {
+            center = new ImageView(new Image("/assets/" + card.get.belongingSetCode + "/" + card.get.imageId + ".png")) {
               fitWidth = 230
               fitHeight = 322
             }
@@ -183,7 +183,7 @@ object PopupBuilder {
             maxHeight = 322
 
             onMouseEntered = _ => {
-              style = "-fx-border-color: red; -fx-border-style: solid; -fx-border-width: 4px;"
+              style = "-fx-border-color: red; -fx-border-style: solid; -fx-border-width: 4px; -fx-border-radius: 10px;"
             }
             onMouseExited = _ => style = ""
             onMouseClicked = _ => {

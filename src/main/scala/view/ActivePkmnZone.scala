@@ -103,9 +103,7 @@ object ActivePkmnZone {
               || parentBoard.myBoard.pokemonBench.head.isEmpty || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep))
               disable = true
             onAction = event => {
-              println("ritirata")
               PopupBuilder.openBenchSelectionScreen(board.gameWindow, parentBoard.myBoard.pokemonBench, isAttackingPokemonKO = false)
-
               event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
             }
           }
@@ -137,7 +135,6 @@ object ActivePkmnZone {
         } catch {
           case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow, ex.getMessage)
         }
-
       }
     }
   }
