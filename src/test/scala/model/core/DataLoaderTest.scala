@@ -64,7 +64,7 @@ class DataLoaderTest extends AnyFlatSpec with GivenWhenThen {
     dataLoader.saveCustomDeck(CustomDeck(deckName, SetType.Base, customDeck))
 
     Then("it should be able to be found in the destination file")
-    var cursor = buildCursor(new FileInputStream(DataLoader.SaveDirectory + DataLoader.CustomDeckFileName))
+    val cursor = buildCursor(new FileInputStream(DataLoader.SaveDirectory + DataLoader.CustomDeckFileName))
     assert(cursor.values.get.map(i => i.hcursor.downField("name")).exists(i => i.as[String].toOption.get == deckName))
 
     When("an existent custom deck is choosen")
@@ -87,7 +87,7 @@ class DataLoaderTest extends AnyFlatSpec with GivenWhenThen {
   }
 
   private def resetCustomDecksFile(deckName: String): Unit = {
-    var cursor = buildCursor(new FileInputStream(DataLoader.SaveDirectory + DataLoader.CustomDeckFileName))
+    val cursor = buildCursor(new FileInputStream(DataLoader.SaveDirectory + DataLoader.CustomDeckFileName))
     val deckCards = cursor.values.get.map(v => v.as[CustomDeck].toOption.get).toList
     val pw = new PrintWriter(DataLoader.SaveDirectory + DataLoader.CustomDeckFileName)
     pw.write((deckCards.filter(d => d.name != deckName)).asJson.toString)

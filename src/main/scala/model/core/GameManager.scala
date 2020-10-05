@@ -130,11 +130,12 @@ trait GameManager extends Observable {
 object GameManager {
   def apply(): GameManager = GameManagerImpl()
 
+  val InitialHandCardNum = 7
+  val InitialPrizeCardNum = 6
+  val PoisonDamage = 10
+  val ConfusedDamage = 30
+
   private case class GameManagerImpl() extends GameManager {
-    val InitialHandCardNum = 7
-    val InitialPrizeCardNum = 6
-    val PoisonDamage = 10
-    val ConfusedDamage = 30
 
     private var _playerBoard: Option[Board] = None
     private var _opponentBoard: Option[Board] = None

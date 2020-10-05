@@ -10,21 +10,21 @@ import org.scalatest.OneInstancePerTest
 import org.scalatest.flatspec.AnyFlatSpec
 
 class TurnManagerTest extends AnyFlatSpec with MockFactory {
-/*
   behavior of "The TurnManager"
 
   val observerMock: Observer = mock[Observer]
-  TurnManager.addObserver(observerMock)
+  val turnManager: TurnManager = TurnManager()
+  turnManager.addObserver(observerMock)
 
   it should "launch a CoinNotLaunchedException if a player is ready before the coin is launched" in {
     intercept[CoinNotLaunchedException] {
-      TurnManager.playerReady()
+      turnManager.playerReady()
     }
   }
 
   it should "launch a CoinNotLaunchedException when someone tries to switch turn before the coin is launched" in {
     intercept[CoinNotLaunchedException] {
-      TurnManager.switchTurn()
+      turnManager.switchTurn()
     }
   }
 
@@ -32,7 +32,7 @@ class TurnManagerTest extends AnyFlatSpec with MockFactory {
     (observerMock.update _).expects(where {e: Event => {
       e.isInstanceOf[FlipCoin]
     }})
-    TurnManager.flipACoin()
+    turnManager.flipACoin()
   }
 
   it should "notify observers when both human player and AI player are ready to play" in {
@@ -40,8 +40,8 @@ class TurnManagerTest extends AnyFlatSpec with MockFactory {
       e.isInstanceOf[NextTurn]
       e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
     }})
-    TurnManager.playerReady() // AI player is ready
-    TurnManager.playerReady() // Human player is ready
+    turnManager.playerReady() // AI player is ready
+    turnManager.playerReady() // Human player is ready
   }
 
   it should "notify observers when a player ends his turn" in {
@@ -49,8 +49,6 @@ class TurnManagerTest extends AnyFlatSpec with MockFactory {
       e.isInstanceOf[NextTurn]
       e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
     }})
-    TurnManager.switchTurn()
+    turnManager.switchTurn()
   }
-
- */
 }
