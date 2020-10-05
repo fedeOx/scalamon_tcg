@@ -4,11 +4,8 @@ import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import controller.Controller
 import javafx.scene.paint.ImagePattern
-import model.core.{GameManager, TurnManager}
 import model.event.Events
-import model.event.Events.Event
 import model.event.Events.Event._
-import model.ai.Ai
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
@@ -24,17 +21,15 @@ import scalafx.stage.Stage
  * Stage that contains the game scene
  */
 class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with Observer {
-  //private val parentWindow : Window = this
-  val zoomZone = new ZoomZone
-  var turnOwner: TurnOwner = TurnOwner.Player
+  val zoomZone: ZoomZone = ZoomZone()
+  var turnOwner : TurnOwner = TurnOwner.Player
   private val WIDTH = 1600
   private val HEIGHT = 1000
   private val TITLE = "Scalamon"
-  //private val guiEl: GuiElements = GuiElements(this, new ZoomZone)
-  private val iABoard = new PlayerBoardImpl(false, this)
-  private val humanBoard = new PlayerBoardImpl(true, this)
-  private var loadingMessage: Stage = _
-
+  private val aIBoard = PlayerBoard(isHumans = false,this)
+  private val humanBoard = PlayerBoard(isHumans = true,this)
+  private var loadingMessage : Stage = _
+  private var gameEnded : Boolean = false
   title = TITLE
   icons += new Image("/assets/icon.png")
   controller.gameManager.addObserver(this)
@@ -65,14 +60,14 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
       minWidth(55)
       minHeight(50)
       alignmentInParent = Pos.Center
-      children = Seq(iABoard, humanBoard)
+      children = Seq(aIBoard, humanBoard)
     }, zoomZone)
     loadingMessage = PopupBuilder.openLoadingScreen(this.window.value)
     loadingMessage.show()
   }
 
   resizable = true
-  sizeToScene()
+  maximized = true
   show()
   onCloseRequest = _ => controller.interruptAi()
 
@@ -90,13 +85,13 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   private def initializeBoards(event: BuildGameField): Unit = {
     humanBoard.myBoard = event.playerBoard
     humanBoard.opponentBoard = event.opponentBoard
-    iABoard.myBoard = event.opponentBoard
-    iABoard.opponentBoard = event.playerBoard
+    aIBoard.myBoard = event.opponentBoard
+    aIBoard.opponentBoard = event.playerBoard
     Platform.runLater({
       humanBoard.updateHand()
       humanBoard.updatePrizes()
       humanBoard.updateActive()
-      iABoard.updatePrizes()
+      aIBoard.updatePrizes()
     })
     Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
   }
@@ -110,49 +105,49 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
       humanBoard.updateActive()
       humanBoard.updateHand()
       humanBoard.updateBench()
-      humanBoard.updateDiscardStack()
+      humanBoard.updateDeckAndDiscardStack()
       if (!humanBoard.isFirstTurn) {
         Platform.runLater({
-          iABoard.updateBench()
-          iABoard.updateActive()
-          iABoard.updateDiscardStack()
+          aIBoard.updateBench()
+          aIBoard.updateActive()
+          aIBoard.updateDeckAndDiscardStack()
         })
       }
     })
   }
 
-  private def handleTurnStart(event: NextTurn): Unit = {
-    turnOwner = event.turnOwner
-    if (event.turnOwner == TurnOwner.Player) {
-      humanBoard.alterButton(false)
-      controller.activePokemonStatusCheck()
+  private def handleTurnStart(event: NextTurn) : Unit = {
+    Platform.runLater(humanBoard.updateDeckAndDiscardStack())
+    if(!gameEnded){
+      turnOwner = event.turnOwner
+      if(event.turnOwner == TurnOwner.Player) {
+        humanBoard.alterButton(false)
+        controller.activePokemonStatusCheck()
+        Platform.runLater({
+          PopupBuilder.openTurnScreen(this)
+          controller.drawCard()
+          humanBoard.updateHand()
+        })
+      } else
+        humanBoard.alterButton(true)
       Platform.runLater({
-        PopupBuilder.openTurnScreen(this)
-        controller.drawCard()
-        humanBoard.updateHand()
+        aIBoard.updateBench()
+        aIBoard.updateActive()
+        aIBoard.updateDeckAndDiscardStack()
       })
-    } else
-      humanBoard.alterButton(true)
-    Platform.runLater({
-      iABoard.updateBench()
-      iABoard.updateActive()
-      iABoard.updateDiscardStack()
-    })
+    }
   }
 
   private def handleKO(event: PokemonKO): Unit = {
-    //TODO: controllo sulla board
-    if (event.board.eq(humanBoard.myBoard)) {
-      if (humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined)
-        && iABoard.myBoard.prizeCards.size > 1)
-        Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
-          humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
-    }
+    if (event.board.eq(humanBoard.myBoard) && humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined)
+      && aIBoard.myBoard.prizeCards.size > 1)
+      Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,
+        humanBoard.myBoard.pokemonBench, event.isPokemonInCharge))
     Platform.runLater({
       humanBoard.updateActive()
       humanBoard.updatePrizes()
-      iABoard.updatePrizes()
-      iABoard.updateActive()
+      aIBoard.updatePrizes()
+      aIBoard.updateActive()
     })
   }
 
@@ -162,12 +157,12 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     }
   }
 
-  private def endGame(): Unit = {
-    println("fermo il gioco")
+  private def endGame() : Unit = {
     val playerBoard = humanBoard.myBoard
     val opponentBoard = humanBoard.opponentBoard
     var playerWon: Boolean = false
-    if (playerBoard.prizeCards.isEmpty ||
+    gameEnded = true
+    if(playerBoard.prizeCards.isEmpty ||
       (opponentBoard.activePokemon.get.isKO && !opponentBoard.pokemonBench.exists(card => card.isDefined)))
       playerWon = true
     else if (opponentBoard.prizeCards.isEmpty)

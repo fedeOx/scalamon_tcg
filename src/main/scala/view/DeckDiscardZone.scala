@@ -6,26 +6,48 @@ import scalafx.scene.layout.VBox
 import scalafx.scene.shape.Box
 import view.CardCreator.createCard
 
-import scala.collection.mutable
-
-/***
- * The Zone for the deck and the discard stack
+/**
+ * The field Zone that contains the deck and the discard stack
  */
-case class DeckDiscardZone() extends VBox {
-  private val WIDTH = 10
-  private val HEIGHT = 25
-  private var deck = createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
-  private var discardStack : Box = _
-  children = deck
+trait DeckDiscardZone extends VBox {
+  /**
+   * Updates the VBox children
+   * @param deck: the board's deck
+   * @param discardStack: the board's discard stack
+   */
+  def updateView(deck: Seq[Card], discardStack: Seq[Card]): Unit
+}
 
-  alignment = Pos.Center
-  prefWidth = WIDTH
-  prefHeight = HEIGHT
-  styleClass += "deckDiscard"
-  translateX = 45
+object DeckDiscardZone {
+  /**
+   * Creates an instance of DeckDiscardZone
+   * @return an instance of DeckDiscardZone
+   */
+  def apply(): DeckDiscardZone = DeckDiscardZoneImpl()
 
-  def updateView(card: Card) : Unit = {
-    discardStack = createCard("/assets/"+card.belongingSetCode+"/"+card.imageId+".jpg", cardType = CardType.DiscardStack)
-    children = List(deck, discardStack)
+  private case class DeckDiscardZoneImpl() extends DeckDiscardZone {
+    private val WIDTH = 10
+    private val HEIGHT = 25
+    private val deckBox = createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
+    private var discardStackBox : Box = _
+    children = deckBox
+
+    alignment = Pos.Center
+    prefWidth = WIDTH
+    prefHeight = HEIGHT
+    styleClass += "deckDiscard"
+    translateX = 45
+
+    def updateView(deck: Seq[Card], discardStack: Seq[Card]) : Unit = {
+      var list = Seq[Box]()
+      if (deck.nonEmpty)
+        list = list :+ deckBox
+      if(discardStack.nonEmpty) {
+        discardStackBox = createCard("/assets/"+discardStack.last.belongingSetCode+"/"+
+          discardStack.last.imageId+".png", cardType = CardType.DiscardStack)
+        list = list :+ discardStackBox
+      }
+      children = list
+    }
   }
 }
