@@ -3760,11 +3760,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
-          },
-          {
-            "name" : "DoesNDmgAndDmgMyself_OR_doesNdmg",
-            "params":[{"tailDmg":"0","headDmg":"30"}]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"1","coinSide":"head","enemyToAtk":"single"}]
           }
         ]
       }
