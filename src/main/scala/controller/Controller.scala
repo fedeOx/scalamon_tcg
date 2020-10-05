@@ -7,7 +7,8 @@ import model.effect.EffectManager
 import model.event.Events.Event
 import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
+import model.game.EnergyType.EnergyType
+import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType, EnergyType}
 import model.game.SetType.SetType
 
 import scala.util.Random
@@ -116,6 +117,15 @@ trait Controller {
    * It resets the current game in order to start a new one.
    */
   def resetGame(): Unit
+
+  /**
+   * It adds the specified damage to the specified benched pokemon
+   * @param pokemon the pokemon to which the damage should be done
+   * @param attackingBoard the attacking board
+   * @param defendingBoard the defending board to which the pokemon belongs
+   * @param damage the damage to be done
+   */
+  def damageBenchedPokemon(pokemon: PokemonCard, attackingBoard: Board, defendingBoard: Board, damage: Int): Unit
 }
 
 object Controller {
@@ -251,5 +261,8 @@ object Controller {
     }.start()
 
     override def resetGame(): Unit = ai.interrupt(); CoinUtil.reset()
+
+    override def damageBenchedPokemon(pokemon: PokemonCard, attackingBoard: Board, defendingBoard: Board, damage: Int): Unit =
+      gameManager.damageBenchedPokemon(pokemon, attackingBoard, defendingBoard, damage)
   }
 }

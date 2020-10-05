@@ -47,7 +47,7 @@
                 "id": "base1-33",
                 "name": "Kakuna",
                 "rarity": "Uncommon",
-                "count": 2
+                "count": 3
             },
             {
                 "id": "base1-17",
@@ -77,36 +77,6 @@
                 "id": "base1-6",
                 "name": "Gyarados",
                 "rarity": "Rare Holo",
-                "count": 1
-            },
-            {
-                "id": "base1-91",
-                "name": "Bill",
-                "rarity": "Common",
-                "count": 2
-            },
-            {
-                "id": "base1-93",
-                "name": "Gust of Wind",
-                "rarity": "Common",
-                "count": 2
-            },
-            {
-                "id": "base1-94",
-                "name": "Potion",
-                "rarity": "Common",
-                "count": 1
-            },
-            {
-                "id": "base1-90",
-                "name": "Super Potion",
-                "rarity": "Uncommon",
-                "count": 2
-            },
-            {
-                "id": "base1-95",
-                "name": "Switch",
-                "rarity": "Common",
                 "count": 2
             },
             {
@@ -228,54 +198,6 @@
                 "count": 1
             },
             {
-                "id": "base1-91",
-                "name": "Bill",
-                "rarity": "Common",
-                "count": 2
-            },
-            {
-                "id": "base1-71",
-                "name": "Computer Search",
-                "rarity": "Rare",
-                "count": 1
-            },
-            {
-                "id": "base1-80",
-                "name": "Defender",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-93",
-                "name": "Gust of Wind",
-                "rarity": "Common",
-                "count": 2
-            },
-            {
-                "id": "base1-94",
-                "name": "Potion",
-                "rarity": "Common",
-                "count": 1
-            },
-            {
-                "id": "base1-88",
-                "name": "Professor Oak",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-90",
-                "name": "Super Potion",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-95",
-                "name": "Switch",
-                "rarity": "Common",
-                "count": 2
-            },
-            {
                 "id": "base1-100",
                 "name": "Lightning Energy",
                 "rarity": "Common",
@@ -380,48 +302,6 @@
                 "name": "Tangela",
                 "rarity": "Common",
                 "count": 2
-            },
-            {
-                "id": "base1-92",
-                "name": "Energy Removal",
-                "rarity": "Common",
-                "count": 1
-            },
-            {
-                "id": "base1-81",
-                "name": "Energy Retrieval",
-                "rarity": "Uncommon",
-                "count": 2
-            },
-            {
-                "id": "base1-93",
-                "name": "Gust of Wind",
-                "rarity": "Common",
-                "count": 1
-            },
-            {
-                "id": "base1-75",
-                "name": "Lass",
-                "rarity": "Rare",
-                "count": 1
-            },
-            {
-                "id": "base1-84",
-                "name": "PlusPower",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-94",
-                "name": "Potion",
-                "rarity": "Common",
-                "count": 3
-            },
-            {
-                "id": "base1-95",
-                "name": "Switch",
-                "rarity": "Common",
-                "count": 1
             },
             {
                 "id": "base1-98",
@@ -540,36 +420,6 @@
                 "name": "Farfetch'd",
                 "rarity": "Uncommon",
                 "count": 2
-            },
-            {
-                "id": "base1-92",
-                "name": "Energy Removal",
-                "rarity": "Common",
-                "count": 4
-            },
-            {
-                "id": "base1-93",
-                "name": "Gust of Wind",
-                "rarity": "Common",
-                "count": 1
-            },
-            {
-                "id": "base1-84",
-                "name": "PlusPower",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-88",
-                "name": "Professor Oak",
-                "rarity": "Uncommon",
-                "count": 1
-            },
-            {
-                "id": "base1-79",
-                "name": "Super Energy Removal",
-                "rarity": "Rare",
-                "count": 1
             },
             {
                 "id": "base1-97",
