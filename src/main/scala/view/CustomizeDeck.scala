@@ -16,14 +16,15 @@ import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control._
 import scalafx.scene.layout._
-import scalafx.stage.Stage
+import scalafx.stage.{Stage, Window}
 
 
 case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene with Observer {
 
   controller.dataLoader.addObserver(this)
   var deckCard: Seq[Card] = List()
-  val loadingMessage: Stage = PopupBuilder.openLoadingScreen(window.getValue.asInstanceOf[scalafx.stage.Window])
+  val parentWindow: Window = window.getValue.asInstanceOf[scalafx.stage.Window]
+  val loadingMessage: Stage = PopupBuilder.openLoadingScreen(parentWindow)
   Platform.runLater(loadingMessage.show())
 
   controller.loadSet(setType)
@@ -32,7 +33,7 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
   }
   val buttonConfirm: Button = new Button {
     id = "Confirm-btn"
-    text = "Salva"
+    text = "Save"
     margin = Insets(0, 10, 0, 10)
     onAction = _ => {
       var seqDeck: Seq[DeckCard] = Seq()
@@ -41,7 +42,11 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
         cardsTableItem.foreach(p => {seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count) ; totalCard += p.count})
         if (totalCard >= 60) {
           controller.createCustomDeck(CustomDeck(textFieldName.text.value, setType, seqDeck))
+        } else {
+          PopupBuilder.openInvalidOperationMessage(parentWindow, "A deck must have at least 60 cards!")
         }
+      } else {
+        PopupBuilder.openInvalidOperationMessage(parentWindow, "Insert the deck name!")
       }
     }
   }
@@ -117,7 +122,7 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
       onMouseClicked = _ => {
         GameLauncher.stage.scene = DeckSelection(controller)
       }
-    }, new VBox(new HBox(new Label("Inserisci nome del deck ") {
+    }, new VBox(new HBox(new Label("Deck name: ") {
       id = "deckNameLabel"; margin = Insets(0, 10, 0, 10)
     }, textFieldName), buttonConfirm) {
       padding = Insets(5, 0, 0, 30)
@@ -149,7 +154,11 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
       })
     case event if event.isInstanceOf[CustomDeckSaved] =>
       Platform.runLater(() => {
-        GameLauncher.stage.scene = DeckSelection(controller)
+        if(event.asInstanceOf[CustomDeckSaved].success) {
+          GameLauncher.stage.scene = DeckSelection(controller)
+        } else {
+          PopupBuilder.openInvalidOperationMessage(parentWindow, "Deck name already present")
+        }
       })
     case _ =>
   }
