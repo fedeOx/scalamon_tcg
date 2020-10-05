@@ -1,6 +1,6 @@
 package controller
 
-import common.Observable
+import common.{CoinUtil, Observable}
 import model.ai.Ai
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.effect.EffectManager
@@ -9,6 +9,7 @@ import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
 import model.game.SetType.SetType
+
 import scala.util.Random
 
 trait Controller {
@@ -114,7 +115,7 @@ trait Controller {
   /**
    * It resets the current game in order to start a new one.
    */
-  def interruptAi(): Unit
+  def resetGame(): Unit
 }
 
 object Controller {
@@ -124,7 +125,6 @@ object Controller {
     val turnManager = TurnManager()
     val ai = Ai(gameManager, turnManager)
     ai.start()
-    EffectManager.setGameManager(gameManager)
     ControllerImpl(dataLoader, gameManager, turnManager, ai)
   }
 
@@ -250,6 +250,6 @@ object Controller {
       }
     }.start()
 
-    override def interruptAi(): Unit = ai.interrupt()
+    override def resetGame(): Unit = ai.interrupt(); CoinUtil.reset()
   }
 }

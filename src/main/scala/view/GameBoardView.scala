@@ -1,7 +1,7 @@
 package view
 
 import common.TurnOwner.TurnOwner
-import common.{Observer, TurnOwner}
+import common.{CoinUtil, Observer, TurnOwner}
 import controller.Controller
 import javafx.scene.paint.ImagePattern
 import model.event.Events
@@ -34,6 +34,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   icons += new Image("/assets/icon.png")
   controller.gameManager.addObserver(this)
   controller.turnManager.addObserver(this)
+  CoinUtil.addObserver(this)
   CardCreator.setController(controller)
   PopupBuilder.setController(controller)
   x = 0
@@ -69,7 +70,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   resizable = true
   maximized = true
   show()
-  onCloseRequest = _ => controller.interruptAi()
+  onCloseRequest = _ => controller.resetGame()
 
   override def update(event: Events.Event): Unit = event match {
     case event: BuildGameField => initializeBoards(event)
@@ -170,7 +171,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     else
       playerWon = false
     Platform.runLater(PopupBuilder.openEndGameScreen(this, playerWon))
-    controller.interruptAi()
+    controller.resetGame()
   }
 }
 

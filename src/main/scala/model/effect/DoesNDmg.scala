@@ -1,5 +1,6 @@
 package model.effect
 
+import common.CoinUtil
 import common.CoinUtil.CoinValue
 import model.game.Cards.PokemonCard
 import model.game.{Board, EnergyType, StatusType}
@@ -107,7 +108,7 @@ sealed trait DmgMySelf extends AttackEffect {
       attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - effectParamsDmgMyself.dmgMyself.toInt
     } else {
       val dmgMyselfOrNot = params.find(p => p.isInstanceOf[DmgMyselfOrNotParams]).last.asInstanceOf[DmgMyselfOrNotParams]
-      if (getCoinFlipValue == CoinValue.Head)
+      if (CoinUtil.flipACoin() == CoinValue.Head)
         attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - dmgMyselfOrNot.headDmg.toInt
       else
         attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - dmgMyselfOrNot.tailDmg.toInt
@@ -122,7 +123,7 @@ sealed trait addStatus extends AttackEffect {
     var statusToApply: StatusType = StatusType.withNameWithDefault(effectParams.firstStatusType)
 
     if (effectParams.firstEffectCoin != "" || effectParams.secondEffectCoin != "")
-      if (getCoinFlipValue == CoinValue.Tail)
+      if (CoinUtil.flipACoin() == CoinValue.Tail)
         statusToApply = StatusType.withNameWithDefault(effectParams.secondStatus)
 
     val pokemonToApply = getAtkOrDef(effectParams.pokemonToApply, attackingBoard.activePokemon, defendingBoard.activePokemon)

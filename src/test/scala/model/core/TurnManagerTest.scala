@@ -1,6 +1,6 @@
 package model.core
 
-import common.Observer
+import common.{CoinUtil, Observer}
 import common.TurnOwner.TurnOwner
 import model.event.Events.Event
 import model.event.Events.Event.{FlipCoin, NextTurn}
@@ -15,6 +15,7 @@ class TurnManagerTest extends AnyFlatSpec with MockFactory {
   val observerMock: Observer = mock[Observer]
   val turnManager: TurnManager = TurnManager()
   turnManager.addObserver(observerMock)
+  CoinUtil.addObserver(observerMock)
 
   it should "launch a CoinNotLaunchedException if a player is ready before the coin is launched" in {
     intercept[CoinNotLaunchedException] {

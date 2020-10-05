@@ -47,8 +47,7 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
       try {
         calculateIfWithdrawAndDo()
       } catch {
-        case _: InvalidOperationException => println("can't retreat")
-        case _ =>
+        case _ : InvalidOperationException => println("can't retreat")
       }
     }
 

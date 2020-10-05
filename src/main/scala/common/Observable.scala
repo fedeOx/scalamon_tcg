@@ -3,7 +3,7 @@ package common
 import model.event.Events.Event
 
 trait Observable {
-  private var observers: Seq[Observer] = Vector()
+  protected var observers: Seq[Observer] = Vector()
 
   def addObserver(observer: Observer): Unit = observers = observers :+ observer
 

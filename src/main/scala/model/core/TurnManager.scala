@@ -42,7 +42,6 @@ object TurnManager {
         case CoinValue.Tail => Some(TurnOwner.Opponent)
         case CoinValue.Head => Some(TurnOwner.Player)
       }
-      this.notifyObservers(Event.flipCoinEvent(turnOwner.get.equals(TurnOwner.Player)))
     }
 
     def playerReady(): Unit = {
