@@ -57,7 +57,7 @@ object ActivePkmnZone {
         }
       } else {
         isEmpty = false
-        children = createCard("/assets/" + active.get.belongingSetCode + "/" + active.get.imageId + ".png", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone),
+        children = createCard("/assets/" + active.get.belongingSetCode + "/" + active.get.imageNumber + ".png", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone),
           cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard), gameWindow = Some(board.gameWindow))
       }
     }
