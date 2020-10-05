@@ -15,5 +15,4 @@ object CardType extends Enumeration {
   val Prize = "Prize"
   val Deck = "Deck"
   val Placeholder = "Placeholder"
-
 }

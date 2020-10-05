@@ -9,7 +9,6 @@ import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
 import model.game.SetType.SetType
 import model.ia.Ia
 import model.pokemonEffect.EffectManager
-
 import scala.util.Random
 
 trait Controller {
