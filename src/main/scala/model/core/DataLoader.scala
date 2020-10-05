@@ -6,7 +6,7 @@ import java.nio.file.{Files, Path, Paths}
 import common.Observable
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
-import io.circe.{HCursor, Json, JsonObject}
+import io.circe.{HCursor, Json}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.DeckType.DeckType
 import model.game.{CustomDeck, DeckCard, DeckType}
@@ -134,7 +134,7 @@ object DataLoader {
           }
         }
       }
-      deckCards.filter(c => c.imageId.toInt < 70 || c.imageId.toInt > 95) // excludes Trainer cards
+      deckCards
     }
 
     private def buildSet(cursor: HCursor): Seq[Card] = {

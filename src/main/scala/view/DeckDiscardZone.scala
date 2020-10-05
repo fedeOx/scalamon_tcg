@@ -44,7 +44,7 @@ object DeckDiscardZone {
         list = list :+ deckBox
       if(discardStack.nonEmpty) {
         discardStackBox = createCard("/assets/"+discardStack.last.belongingSetCode+"/"+
-          discardStack.last.imageId+".png", cardType = CardType.DiscardStack)
+          discardStack.last.imageNumber+".png", cardType = CardType.DiscardStack)
         list = list :+ discardStackBox
       }
       children = list

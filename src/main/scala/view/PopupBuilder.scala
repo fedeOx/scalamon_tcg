@@ -175,7 +175,7 @@ object PopupBuilder extends PopupBuilder {
         var cardList: Seq[BorderPane] = Seq()
         bench.filter(c => c.isDefined).zipWithIndex.foreach { case (card, cardIndex) => {
           cardList = cardList :+ new BorderPane {
-            center = new ImageView(new Image("/assets/" + card.get.belongingSetCode + "/" + card.get.imageId + ".png")) {
+            center = new ImageView(new Image("/assets/" + card.get.belongingSetCode + "/" + card.get.imageNumber + ".png")) {
               fitWidth = 230
               fitHeight = 322
             }

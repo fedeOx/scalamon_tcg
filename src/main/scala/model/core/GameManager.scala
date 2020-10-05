@@ -4,7 +4,6 @@ import common.Observable
 import model.event.Events.Event
 import model.exception.{CardNotFoundException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.EnergyType.EnergyType
 import model.game.{Attack, Board, DeckCard, EnergyType, StatusType}
 
 import scala.util.Random
@@ -330,9 +329,9 @@ object GameManager {
     @throws(classOf[CardNotFoundException])
     @scala.annotation.tailrec
     private def buildCardList(deckCards: Seq[DeckCard], setCards: Seq[Card])(cardList: Seq[Card]): Seq[Card] = deckCards match {
-      case h :: t if setCards.exists(sc => sc.imageId == h.imageId) =>
-        buildCardList(t, setCards)(cardList ++ deepCloneCards(List.fill(h.count)(setCards.find(sc => sc.imageId == h.imageId).get)))
-      case h :: _ => throw new CardNotFoundException("Card " + h.imageId + " not found in the specified set")
+      case h :: t if setCards.exists(sc => sc.id == h.id) =>
+        buildCardList(t, setCards)(cardList ++ deepCloneCards(List.fill(h.count)(setCards.find(sc => sc.id == h.id).get)))
+      case h :: _ => throw new CardNotFoundException("Card " + h.imageNumber + " not found in the specified set")
       case _ => cardList
     }
 
