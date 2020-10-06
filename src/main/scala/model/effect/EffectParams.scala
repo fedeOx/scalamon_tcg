@@ -13,6 +13,13 @@ sealed trait NDmgParams extends Params {
   def coinSide: String
   def enemyToAtk: String
 }
+
+sealed trait ToBenchParams extends Params {
+  def benchToApply : String
+  def dmgToDo : String
+  def limit : String
+}
+
 sealed trait EachDmgParams extends Params {
   def dmgToAdd: String
   def pokemonToApply: String
@@ -74,6 +81,23 @@ object NDmgParams {
   }
 
 }
+
+object ToBenchParams {
+  def apply(name:String , benchToApply : String ,dmgToDo : String, limit : String): ToBenchParams = ToBenchParamsImpl(name , benchToApply  ,dmgToDo , limit )
+  implicit val decoder: Decoder[ToBenchParams] = new Decoder[ToBenchParams] {
+    override def apply(c: HCursor): Result[ToBenchParams] =
+      for {
+        _benchToApply <- c.downField("benchToApply").as[Option[String]]
+        _dmgToDo <- c.downField("dmgToDo").as[Option[String]]
+        _limit <- c.downField("limit").as[Option[String]]
+      } yield {
+        ToBenchParamsImpl(EffectType.eachDmg.toString, _benchToApply.get, _dmgToDo.get,_limit.get)
+      }
+  }
+  private case class ToBenchParamsImpl(name:String , benchToApply : String ,dmgToDo : String, limit : String) extends ToBenchParams
+
+}
+
 object EachDmgParams {
   def apply(name: String, dmgToAdd: String, pokemonToApply: String, signature: String): EachDmgParams = eachDmgParamsImpl(name, dmgToAdd, pokemonToApply, signature)
 
@@ -87,7 +111,6 @@ object EachDmgParams {
         eachDmgParamsImpl(EffectType.eachDmg.toString, _dmg.get, _pkmToApply.get, _signature.get)
       }
   }
-
   private case class eachDmgParamsImpl(name: String, dmgToAdd: String, pokemonToApply: String, signature: String) extends EachDmgParams
 
 }

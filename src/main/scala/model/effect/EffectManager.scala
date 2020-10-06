@@ -111,10 +111,10 @@ object EffectManager {
           resolveAttack(t)
       }
       //Base atk to defending pokemon + Dmg to BenchMultipleTargetDmg ( Multiple Dmg)
-      case h :: t if h.name == EffectType.doesNdmg && t.head.name == EffectType.doesNdmg => {
-        val effectParams = jsonEffect.filter(effect => effect.name == EffectType.doesNdmg).last.params.head.asInstanceOf[NDmgParams]
+      case h :: t if h.name== EffectType.toBench => {
+        val effectParams = jsonEffect.filter(effect => effect.name == EffectType.toBench).last.params.head.asInstanceOf[ToBenchParams]
         returnedAttack = returnedEffect(new DoesDmgToMultipleTarget(basicDmgToDo, basicEnemyToAtk), effectParams)
-        resolveAttack(t.tail)
+        resolveAttack(t)
       }
       //Status
       case h :: t if h.name == EffectType.status => {

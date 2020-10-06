@@ -13,7 +13,6 @@ object EffectType extends Enumeration {
   val toBench: Value = Value("toBench")
   val eachEnergy: Value = Value("EachEnergy")
   val eachDmg: Value = Value("EachDmg")
-  val eachBenched:Value = Value("EachBenched")
   val doesNDmgAndHitMyself: Value = Value("DoesNDmgAndDmgMyself")
   val doesNDmgAndHitMyself_OR_doesNdmg: Value = Value("DoesNDmgAndDmgMyself_OR_doesNdmg")
   val doesNDmgAndSetImmunity: Value = Value("doesNDmgAndSetImmunity")

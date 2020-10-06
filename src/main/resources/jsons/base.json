@@ -612,8 +612,8 @@
             "params":[{"basicDmgToDo": "80","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
-            "name": "ndmg",
-            "params":[{"basicDmgToDo": "20","coinFlipNumber":"1","coinSide":"","enemyToAtk":"bothBench"}]
+            "name" : "toBench",
+            "params":[{"benchToApply":"both","dmgToDo":"20","limit":"-1"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself",
@@ -1358,8 +1358,8 @@
             "params":[{"basicDmgToDo": "70","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
-            "name": "ndmg",
-            "params":[{"basicDmgToDo": "80","coinFlipNumber":"1","coinSide":"","enemyToAtk":"myBench"}]
+            "name" : "toBench",
+            "params":[{"benchToApply":"atk","dmgToDo":"10","limit":"-1"}]
           }
         ]
 
@@ -3627,8 +3627,8 @@
             "params":[{"basicDmgToDo": "40","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
           },
           {
-            "name": "ndmg",
-            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"bothBench"}]
+            "name" : "toBench",
+            "params":[{"benchToApply":"both","dmgToDo":"10","limit":"-1"}]
           },
           {
             "name" : "DoesNDmgAndDmgMyself",
@@ -4187,7 +4187,6 @@
             "params":[{"tailBounded":"true","headBounded":""}]
           }
         ]
-
       }
     ],
     "weaknesses": [

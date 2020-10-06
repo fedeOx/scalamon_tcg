@@ -227,7 +227,7 @@
           },
           {
             "name" : "toBench",
-            "params":[{"benchToApply":"def","dmgToDo":"10","multipleTarget": "no","limit":""}]
+            "params":[{"benchToApply":"def","dmgToDo":"10","limit":"1"}]
           }
         ]
       }
@@ -336,7 +336,7 @@
           },
           {
             "name" : "toBench",
-            "params":[{"benchToApply":"def","dmgToDo":"20","multipleTarget": "no","limit":""}]
+            "params":[{"benchToApply":"def","dmgToDo":"20","limit":"1"}]
           }
         ]
       },
@@ -417,7 +417,7 @@
           },
           {
             "name" : "toBench",
-            "params":[{"benchToApply":"def","dmgToDo":"10","multipleTarget": "no","limit":""}]
+            "params":[{"benchToApply":"def","dmgToDo":"10","limit":"1"}]
           }
         ]
       }
@@ -739,7 +739,7 @@
           },
           {
             "name" : "toBench",
-            "params":[{"benchToApply":"def","dmgToDo":"10","multipleTarget": "yes","limit":"3"}]
+            "params":[{"benchToApply":"def","dmgToDo":"10","limit":"3"}]
           }
         ]
       }
@@ -1891,7 +1891,11 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":[{"basicDmgToDo": "0","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
+            "params":[{"basicDmgToDo": "10","coinFlipNumber":"1","coinSide":"","enemyToAtk":"single"}]
+          },
+          {
+            "name" : "doesNDmgAndSetImmunity",
+            "params":[{"tailBounded":"true","headBounded":""}]
           }
         ]
       }
