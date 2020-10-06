@@ -105,13 +105,13 @@ sealed trait DmgMySelf extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
     if (params.exists(p => p.isInstanceOf[DmgMyselfParams])) {
       val effectParamsDmgMyself = params.find(p => p.isInstanceOf[DmgMyselfParams]).last.asInstanceOf[DmgMyselfParams]
-      attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - effectParamsDmgMyself.dmgMyself.toInt
+      attackingBoard.activePokemon.get.addDamage(effectParamsDmgMyself.dmgMyself.toInt,Seq(EnergyType.Colorless))
     } else {
       val dmgMyselfOrNot = params.find(p => p.isInstanceOf[DmgMyselfOrNotParams]).last.asInstanceOf[DmgMyselfOrNotParams]
       if (CoinUtil.flipACoin() == CoinValue.Head)
-        attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - dmgMyselfOrNot.headDmg.toInt
+        attackingBoard.activePokemon.get.addDamage(dmgMyselfOrNot.headDmg.toInt,Seq(EnergyType.Colorless))
       else
-        attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.actualHp - dmgMyselfOrNot.tailDmg.toInt
+        attackingBoard.activePokemon.get.addDamage(dmgMyselfOrNot.tailDmg.toInt,Seq(EnergyType.Colorless))
     }
     super.useEffect(attackingBoard, defendingBoard)
   }

@@ -36,7 +36,7 @@ object HandZone {
     def updateView(cards: Seq[Card]) : Unit = {
       hand = Seq()
       cards.zipWithIndex.foreach{case (card,cardIndex) => {
-        hand = hand :+ createCard("/assets/"+card.belongingSetCode+"/"+card.imageId+".png",
+        hand = hand :+ createCard("/assets/"+card.belongingSetCode+"/"+card.imageNumber+".png",
           Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), CardType.Hand, 1*cardIndex,
           cardIndex = cardIndex, isHumans = Some(isHumans), Some(this), Some(parentBoard.myBoard), gameWindow = Some(parentBoard.gameWindow))
       }}

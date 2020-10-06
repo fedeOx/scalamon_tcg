@@ -4,7 +4,7 @@ import common.Observable
 import model.event.Events.Event
 import model.exception.{CardNotFoundException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.{Attack, Board, DeckCard, StatusType}
+import model.game.{Attack, Board, DeckCard, EnergyType, StatusType}
 
 import scala.util.Random
 
@@ -125,6 +125,15 @@ trait GameManager extends Observable {
    */
   @throws(classOf[InvalidOperationException])
   def confirmAttack(attackingBoard: Board, defendingBoard: Board, attack: Attack): Unit
+
+  /**
+   * Adds the specified damage to the specified pokemon
+   * @param pokemon the pokemon to which the damage should be done
+   * @param attackingBoard the attacking board
+   * @param defendingBoard the defending board to which the pokemon belongs
+   * @param damage the damage to be done
+   */
+  def damageBenchedPokemon(pokemon: PokemonCard, attackingBoard: Board, defendingBoard: Board, damage: Int): Unit
 }
 
 object GameManager {
@@ -263,6 +272,11 @@ object GameManager {
       }
     }
 
+    override def damageBenchedPokemon(pokemon: PokemonCard, attackingBoard: Board, defendingBoard: Board, damage: Int): Unit = {
+      pokemon.addDamage(damage, Seq(EnergyType.Colorless))
+      eventuallyRemoveKOBenchedPokemon(defendingBoard, attackingBoard)
+    }
+
     private def eventuallyRemoveKOActivePokemon(activePokemon: PokemonCard, board: Board, otherBoard: Board, isPokemonInCharge: Boolean): Unit = {
       if (activePokemon.isKO) {
         if (!pokemonBench(board).exists(c => c.nonEmpty)) {
@@ -315,9 +329,9 @@ object GameManager {
     @throws(classOf[CardNotFoundException])
     @scala.annotation.tailrec
     private def buildCardList(deckCards: Seq[DeckCard], setCards: Seq[Card])(cardList: Seq[Card]): Seq[Card] = deckCards match {
-      case h :: t if setCards.exists(sc => sc.imageId == h.imageId) =>
-        buildCardList(t, setCards)(cardList ++ deepCloneCards(List.fill(h.count)(setCards.find(sc => sc.imageId == h.imageId).get)))
-      case h :: _ => throw new CardNotFoundException("Card " + h.imageId + " not found in the specified set")
+      case h :: t if setCards.exists(sc => sc.id == h.id) =>
+        buildCardList(t, setCards)(cardList ++ deepCloneCards(List.fill(h.count)(setCards.find(sc => sc.id == h.id).get)))
+      case h :: _ => throw new CardNotFoundException("Card " + h.imageNumber + " not found in the specified set")
       case _ => cardList
     }
 
