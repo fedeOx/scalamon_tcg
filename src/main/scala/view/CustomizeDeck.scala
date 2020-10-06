@@ -3,10 +3,11 @@ package view
 
 import common.Observer
 import controller.Controller
+import javafx.beans.property.SimpleObjectProperty
 import model.event.Events
 import model.event.Events.Event.{CustomDeckSaved, ShowSetCards}
 import model.game.Cards.Card
-import model.game.{CustomDeck, DeckCard}
+import model.game.{CustomDeck, DeckCard, SetType}
 import model.game.SetType.SetType
 import scalafx.application.Platform
 import scalafx.beans.property.ObjectProperty
@@ -53,6 +54,14 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
   var cardsTableItem: ObservableBuffer[CardView] = ObservableBuffer[CardView]()
   val tableView: TableView[CardView] = viewUtils.createTableView(cardsTableItem)
   val scrollPane: ScrollPane = new ScrollPane()
+  val boxDeckSelect : ComboBox[String]  = new ComboBox()
+  boxDeckSelect.getItems.addAll("base","fossil")
+  boxDeckSelect.setValue("base")
+
+ boxDeckSelect.onAction = _ =>{
+   controller.loadSet(SetType.withName(boxDeckSelect.getValue))
+
+ }
   stylesheets = List("/style/deckSelection.css")
 
   scrollPane.padding = Insets(5, 5, 5, 5)
@@ -123,7 +132,7 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
       }
     }, new VBox(new HBox(new Label("Deck name: ") {
       id = "deckNameLabel"; margin = Insets(0, 10, 0, 10)
-    }, textFieldName), buttonConfirm) {
+    }, textFieldName), buttonConfirm,boxDeckSelect) {
       padding = Insets(5, 0, 0, 30)
     })
   }
@@ -139,7 +148,7 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
       }
       pokemonSelected.countCard = ObjectProperty(pokemonSelected.count)
     } else if (add) {
-      cardsTableItem.add(CardView(card.id, card.imageNumber, card.name, card.rarity, 1))
+      cardsTableItem.add(CardView(card.id, card.imageNumber, card.name, card.rarity,1, "GFIOOR"))
     }
     tableView.setItems(cardsTableItem)
     tableView.refresh()

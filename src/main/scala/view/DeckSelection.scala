@@ -17,12 +17,13 @@ import scalafx.scene.layout._
 import scalafx.scene.text.Font
 import view.game.GameBoardView
 
-case class CardView(id: String, imageNumber: Int, name: String, rarity: String, var count: Int) {
+case class CardView(id: String, imageNumber: Int, name: String, rarity: String, var count: Int, set:String) {
   val idCard = new StringProperty(this, "id", id)
   val imageNumberCard = new IntegerProperty(this, "imageNumber", imageNumber)
   val nameCard = new StringProperty(this, "lastName", name)
   val rarityCard = new StringProperty(this, "rarity", rarity)
   var countCard = new ObjectProperty(this, "count", count)
+  val setCard = new ObjectProperty(this,"set",set)
 }
 
 case class DeckSelection(controller: Controller) extends Scene with Observer {
@@ -94,7 +95,7 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
     deckButton.onAction = () => {
       cardsTableItem.clear()
       selectedDeck.foreach(card => {
-        cardsTableItem = cardsTableItem :+ CardView(card.id, card.imageNumber, card.name, card.rarity, card.count)
+        cardsTableItem = cardsTableItem :+ CardView(card.id, card.imageNumber, card.name, card.rarity, card.count,"MARGIONE")
       })
       tableView.setItems(cardsTableItem)
       tableView.refresh()
@@ -135,9 +136,9 @@ object viewUtils {
           }
         },
         new TableColumn[CardView, String]() {
-          text = "Rarity"
+          text = "Set"
           cellValueFactory = {
-            _.value.rarityCard
+            _.value.setCard
           }
         },
         new TableColumn[CardView, Int]() {
