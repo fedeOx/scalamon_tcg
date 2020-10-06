@@ -175,12 +175,23 @@ object PopupBuilder extends PopupBuilder {
     dialog.show()
   }
 
-  def damageBenchedPokemonScreen(parent: Window, humanBoard: Board, aiBoard: Board, damage: Int) : Unit = {
+  def damageBenchedPokemonScreen(parent: Window, humanBoard: Board, aiBoard: Board, cardToSelect: Int, damage: Int) : Unit = {
+    var cardSelected: Seq[PokemonCard] = Seq()
     var dialog : Stage = new Stage()
     dialog = createBenchSelectionContent(parent, aiBoard.pokemonBench, cardIndex => {
-      controller.damageBenchedPokemon(aiBoard.pokemonBench(cardIndex).get,humanBoard,aiBoard,
-        damage)
-      dialog.close()
+      val pokemonCard = aiBoard.pokemonBench(cardIndex).get
+      if(!cardSelected.contains(pokemonCard)) {
+        cardSelected = cardSelected :+ pokemonCard
+        if(cardSelected.size.equals(cardToSelect) || cardSelected.size.equals(aiBoard.pokemonBench.count(c => c.isDefined))) {
+          cardSelected.foreach(card => {
+            controller.damageBenchedPokemon(card,humanBoard,aiBoard,
+              damage)
+          })
+          dialog.close()
+        }
+      } else {
+        cardSelected = cardSelected.filter(p => !p.eq(pokemonCard))
+      }
     })
     dialog.show()
   }
@@ -206,6 +217,7 @@ object PopupBuilder extends PopupBuilder {
         var cardList: Seq[BorderPane] = Seq()
         cards.filter(c => c.isDefined).zipWithIndex.foreach { case (card, cardIndex) => {
           cardList = cardList :+ new BorderPane {
+            private var isSelected = false
             center = new ImageView(new Image("/assets/" + card.get.belongingSetCode + "/" + card.get.imageNumber + ".png")) {
               fitWidth = 230
               fitHeight = 322
@@ -216,8 +228,11 @@ object PopupBuilder extends PopupBuilder {
             onMouseEntered = _ => {
               style = "-fx-border-color: red; -fx-border-style: solid; -fx-border-width: 4px; -fx-border-radius: 10px;"
             }
-            onMouseExited = _ => style = ""
-            onMouseClicked = _ => f(cardIndex)
+            onMouseExited = _ => if(!isSelected) style = ""
+            onMouseClicked = _ => {
+              isSelected = !isSelected
+              f(cardIndex)
+            }
           }
         }
         }
