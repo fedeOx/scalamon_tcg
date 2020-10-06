@@ -332,7 +332,7 @@ object GameManager {
     private def buildCardList(deckCards: Seq[DeckCard], setCards: Seq[Card])(cardList: Seq[Card]): Seq[Card] = deckCards match {
       case h :: t if setCards.exists(sc => sc.id == h.id) =>
         buildCardList(t, setCards)(cardList ++ deepCloneCards(List.fill(h.count)(setCards.find(sc => sc.id == h.id).get)))
-      case h :: _ => throw new CardNotFoundException("Card " + h.imageNumber + " not found in the specified set")
+      case h :: _ => throw new CardNotFoundException("Card " + h.id + " not found in the specified set")
       case _ => cardList
     }
 

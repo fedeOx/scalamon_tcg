@@ -20,12 +20,6 @@
                 "count": 5
             },
             {
-                "id": "base3-39",
-                "name": "Magmar",
-                "rarity": "Uncommon",
-                "count": 4
-            },
-            {
                 "id": "base3-51",
                 "name": "Krabby",
                 "rarity": "Common",
@@ -47,13 +41,13 @@
                 "id": "base3-42",
                 "name": "Seadra",
                 "rarity": "Uncommon",
-                "count": 3
+                "count": 5
             },
             {
                 "id": "base3-10",
                 "name": "Lapras",
                 "rarity": "Rare Holo",
-                "count": 2
+                "count": 4
             },
             {
                 "id": "base1-98",

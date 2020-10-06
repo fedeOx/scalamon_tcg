@@ -66,17 +66,15 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
 
   it should "build game field in a way that initially each player must have at least one base PokemonCard in their hands" in
     new BaseContext with DataLoaderContext {
-      for (set <- SetType.values) {
-        for (deck <- DeckType.values
-             if deck.setType == set) {
-          val cardsSet: Seq[Card] = dataLoader.loadSet(set)
+      var cardsSet: Seq[Card] = SetType.values.toList.flatMap(s => dataLoader.loadSet(s))
+      for (deck <- DeckType.values) {
           val playerDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(deck)
           val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(deck)
           gameManager.initBoards(playerDeckCards, opponentDeckCards, cardsSet)
           assert(gameManager.playerBoard.hand.exists(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase)
             && gameManager.opponentBoard.hand.exists(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase))
         }
-      }
+
     }
 
   it should "notify observers when a card is draw from player deck" in new BaseContext {
