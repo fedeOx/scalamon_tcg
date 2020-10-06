@@ -35,6 +35,8 @@ object Cards {
     def attacks: Seq[Attack]
     def energiesMap: Map[EnergyType, Int]
     def energiesMap_=(energies: Map[EnergyType, Int]): Unit
+    def damageModifier: Int
+    def damageModifier_=(value: Int)
 
     def addEnergy(energyCard: EnergyCard): Unit
 
@@ -60,7 +62,7 @@ object Cards {
     def apply(id: String, imageId: Int, setCode: String, rarity: String, pokemonTypes: Seq[EnergyType], name: String,
               initialHp: Int, weaknesses: Seq[Weakness], resistances: Seq[Resistance], retreatCost: Seq[EnergyType],
               evolvesFrom: String, attacks: Seq[Attack]): PokemonCard =
-      PokemonCardImpl(id, imageId, setCode, rarity, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks, immune = false, StatusType.NoStatus)
+      PokemonCardImpl(id, imageId, setCode, rarity, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks)
 
     implicit val decoder: Decoder[PokemonCard] = new Decoder[PokemonCard] {
       override def apply(c: HCursor): Result[PokemonCard] =
@@ -95,8 +97,9 @@ object Cards {
                                override val retreatCost: Seq[EnergyType],
                                override val evolutionName: String,
                                override val attacks: Seq[Attack],
-                               override var immune: Boolean,
-                               override var status : StatusType,
+                               override var damageModifier: Int = 0,
+                               override var immune: Boolean = false,
+                               override var status: StatusType = StatusType.NoStatus,
                                override var energiesMap: Map[EnergyType, Int] = Map()) extends PokemonCard {
 
       import common.MyMapHelpers._
@@ -178,7 +181,7 @@ object Cards {
       override def isBase: Boolean = evolutionName == ""
 
       override def clonePokemonCard: PokemonCard = copy(id, imageNumber, belongingSetCode, rarity, pokemonTypes, name,
-        initialHp, actualHp, weaknesses, resistances, retreatCost, evolutionName, attacks, immune, status, energiesMap)
+        initialHp, actualHp, weaknesses, resistances, retreatCost, evolutionName, attacks, damageModifier, immune, status, energiesMap)
     }
   }
 
