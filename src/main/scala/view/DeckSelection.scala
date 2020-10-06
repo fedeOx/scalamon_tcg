@@ -4,6 +4,7 @@ import common.Observer
 import controller.Controller
 import model.event.Events
 import model.event.Events.Event.ShowDeckCards
+import model.game.SetType.SetType
 import model.game.{DeckCard, SetType}
 import scalafx.Includes._
 import scalafx.application.Platform
@@ -17,12 +18,15 @@ import scalafx.scene.layout._
 import scalafx.scene.text.Font
 import view.game.GameBoardView
 
-case class CardView(id: String, imageNumber: Int, name: String, rarity: String, var count: Int) {
+import scala.collection.mutable
+
+case class CardView(id: String, imageNumber: Int, name: String, rarity: String, var count: Int, set: SetType) {
   val idCard = new StringProperty(this, "id", id)
   val imageNumberCard = new IntegerProperty(this, "imageNumber", imageNumber)
   val nameCard = new StringProperty(this, "lastName", name)
   val rarityCard = new StringProperty(this, "rarity", rarity)
   var countCard = new ObjectProperty(this, "count", count)
+  val setCard = new ObjectProperty(this, "set", set)
 }
 
 case class DeckSelection(controller: Controller) extends Scene with Observer {
@@ -50,8 +54,14 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
           GameLauncher.stage.close()
           new GameBoardView(controller)
           var seqDeck: Seq[DeckCard] = Seq()
-          cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.imageNumber, p.name, p.rarity, p.count))
-          controller.initGame(seqDeck, Seq(SetType.Base))
+          var setTypesSelected: Seq[SetType] = Seq()
+          cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.imageNumber, Some(p.set), p.name, p.rarity, p.count))
+          seqDeck.foreach(card => {
+            if (!setTypesSelected.contains(card.belongingSet.get)) {
+              setTypesSelected = setTypesSelected :+ card.belongingSet.get
+            }
+          })
+          controller.initGame(seqDeck, setTypesSelected)
         }
       }
     }
@@ -88,28 +98,6 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
     }
   }
 
-  def createDeckItem(deckName: String): VBox = {
-    val deckButton: Button = new Button(deckName)
-    val selectedDeck = deckMap(deckName)
-    deckButton.onAction = () => {
-      cardsTableItem.clear()
-      selectedDeck.foreach(card => {
-        cardsTableItem = cardsTableItem :+ CardView(card.id, card.imageNumber, card.name, card.rarity, card.count)
-      })
-      tableView.setItems(cardsTableItem)
-      tableView.refresh()
-    }
-    deckButton.id = deckName
-    deckButton.getStyleClass.add("deckSelection")
-    deckButton.text = ""
-
-    new VBox(deckButton, new Label(deckName) {
-      font = Font.font(20); id = "deckNameLabel"
-    }) {
-      alignment = Pos.Center; padding = Insets(5, 15, 5, 15)
-    }
-  }
-
   override def update(event: Events.Event): Unit = event match {
     case event if event.isInstanceOf[ShowDeckCards] => {
       deckMap = event.asInstanceOf[ShowDeckCards].deckCards
@@ -119,6 +107,32 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
     }
     case _ =>
   }
+
+  def createDeckItem(deckName: String): VBox = {
+    val deckButton: Button = new Button(deckName)
+    val selectedDeck = deckMap(deckName)
+    deckButton.onAction = () => {
+      cardsTableItem.clear()
+      selectedDeck.foreach(card => {
+        cardsTableItem = cardsTableItem :+ CardView(card.id, card.imageNumber, card.name, card.rarity, card.count, set = card.belongingSet.getOrElse(SetType.Base))
+      })
+      tableView.setItems(cardsTableItem)
+      tableView.refresh()
+    }
+    deckButton.id = deckName
+    deckButton.getStyleClass.add("deckSelection")
+    deckButton.text = ""
+
+    new VBox(deckButton, new Label(deckName) {
+      font = Font.font(20);
+      id = "deckNameLabel"
+    }) {
+      alignment = Pos.Center;
+      padding = Insets(5, 15, 5, 15)
+    }
+  }
+
+
 }
 
 
@@ -134,10 +148,10 @@ object viewUtils {
             _.value.nameCard
           }
         },
-        new TableColumn[CardView, String]() {
-          text = "Rarity"
+        new TableColumn[CardView, SetType]() {
+          text = "Set"
           cellValueFactory = {
-            _.value.rarityCard
+            _.value.setCard
           }
         },
         new TableColumn[CardView, Int]() {

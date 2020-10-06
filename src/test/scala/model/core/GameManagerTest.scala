@@ -7,44 +7,52 @@ import model.exception.{CardNotFoundException, InvalidOperationException}
 import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
+import model.game.SetType.SetType
 import model.game.{Board, DeckCard, DeckType, EnergyType, SetType, StatusType}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, OneInstancePerTest}
 import org.scalatest.flatspec.AnyFlatSpec
 
 class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
-/*
   behavior of "The GameManager"
 
   trait BaseContext {
     val gameManager: GameManager = GameManager()
+
+    def attachObserver(): Observer = {
+      val observerMock: Observer = mock[Observer]
+      gameManager.addObserver(observerMock)
+      observerMock
+    }
+
+    def initBoards(): Unit = {
+      val dataLoader: DataLoader = DataLoader()
+      val cardsSet: Seq[Card] = dataLoader.loadSet(SetType.Base)
+      val playerDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(DeckType.Base1)
+      val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(DeckType.Base2)
+      gameManager.initBoards(playerDeckCards, opponentDeckCards, cardsSet)
+    }
   }
 
-  trait ObserverFixture extends BaseContext {
-    val observerMock: Observer = mock[Observer]
-    gameManager.addObserver(observerMock)
-  }
-
-  trait MultipleDeckContext {
+  trait DataLoaderContext {
     val dataLoader: DataLoader = DataLoader()
-    val cardsSet: Seq[Card] = dataLoader.loadSet(SetType.Base)
-    var playerDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(DeckType.Base1)
-    val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(DeckType.Base2)
+
+    def getPokemon(set: SetType, pokemonName: String): Option[PokemonCard] =
+      dataLoader.loadSet(set).filter(p => p.isInstanceOf[PokemonCard] && p.asInstanceOf[PokemonCard].name == pokemonName)
+        .map(p => p.asInstanceOf[PokemonCard]).headOption
+
+    def getEnergy(set: SetType, energyType: EnergyType): Option[EnergyCard] =
+      dataLoader.loadSet(set).filter(p => p.isInstanceOf[EnergyCard] && p.asInstanceOf[EnergyCard].energyType == energyType)
+        .map(p => p.asInstanceOf[EnergyCard]).headOption
   }
 
-  trait InitializedContext {
-    val gameManager: GameManager = GameManager()
-      ...
-
-  }
-
-  it should "build game field correctly and notify observers when it happens" in new ObserverFixture with MultipleDeckContext {
-    (observerMock.update _).expects(where {e: Event => {
+  it should "build game field correctly and notify observers when it happens" in new BaseContext {
+    (attachObserver().update _).expects(where {e: Event => {
       e.isInstanceOf[BuildGameField]
       e.asInstanceOf[BuildGameField].playerBoard.isInstanceOf[Board]
       e.asInstanceOf[BuildGameField].opponentBoard.isInstanceOf[Board]
     }})
-    gameManager.initBoards(playerDeckCards, opponentDeckCards, cardsSet)
+    initBoards()
     val playerBoard: Board = gameManager.playerBoard
     val opponentBoard: Board = gameManager.opponentBoard
     assert(playerBoard.deck.nonEmpty && opponentBoard.deck.nonEmpty)
@@ -57,58 +65,60 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
   }
 
   it should "build game field in a way that initially each player must have at least one base PokemonCard in their hands" in
-    new BaseContext with MultipleDeckContext {
-      for (set <- SetType.values) {
-        for (deck <- DeckType.values
-             if deck.setType == set) {
-          val cardsSet: Seq[Card] = dataLoader.loadSet(set)
+    new BaseContext with DataLoaderContext {
+      var cardsSet: Seq[Card] = SetType.values.toList.flatMap(s => dataLoader.loadSet(s))
+      for (deck <- DeckType.values) {
           val playerDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(deck)
           val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(deck)
           gameManager.initBoards(playerDeckCards, opponentDeckCards, cardsSet)
           assert(gameManager.playerBoard.hand.exists(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase)
             && gameManager.opponentBoard.hand.exists(c => c.isInstanceOf[PokemonCard] && c.asInstanceOf[PokemonCard].isBase))
         }
-      }
+
     }
 
-  it should "notify observers when a card is draw from player deck" in new ObserverFixture with MultipleDeckContext {
-    gameManager.initBoards(playerDeckCards, opponentDeckCards, cardsSet)
-    (observerMock.update _).expects(where {e: Event => {
+  it should "notify observers when a card is draw from player deck" in new BaseContext {
+    initBoards()
+    (attachObserver().update _).expects(where {e: Event => {
       e.isInstanceOf[UpdateBoards]
     }})
     gameManager.drawCard(gameManager.playerBoard)
   }
 
   /*
-    it should "notify observers when player active pokemon or player bench is updated" in {
-      (observerMock.update _).expects(where {e: Event => {
-        e.isInstanceOf[UpdateBoards]
-      }}).repeat(3)
+  it should "notify observers when player active pokemon or player bench is updated" in new BaseContext {
+    val observer = attachObserver()
+    (observerMock.update _).expects(where {e: Event => {
+      e.isInstanceOf[UpdateBoards]
+    }}).repeat(3)
 
-      Given("a new active pokemon")
-      val newActivePokemon: PokemonCard = PokemonCard("1", "base1", "rare", Seq(EnergyType.Colorless), "myActivePokemon", 100, Nil, Nil, Nil, "", Nil)
-      When("it is set as active pokemon")
-      GameManager.setActivePokemon(Some(newActivePokemon))
-      Then("the active pokemon location should be not empty")
-      assert(GameManager.playerBoard.activePokemon.nonEmpty && GameManager.playerBoard.activePokemon.get == newActivePokemon)
+    Given("a new active pokemon")
+    val newActivePokemon: PokemonCard = PokemonCard("1", "base1", "rare", Seq(EnergyType.Colorless), "myActivePokemon", 100, Nil, Nil, Nil, "", Nil)
+    When("it is set as active pokemon")
+    GameManager.setActivePokemon(Some(newActivePokemon))
+    Then("the active pokemon location should be not empty")
+    assert(GameManager.playerBoard.activePokemon.nonEmpty && GameManager.playerBoard.activePokemon.get == newActivePokemon)
 
-      Given("a new bench pokemon and a bench position")
-      val newBenchPokemon: PokemonCard = PokemonCard("2", "base1", "rare", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
-      val benchPosition = 0
-      When("the bench pokemon is put int the bench at the given position")
-      GameManager.putPokemonToBench(Some(newBenchPokemon), benchPosition)
-      Then("the bench position should be not empty")
-      assert(GameManager.playerBoard.pokemonBench(benchPosition).nonEmpty && GameManager.playerBoard.pokemonBench(benchPosition).get == newBenchPokemon)
+    Given("a new bench pokemon and a bench position")
+    val newBenchPokemon: PokemonCard = PokemonCard("2", "base1", "rare", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
+    val benchPosition = 0
+    When("the bench pokemon is put int the bench at the given position")
+    GameManager.putPokemonToBench(Some(newBenchPokemon), benchPosition)
+    Then("the bench position should be not empty")
+    assert(GameManager.playerBoard.pokemonBench(benchPosition).nonEmpty && GameManager.playerBoard.pokemonBench(benchPosition).get == newBenchPokemon)
 
-      Given("a replacement bench position")
-      val replacementBenchPosition = benchPosition
-      When("the active pokemon is destroyed")
-      GameManager.destroyActivePokemon(replacementBenchPosition)
-      Then("the active pokemon is replaced with the bench pokemon at the given replacement bench position")
-      assert(GameManager.playerBoard.activePokemon.nonEmpty && GameManager.playerBoard.activePokemon.get == newBenchPokemon &&
-        GameManager.playerBoard.pokemonBench(benchPosition).isEmpty)
-    }
+    Given("a replacement bench position")
+    val replacementBenchPosition = benchPosition
+    When("the active pokemon is destroyed")
+    GameManager.destroyActivePokemon(replacementBenchPosition)
+    Then("the active pokemon is replaced with the bench pokemon at the given replacement bench position")
+    assert(GameManager.playerBoard.activePokemon.nonEmpty && GameManager.playerBoard.activePokemon.get == newBenchPokemon &&
+      GameManager.playerBoard.pokemonBench(benchPosition).isEmpty)
+  }
 
+   */
+
+  /*
     it should "retreat an active pokemon if it has enough energies and notify" in {
       (observerMock.update _).expects(where {e: Event => {
         e.isInstanceOf[UpdateBoards]
@@ -183,6 +193,4 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
       }
     }
      */
-
- */
 }

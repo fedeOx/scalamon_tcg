@@ -488,8 +488,11 @@
           },
           {
             "name" : "recovery",
-            "params":[{"recoveryAmount":"20","pokemonToApply":"atk"}]
+            "params":[{"recoveryAmount":"20","pokemonToApply":"atk", "headBounded": "",
+              "tailBounded": ""}]
           }
+        ]
+      }
     ],
     "weaknesses": [
       {
@@ -942,7 +945,8 @@
           },
           {
             "name" : "recovery",
-            "params":[{"recoveryAmount":"20","pokemonToApply":"atk"}]
+            "params":[{"recoveryAmount":"20","pokemonToApply":"atk", "headBounded": "",
+              "tailBounded": ""}]
           }
         ]
       }
@@ -2345,4 +2349,5 @@
       "Golbat"
     ]
   }
+
 ]

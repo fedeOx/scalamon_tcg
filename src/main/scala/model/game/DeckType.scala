@@ -11,6 +11,8 @@ object DeckType extends Enumeration {
   val Base2: DeckType = Val("Zap", SetType.Base)
   val Base3: DeckType = Val("Brushfire", SetType.Base)
   val Base4: DeckType = Val("Blackout", SetType.Base)
+  val Fossil1: DeckType = Val("LockDown", SetType.Fossil)
+  val Fossil2: DeckType = Val("BodyGuard", SetType.Fossil)
 
   implicit def valueToDeckTypeVal(x: Value): Val = x.asInstanceOf[Val]
 
