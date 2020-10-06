@@ -1,4 +1,4 @@
-package view
+package view.game
 
 import common.TurnOwner.TurnOwner
 import common.{CoinUtil, Observer, TurnOwner}
@@ -15,6 +15,7 @@ import scalafx.scene.shape.Box
 import scalafx.scene.transform.{Rotate, Translate}
 import scalafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing}
 import scalafx.stage.Stage
+import view.PopupBuilder
 
 
 /** *
