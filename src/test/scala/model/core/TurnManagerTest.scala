@@ -6,7 +6,6 @@ import model.event.Events.Event
 import model.event.Events.Event.{FlipCoin, NextTurn}
 import model.exception.CoinNotLaunchedException
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.OneInstancePerTest
 import org.scalatest.flatspec.AnyFlatSpec
 
 class TurnManagerTest extends AnyFlatSpec with MockFactory {

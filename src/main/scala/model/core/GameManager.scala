@@ -221,9 +221,10 @@ object GameManager {
       if (pokemon.immune) {
         pokemon.immune = false
       }
+      pokemon.damageModifier = 0
       if (pokemon.status == StatusType.Poisoned) {
         pokemon.addDamage(PoisonDamage, Seq())
-        eventuallyRemoveKOActivePokemon(pokemon, board, opponentBoard, isPokemonInCharge = true) // GESTIONE KO + PESCATA CARTA PREMIO + CONTROLLO VITTORIA
+        eventuallyRemoveKOActivePokemon(pokemon, board, opponentBoard, isPokemonInCharge = true)
       }
     }
 

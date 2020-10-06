@@ -79,7 +79,7 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
     Then(" dmg enemy pokemon by 80")
     assert(BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 80)
     Then("it dmg itself")
-    assert(BoardTmp.iaBoard.activePokemon.get.actualHp == BoardTmp.iaBoard.activePokemon.get.initialHp - BoardTmp.iaBoard.activePokemon.get.attacks(1).damage.get)
+    assert(BoardTmp.iaBoard.activePokemon.get.actualHp == 0)
     And("damage all the enemy benched pokemon by 20")
     assert(BoardTmp.playerBoard.pokemonBench.head.get.actualHp == BoardTmp.playerBoard.pokemonBench.head.get.initialHp - 20)
     assert(BoardTmp.playerBoard.pokemonBench(1).get.actualHp == BoardTmp.playerBoard.pokemonBench(1).get.initialHp - 20)
