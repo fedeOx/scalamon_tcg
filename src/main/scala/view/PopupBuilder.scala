@@ -1,7 +1,8 @@
 package view
 
 import controller.Controller
-import model.game.Cards.PokemonCard
+import model.game.Board
+import model.game.Cards.{Card, PokemonCard}
 import scalafx.animation.{Interpolator, RotateTransition}
 import scalafx.geometry.Pos
 import scalafx.scene.control.{Button, Label}
@@ -18,55 +19,63 @@ import scalafx.util.Duration
 trait PopupBuilder {
   /**
    * Sets the object's controller field
-   * @param c: the controller
+   *
+   * @param c : the controller
    */
   def setController(c: Controller): Unit
 
   /**
    * Opens the loading screen that appears at the start of the game
-   * @param parentWindow: the loading screen's parent window
+   *
+   * @param parentWindow : the loading screen's parent window
    * @return the loading screen
    */
   def openLoadingScreen(parentWindow: Window): Stage
 
   /**
    * Closes the loading screen
-   * @param loadingMessage: the stage to close
+   *
+   * @param loadingMessage : the stage to close
    */
   def closeLoadingScreen(loadingMessage: Stage): Unit
 
   /**
    * Opens the screen that informs the player of the start of his turn
-   * @param parent: the screen's parent window
+   *
+   * @param parent : the screen's parent window
    */
   def openTurnScreen(parent: Window): Unit
 
   /**
    * Opens the screen that appears when the player performs an invalid operation
-   * @param parent: the screen's parent window
-   * @param message: the message to visualize
+   *
+   * @param parent  : the screen's parent window
+   * @param message : the message to visualize
    */
   def openInvalidOperationMessage(parent: Window, message: String): Unit
 
   /**
    * Opens the screen that lets the player choose a pokémon from his bench to set it as active
-   * @param parent: the screen's parent window
-   * @param bench: the cards in the player's bench
-   * @param isAttackingPokemonKO: true if this screen opens after the player's attacking pokémon goes KO
+   *
+   * @param parent               : the screen's parent window
+   * @param bench                : the cards in the player's bench
+   * @param isAttackingPokemonKO : true if this screen opens after the player's attacking pokémon goes KO
    */
   def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]], isAttackingPokemonKO: Boolean): Unit
 
   /**
    * Opens a screen that visualizes the coin flip animation
-   * @param parent: the screen's parent window
-   * @param isHead: true if the coin result is head
+   *
+   * @param parent : the screen's parent window
+   * @param isHead : true if the coin result is head
    */
   def openCoinFlipScreen(parent: Window, isHead: Boolean): Unit
 
   /**
    * Opens the end game screen
-   * @param parent: the screen's parent window
-   * @param playerWon: true if the player won the game
+   *
+   * @param parent    : the screen's parent window
+   * @param playerWon : true if the player won the game
    */
   def openEndGameScreen(parent: Window, playerWon: Boolean): Unit
 }
@@ -155,6 +164,28 @@ object PopupBuilder extends PopupBuilder {
   }
 
   def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]], isAttackingPokemonKO: Boolean): Unit = {
+    var dialog: Stage = new Stage()
+    dialog = createBenchSelectionContent(parent, bench, cardIndex => {
+      controller.swap(cardIndex)
+      if (isAttackingPokemonKO) {
+        controller.endTurn()
+      }
+      dialog.close()
+    })
+    dialog.show()
+  }
+
+  def damageBenchedPokemonScreen(parent: Window, humanBoard: Board, aiBoard: Board, damage: Int) : Unit = {
+    var dialog : Stage = new Stage()
+    dialog = createBenchSelectionContent(parent, aiBoard.pokemonBench, cardIndex => {
+      controller.damageBenchedPokemon(aiBoard.pokemonBench(cardIndex).get,humanBoard,aiBoard,
+        damage)
+      dialog.close()
+    })
+    dialog.show()
+  }
+
+  private def createBenchSelectionContent(parent: Window, cards: Seq[Option[PokemonCard]], f: Int => Unit): Stage = {
     val windowHeight = 600
     val windowWidth = 1500
     val dialog: Stage = new Stage() {
@@ -173,7 +204,7 @@ object PopupBuilder extends PopupBuilder {
           alignment = Pos.Center
         }
         var cardList: Seq[BorderPane] = Seq()
-        bench.filter(c => c.isDefined).zipWithIndex.foreach { case (card, cardIndex) => {
+        cards.filter(c => c.isDefined).zipWithIndex.foreach { case (card, cardIndex) => {
           cardList = cardList :+ new BorderPane {
             center = new ImageView(new Image("/assets/" + card.get.belongingSetCode + "/" + card.get.imageNumber + ".png")) {
               fitWidth = 230
@@ -186,13 +217,7 @@ object PopupBuilder extends PopupBuilder {
               style = "-fx-border-color: red; -fx-border-style: solid; -fx-border-width: 4px; -fx-border-radius: 10px;"
             }
             onMouseExited = _ => style = ""
-            onMouseClicked = _ => {
-              controller.swap(cardIndex)
-              scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
-              if (isAttackingPokemonKO) {
-                controller.endTurn()
-              }
-            }
+            onMouseClicked = _ => f(cardIndex)
           }
         }
         }
@@ -214,7 +239,7 @@ object PopupBuilder extends PopupBuilder {
       resizable = false
       alwaysOnTop = true
     }
-    dialog.show()
+    dialog
   }
 
   def openCoinFlipScreen(parent: Window, isHead: Boolean): Unit = {

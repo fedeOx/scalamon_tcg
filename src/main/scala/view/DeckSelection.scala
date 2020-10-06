@@ -57,7 +57,6 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
     }
   }
 
-
   def createDeckPanel: GridPane = {
     var columnIndexcnt = 0
     var rowIndexcnt = 0
