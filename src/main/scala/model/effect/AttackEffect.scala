@@ -34,6 +34,7 @@ object Effect {
         case _ if _name.get == "DoesNDmgAndDmgMyself_OR_doesNdmg"=> c.downField("params").as[Seq[DmgMyselfOrNotParams]]
         case _ if _name.get == "doesNDmgAndSetImmunity"=> c.downField("params").as[Seq[SetImmunityParams]]
         case _ if _name.get == "recovery"=> c.downField("params").as[Seq[RecoveryParams]]
+        case _ if _name.get == "toBench"=> c.downField("params").as[Seq[ToBenchParams]]
 
         case _ => null
       }

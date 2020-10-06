@@ -7,13 +7,19 @@ sealed trait Params {
   def name: String
 }
 
-
 sealed trait NDmgParams extends Params {
   def basicDmg: String
   def coinFlipNumber: String
   def coinSide: String
   def enemyToAtk: String
 }
+
+sealed trait ToBenchParams extends Params {
+  def benchToApply : String
+  def dmgToDo : String
+  def limit : String
+}
+
 sealed trait EachDmgParams extends Params {
   def dmgToAdd: String
   def pokemonToApply: String
@@ -42,6 +48,8 @@ sealed trait SetImmunityParams extends Params {
 sealed trait RecoveryParams extends Params {
   def recoveryAmount: String
   def pokemonToApply: String
+  def headBounded:String
+  def tailBounded:String
 }
 sealed trait DiscardEnergyParams extends Params {
   def discardAmount: String
@@ -73,6 +81,23 @@ object NDmgParams {
   }
 
 }
+
+object ToBenchParams {
+  def apply(name:String , benchToApply : String ,dmgToDo : String, limit : String): ToBenchParams = ToBenchParamsImpl(name , benchToApply  ,dmgToDo , limit )
+  implicit val decoder: Decoder[ToBenchParams] = new Decoder[ToBenchParams] {
+    override def apply(c: HCursor): Result[ToBenchParams] =
+      for {
+        _benchToApply <- c.downField("benchToApply").as[Option[String]]
+        _dmgToDo <- c.downField("dmgToDo").as[Option[String]]
+        _limit <- c.downField("limit").as[Option[String]]
+      } yield {
+        ToBenchParamsImpl(EffectType.eachDmg.toString, _benchToApply.get, _dmgToDo.get,_limit.get)
+      }
+  }
+  private case class ToBenchParamsImpl(name:String , benchToApply : String ,dmgToDo : String, limit : String) extends ToBenchParams
+
+}
+
 object EachDmgParams {
   def apply(name: String, dmgToAdd: String, pokemonToApply: String, signature: String): EachDmgParams = eachDmgParamsImpl(name, dmgToAdd, pokemonToApply, signature)
 
@@ -86,7 +111,6 @@ object EachDmgParams {
         eachDmgParamsImpl(EffectType.eachDmg.toString, _dmg.get, _pkmToApply.get, _signature.get)
       }
   }
-
   private case class eachDmgParamsImpl(name: String, dmgToAdd: String, pokemonToApply: String, signature: String) extends EachDmgParams
 
 }
@@ -158,17 +182,19 @@ object SetImmunityParams {
 
 }
 object RecoveryParams {
-  def apply(name: String, recoveryAmount: String, pokemonToApply: String): RecoveryParams = recoveryParamsImpl(name, recoveryAmount, pokemonToApply)
+  def apply(name: String, recoveryAmount: String, pokemonToApply: String,headBounded:String,tailBounded:String): RecoveryParams = recoveryParamsImpl(name, recoveryAmount, pokemonToApply,headBounded,tailBounded)
   implicit val decoder: Decoder[RecoveryParams] = new Decoder[RecoveryParams] {
     override def apply(c: HCursor): Result[RecoveryParams] =
       for {
         _recoveryAmount <- c.downField("recoveryAmount").as[Option[String]]
         _pokemonToApply <- c.downField("pokemonToApply").as[Option[String]]
+        _headBounded <- c.downField("headBounded").as[Option[String]]
+        _tailBounded <- c.downField("tailBounded").as[Option[String]]
       } yield {
-        recoveryParamsImpl(EffectType.recovery.toString, _recoveryAmount.get, _pokemonToApply.get)
+        recoveryParamsImpl(EffectType.recovery.toString, _recoveryAmount.get, _pokemonToApply.get,_headBounded.get,_tailBounded.get)
       }
   }
-  private case class recoveryParamsImpl( name: String, recoveryAmount: String, pokemonToApply: String) extends RecoveryParams
+  private case class recoveryParamsImpl( name: String, recoveryAmount: String, pokemonToApply: String,headBounded:String,tailBounded:String) extends RecoveryParams
 
 }
 object DiscardEnergyParams {

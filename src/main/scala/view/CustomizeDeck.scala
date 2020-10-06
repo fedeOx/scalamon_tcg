@@ -97,7 +97,7 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
       background = Background.Empty
       children = Seq(new Button("" + card.imageNumber) {
         id = "cardSelect";
-        style = "-fx-background-image: url(/assets/base1/" + card.imageNumber + ".png)";
+        style = "-fx-background-image: url(/assets/"+card.belongingSetCode+"/" + card.imageNumber + ".png)";
         text = ""
       },
         new HBox() {
