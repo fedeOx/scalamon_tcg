@@ -16,6 +16,7 @@ import scalafx.scene.control.TableColumn._
 import scalafx.scene.control._
 import scalafx.scene.layout._
 import scalafx.scene.text.Font
+import view.game.GameBoardView
 
 case class CardView(id: String, name: String, rarity: String, var count: Int) {
   val idCard = new StringProperty(this, "id", id)

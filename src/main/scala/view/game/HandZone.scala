@@ -1,13 +1,13 @@
-package view
+package view.game
 
 import javafx.geometry.Insets
+import model.game.Cards._
 import scalafx.Includes._
 import scalafx.geometry.Pos
 import scalafx.scene.layout.HBox
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.Rotate
-import view.CardCreator._
-import model.game.Cards._
+import view.game.CardCreator._
 
 /**
  * The field zone that contains the hand cards

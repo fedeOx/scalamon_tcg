@@ -1,4 +1,4 @@
-package view
+package view.game
 
 import javafx.geometry.Insets
 import model.exception.InvalidOperationException
@@ -12,7 +12,8 @@ import scalafx.scene.layout.{HBox, VBox}
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.stage.{Modality, Stage}
-import view.CardCreator._
+import view.PopupBuilder
+import view.game.CardCreator._
 
 /**
  * Field Zone that contains the active Pokémon

@@ -1,4 +1,4 @@
-package view
+package view.game
 
 import javafx.geometry.Insets
 import model.game.Cards.{Card, PokemonCard}

@@ -1,4 +1,4 @@
-package view
+package view.game
 
 import common.TurnOwner
 import controller.Controller
@@ -8,6 +8,7 @@ import scalafx.scene.image.Image
 import scalafx.scene.paint.PhongMaterial
 import scalafx.scene.shape.{Box, DrawMode}
 import scalafx.stage.Window
+import view.PopupBuilder
 
 trait CardCreator {
   /**

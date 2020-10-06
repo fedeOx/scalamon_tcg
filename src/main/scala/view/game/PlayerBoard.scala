@@ -1,4 +1,4 @@
-package view
+package view.game
 
 import common.TurnOwner
 import model.game.Board

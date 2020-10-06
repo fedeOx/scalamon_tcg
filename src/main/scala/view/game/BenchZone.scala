@@ -1,11 +1,12 @@
-package view
+package view.game
 
 import model.game.Cards.PokemonCard
 import scalafx.geometry.Pos
 import scalafx.scene.layout.HBox
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
-import view.CardCreator.createCard
+import view.PopupBuilder
+import view.game.CardCreator._
 
 /**
  * The field zone that contains the benched pokemon

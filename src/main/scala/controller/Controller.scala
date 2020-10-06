@@ -250,6 +250,9 @@ object Controller {
       }
     }.start()
 
-    override def resetGame(): Unit = ai.interrupt(); CoinUtil.reset()
+    override def resetGame(): Unit = {
+      ai.interrupt()
+      CoinUtil.reset()
+    }
   }
 }
