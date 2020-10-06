@@ -15,7 +15,7 @@ object Cards {
   sealed trait Card {
     def id: String
     def imageNumber: Int
-    def belongingSet:SetType
+    def belongingSet: SetType
     def name: String
     def rarity: String
     def belongingSetCode: String
@@ -61,10 +61,11 @@ object Cards {
   }
 
   object PokemonCard {
-    def apply(id: String, imageId: Int,belongingSet:SetType, setCode: String, rarity: String, pokemonTypes: Seq[EnergyType], name: String,
-              initialHp: Int, weaknesses: Seq[Weakness], resistances: Seq[Resistance], retreatCost: Seq[EnergyType],
+    def apply(id: String, imageId: Int, belongingSet: SetType, setCode: String, rarity: String, pokemonTypes: Seq[EnergyType],
+              name: String, initialHp: Int, weaknesses: Seq[Weakness], resistances: Seq[Resistance], retreatCost: Seq[EnergyType],
               evolvesFrom: String, attacks: Seq[Attack]): PokemonCard =
-      PokemonCardImpl(id, imageId, belongingSet, setCode, rarity, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks)
+      PokemonCardImpl(id, imageId, belongingSet, setCode, rarity, pokemonTypes, name, initialHp, initialHp, weaknesses,
+        resistances, retreatCost, evolvesFrom, attacks)
 
     implicit val decoder: Decoder[PokemonCard] = new Decoder[PokemonCard] {
       override def apply(c: HCursor): Result[PokemonCard] =
@@ -83,13 +84,13 @@ object Cards {
           _attacks <- c.downField("attacks").as[Seq[Attack]]
         } yield {
           val imageNumber = _id.replace(c.downField("setCode").as[String].getOrElse("") + "-", "").toInt
-          PokemonCard(_id, imageNumber,_set, _setCode, _rarity, _pokemonTypes, _name, _initHp.toInt, _weaknesses, _resistances, _retreatCost, _evolvesFrom, _attacks)
+          PokemonCard(_id, imageNumber, _set, _setCode, _rarity, _pokemonTypes, _name, _initHp.toInt, _weaknesses, _resistances, _retreatCost, _evolvesFrom, _attacks)
         }
     }
 
     case class PokemonCardImpl(override val id: String,
                                override val imageNumber: Int,
-                               override val belongingSet:SetType,
+                               override val belongingSet: SetType,
                                override val belongingSetCode: String,
                                override val rarity: String,
                                override val pokemonTypes: Seq[EnergyType],
@@ -184,7 +185,7 @@ object Cards {
 
       override def isBase: Boolean = evolutionName == ""
 
-      override def clonePokemonCard: PokemonCard = copy(id, imageNumber,belongingSet, belongingSetCode, rarity, pokemonTypes, name,
+      override def clonePokemonCard: PokemonCard = copy(id, imageNumber, belongingSet, belongingSetCode, rarity, pokemonTypes, name,
         initialHp, actualHp, weaknesses, resistances, retreatCost, evolutionName, attacks, damageModifier, immune, status, energiesMap)
     }
   }
@@ -213,9 +214,9 @@ object Cards {
       }
     }
 
-    def apply(id: String, imageId: Int,belongingSet:SetType, name: String, rarity: String,  setCode: String, energyType: EnergyType,
+    def apply(id: String, imageId: Int, belongingSet: SetType, name: String, rarity: String,  setCode: String, energyType: EnergyType,
               energyCardType: EnergyCardType): EnergyCard =
-      EnergyCardImpl(id, imageId,belongingSet, name, rarity, setCode, energyType, energyCardType)
+      EnergyCardImpl(id, imageId, belongingSet, name, rarity, setCode, energyType, energyCardType)
 
     implicit val decoder: Decoder[EnergyCard] = new Decoder[EnergyCard] {
       override def apply(c: HCursor): Result[EnergyCard] =
@@ -251,7 +252,7 @@ object Cards {
         case _ => 2
       }
 
-      override def cloneEnergyCard: EnergyCard = copy(id, imageNumber,belongingSet, name, rarity, belongingSetCode, energyType, energyCardType)
+      override def cloneEnergyCard: EnergyCard = copy(id, imageNumber, belongingSet, name, rarity, belongingSetCode, energyType, energyCardType)
     }
   }
 }
