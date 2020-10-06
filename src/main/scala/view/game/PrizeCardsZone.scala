@@ -1,4 +1,4 @@
-package view
+package view.game
 
 import model.game.Cards.Card
 import scalafx.geometry.Pos
@@ -6,7 +6,7 @@ import scalafx.scene.image.Image
 import scalafx.scene.layout.VBox
 import scalafx.scene.paint.PhongMaterial
 import scalafx.scene.shape.Box
-import view.CardCreator.createCard
+import view.game.CardCreator._
 
 /**
  * The field zone for the prize cards

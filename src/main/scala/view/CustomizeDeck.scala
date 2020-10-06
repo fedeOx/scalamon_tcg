@@ -1,9 +1,8 @@
 package view
 
 
-import common.{Observable, Observer}
+import common.Observer
 import controller.Controller
-import model.core.DataLoader
 import model.event.Events
 import model.event.Events.Event.{CustomDeckSaved, ShowSetCards}
 import model.game.Cards.Card
@@ -39,7 +38,7 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
       var seqDeck: Seq[DeckCard] = Seq()
       if (textFieldName.text.value != "") {
         var totalCard = 0
-        cardsTableItem.foreach(p => {seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count) ; totalCard += p.count})
+        cardsTableItem.foreach(p => {seqDeck = seqDeck :+ DeckCard(p.id, p.imageNumber, p.name, p.rarity, p.count) ; totalCard += p.count})
         if (totalCard >= 60) {
           controller.createCustomDeck(CustomDeck(textFieldName.text.value, setType, seqDeck))
         } else {
@@ -96,9 +95,9 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
   private def createButtonCard(card: Card): VBox = {
     new VBox() {
       background = Background.Empty
-      children = Seq(new Button("" + card.imageId) {
+      children = Seq(new Button("" + card.imageNumber) {
         id = "cardSelect";
-        style = "-fx-background-image: url(/assets/base1/" + card.imageId + ".png)";
+        style = "-fx-background-image: url(/assets/"+card.belongingSetCode+"/" + card.imageNumber + ".png)";
         text = ""
       },
         new HBox() {
@@ -130,8 +129,8 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
   }
 
   private def addOrRemove(add: Boolean, card: Card): Unit = {
-    if (cardsTableItem.exists(p => p.idCard.getValue == card.imageId)) {
-      val pokemonSelected = cardsTableItem.find(p => p.idCard.getValue == card.imageId).get
+    if (cardsTableItem.exists(p => p.imageNumber == card.imageNumber)) {
+      val pokemonSelected = cardsTableItem.find(p => p.imageNumber == card.imageNumber).get
       if (add)
         pokemonSelected.count += 1
       else {
@@ -140,7 +139,7 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
       }
       pokemonSelected.countCard = ObjectProperty(pokemonSelected.count)
     } else if (add) {
-      cardsTableItem.add(CardView(card.imageId, card.name, card.rarity, 1))
+      cardsTableItem.add(CardView(card.id, card.imageNumber, card.name, card.rarity, 1))
     }
     tableView.setItems(cardsTableItem)
     tableView.refresh()

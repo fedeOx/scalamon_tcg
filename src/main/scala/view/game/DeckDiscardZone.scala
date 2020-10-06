@@ -1,10 +1,10 @@
-package view
+package view.game
 
 import model.game.Cards.Card
 import scalafx.geometry.Pos
 import scalafx.scene.layout.VBox
 import scalafx.scene.shape.Box
-import view.CardCreator.createCard
+import view.game.CardCreator._
 
 /**
  * The field Zone that contains the deck and the discard stack
@@ -44,7 +44,7 @@ object DeckDiscardZone {
         list = list :+ deckBox
       if(discardStack.nonEmpty) {
         discardStackBox = createCard("/assets/"+discardStack.last.belongingSetCode+"/"+
-          discardStack.last.imageId+".png", cardType = CardType.DiscardStack)
+          discardStack.last.imageNumber+".png", cardType = CardType.DiscardStack)
         list = list :+ discardStackBox
       }
       children = list

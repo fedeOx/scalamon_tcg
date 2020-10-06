@@ -1,4 +1,4 @@
-package view
+package view.game
 
 import javafx.geometry.Insets
 import model.exception.InvalidOperationException
@@ -12,7 +12,8 @@ import scalafx.scene.layout.{HBox, VBox}
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.stage.{Modality, Stage}
-import view.CardCreator._
+import view.PopupBuilder
+import view.game.CardCreator._
 
 /**
  * Field Zone that contains the active Pokémon
@@ -57,7 +58,7 @@ object ActivePkmnZone {
         }
       } else {
         isEmpty = false
-        children = createCard("/assets/" + active.get.belongingSetCode + "/" + active.get.imageId + ".png", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone),
+        children = createCard("/assets/" + active.get.belongingSetCode + "/" + active.get.imageNumber + ".png", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone),
           cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard), gameWindow = Some(board.gameWindow))
       }
     }

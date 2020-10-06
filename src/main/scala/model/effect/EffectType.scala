@@ -10,6 +10,7 @@ object EffectType extends Enumeration {
   val pokePower: Value = Value("pokePower")
   val discardEnergy: Value = Value("DiscardEnergy")
   val status: Value = Value("status")
+  val toBench: Value = Value("toBench")
   val eachEnergy: Value = Value("EachEnergy")
   val eachDmg: Value = Value("EachDmg")
   val doesNDmgAndHitMyself: Value = Value("DoesNDmgAndDmgMyself")

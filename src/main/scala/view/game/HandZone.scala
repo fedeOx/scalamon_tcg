@@ -1,13 +1,13 @@
-package view
+package view.game
 
 import javafx.geometry.Insets
+import model.game.Cards._
 import scalafx.Includes._
 import scalafx.geometry.Pos
 import scalafx.scene.layout.HBox
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.Rotate
-import view.CardCreator._
-import model.game.Cards._
+import view.game.CardCreator._
 
 /**
  * The field zone that contains the hand cards
@@ -36,7 +36,7 @@ object HandZone {
     def updateView(cards: Seq[Card]) : Unit = {
       hand = Seq()
       cards.zipWithIndex.foreach{case (card,cardIndex) => {
-        hand = hand :+ createCard("/assets/"+card.belongingSetCode+"/"+card.imageId+".png",
+        hand = hand :+ createCard("/assets/"+card.belongingSetCode+"/"+card.imageNumber+".png",
           Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), CardType.Hand, 1*cardIndex,
           cardIndex = cardIndex, isHumans = Some(isHumans), Some(this), Some(parentBoard.myBoard), gameWindow = Some(parentBoard.gameWindow))
       }}

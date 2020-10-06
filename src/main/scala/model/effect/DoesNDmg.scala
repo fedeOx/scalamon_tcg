@@ -95,8 +95,15 @@ sealed trait SetImmunity extends AttackEffect {
 
 sealed trait MultipleTargetDmg extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
-    val effectParams = params.find(p => p.isInstanceOf[NDmgParams]).last.asInstanceOf[NDmgParams]
-    atkTo(effectParams.enemyToAtk, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench.filter(c => c.isDefined)).foreach(pkm => pkm.get.addDamage(effectParams.basicDmg.toInt, Seq(EnergyType.Colorless)))
+    val effectParams = params.find(p => p.isInstanceOf[ToBenchParams]).last.asInstanceOf[ToBenchParams]
+    val pokemonToDoDmg: Seq[Option[PokemonCard]] = atkTo(effectParams.benchToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench.filter(c => c.isDefined))
+    //add dmg to all pokemon
+    var numberOfPokemonToApply: Int = effectParams.limit.toInt
+    if (numberOfPokemonToApply == -1)
+      numberOfPokemonToApply = pokemonToDoDmg.size
+    for (i <- 0 until numberOfPokemonToApply)
+      pokemonToDoDmg(i).get.addDamage(effectParams.dmgToDo.toInt, Seq(EnergyType.Colorless))
+
     super.useEffect(attackingBoard, defendingBoard)
   }
 }
@@ -105,13 +112,13 @@ sealed trait DmgMySelf extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
     if (params.exists(p => p.isInstanceOf[DmgMyselfParams])) {
       val effectParamsDmgMyself = params.find(p => p.isInstanceOf[DmgMyselfParams]).last.asInstanceOf[DmgMyselfParams]
-      attackingBoard.activePokemon.get.addDamage(effectParamsDmgMyself.dmgMyself.toInt,Seq(EnergyType.Colorless))
+      attackingBoard.activePokemon.get.addDamage(effectParamsDmgMyself.dmgMyself.toInt, Seq(EnergyType.Colorless))
     } else {
       val dmgMyselfOrNot = params.find(p => p.isInstanceOf[DmgMyselfOrNotParams]).last.asInstanceOf[DmgMyselfOrNotParams]
       if (CoinUtil.flipACoin() == CoinValue.Head)
-        attackingBoard.activePokemon.get.addDamage(dmgMyselfOrNot.headDmg.toInt,Seq(EnergyType.Colorless))
+        attackingBoard.activePokemon.get.addDamage(dmgMyselfOrNot.headDmg.toInt, Seq(EnergyType.Colorless))
       else
-        attackingBoard.activePokemon.get.addDamage(dmgMyselfOrNot.tailDmg.toInt,Seq(EnergyType.Colorless))
+        attackingBoard.activePokemon.get.addDamage(dmgMyselfOrNot.tailDmg.toInt, Seq(EnergyType.Colorless))
     }
     super.useEffect(attackingBoard, defendingBoard)
   }
@@ -149,7 +156,7 @@ class DiscardEnergyAndSetImmunity(dmgCount: Int, pokemonToApply: String) extends
 
 class DoesDmgToMultipleTarget(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with MultipleTargetDmg
 
-class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String ) extends DoesNDmg(dmgCount, pokemonToApply) with addStatus
+class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with addStatus
 
 class DoesDmgToMultipleTarget_AND_DmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesDmgToMultipleTarget(dmgCount, pokemonToApply) with DmgMySelf
 
@@ -165,10 +172,10 @@ private object utils {
   def atkTo(string: String, defendingPokemon: Option[PokemonCard], myBench: Seq[Option[PokemonCard]], enemyBench: Seq[Option[PokemonCard]]): Seq[Option[PokemonCard]] = {
     var seq: Seq[Option[PokemonCard]] = Seq()
     string match {
-      case "myBench" => myBench
-      case "enemyBench" => enemyBench
+      case "atk" => myBench
+      case "def" => enemyBench
       case "single" => Seq(defendingPokemon)
-      case "bothBench" =>
+      case "both" =>
         seq = seq ++ enemyBench ++ myBench
         seq
     }

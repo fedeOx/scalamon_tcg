@@ -1,14 +1,13 @@
 package view
 
-import common.{Observable, Observer}
+import common.Observer
 import controller.Controller
-import model.core.DataLoader
 import model.event.Events
 import model.event.Events.Event.ShowDeckCards
 import model.game.{DeckCard, SetType}
 import scalafx.Includes._
 import scalafx.application.Platform
-import scalafx.beans.property.{ObjectProperty, StringProperty}
+import scalafx.beans.property.{IntegerProperty, ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
@@ -16,9 +15,11 @@ import scalafx.scene.control.TableColumn._
 import scalafx.scene.control._
 import scalafx.scene.layout._
 import scalafx.scene.text.Font
+import view.game.GameBoardView
 
-case class CardView(id: String, name: String, rarity: String, var count: Int) {
+case class CardView(id: String, imageNumber: Int, name: String, rarity: String, var count: Int) {
   val idCard = new StringProperty(this, "id", id)
+  val imageNumberCard = new IntegerProperty(this, "imageNumber", imageNumber)
   val nameCard = new StringProperty(this, "lastName", name)
   val rarityCard = new StringProperty(this, "rarity", rarity)
   var countCard = new ObjectProperty(this, "count", count)
@@ -49,13 +50,12 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
           GameLauncher.stage.close()
           new GameBoardView(controller)
           var seqDeck: Seq[DeckCard] = Seq()
-          cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.name, p.rarity, p.count))
-          controller.initGame(seqDeck, SetType.Base)
+          cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.imageNumber, p.name, p.rarity, p.count))
+          controller.initGame(seqDeck, Seq(SetType.Base))
         }
       }
     }
   }
-
 
   def createDeckPanel: GridPane = {
     var columnIndexcnt = 0
@@ -94,7 +94,7 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
     deckButton.onAction = () => {
       cardsTableItem.clear()
       selectedDeck.foreach(card => {
-        cardsTableItem = cardsTableItem :+ CardView(card.imageId, card.name, card.rarity, card.count)
+        cardsTableItem = cardsTableItem :+ CardView(card.id, card.imageNumber, card.name, card.rarity, card.count)
       })
       tableView.setItems(cardsTableItem)
       tableView.refresh()

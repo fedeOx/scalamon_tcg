@@ -3,11 +3,9 @@ package controller
 import common.{CoinUtil, Observable}
 import model.ai.Ai
 import model.core.{DataLoader, GameManager, TurnManager}
-import model.effect.EffectManager
 import model.event.Events.Event
 import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.EnergyType.EnergyType
 import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType, EnergyType}
 import model.game.SetType.SetType
 
@@ -43,9 +41,9 @@ trait Controller {
    * player that will start the game. The information produced are propagated to all observers.
    *
    * @param cardList the list of cards composing the deck chosen by the user
-   * @param set the card set to whom `cardList` belongs
+   * @param setList the cards set list to whom `cardList` belongs
    */
-  def initGame(cardList: Seq[DeckCard], set: SetType): Unit
+  def initGame(cardList: Seq[DeckCard], setList: Seq[SetType]): Unit
 
   /**
    * It inform [[model.core.TurnManager]] when the user has finished his placement turn.
@@ -169,10 +167,10 @@ object Controller {
       }
     }.start()
 
-    override def initGame(playerDeckCards: Seq[DeckCard], set: SetType): Unit = new Thread {
+    override def initGame(playerDeckCards: Seq[DeckCard], setList: Seq[SetType]): Unit = new Thread {
       override def run(): Unit = {
-        val setCards: Seq[Card] = dataLoader.loadSet(set)
-        val opponentChosenDeckType = DeckType.values.filter(d => d.setType == set)
+        val setCards: Seq[Card] = setList.flatMap(s => dataLoader.loadSet(s))
+        val opponentChosenDeckType = DeckType.values.filter(d => setList.contains(d.setType))
           .toVector(new Random().nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
         val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(opponentChosenDeckType)
         gameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
