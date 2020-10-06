@@ -1,4 +1,4 @@
-package view
+package view.game
 
 /***
  * Enum that represents all the card Types, based on the zone of the field

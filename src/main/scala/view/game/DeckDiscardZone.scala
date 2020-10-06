@@ -1,10 +1,10 @@
-package view
+package view.game
 
 import model.game.Cards.Card
 import scalafx.geometry.Pos
 import scalafx.scene.layout.VBox
 import scalafx.scene.shape.Box
-import view.CardCreator.createCard
+import view.game.CardCreator._
 
 /**
  * The field Zone that contains the deck and the discard stack
