@@ -412,7 +412,6 @@
             "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
-
       }
     ],
     "weaknesses": [
@@ -2246,7 +2245,9 @@
           },
           {
             "name" : "recovery",
-            "params":[{"recoveryAmount":"-1","pokemonToApply":"atk"}]
+            "params":[{"recoveryAmount":"-1","pokemonToApply":"atk","headBounded": "",
+              "tailBounded": ""
+            }]
           }
         ]
       },
@@ -3610,7 +3611,6 @@
             "params":[{"pokemonToApply": "def","firstStatusType": "paralyzed","firstEffectCoin": "head","secondEffectCoin": "tail","secondStatus": "noStatus"}]
           }
         ]
-
       },
       {
         "name": "Selfdestruct",
@@ -4326,7 +4326,9 @@
           },
           {
             "name" : "recovery",
-            "params":[{"recoveryAmount":"-1","pokemonToApply":"atk"}]
+            "params":[{"recoveryAmount":"-1","pokemonToApply":"atk","headBounded": "",
+              "tailBounded": ""
+            }]
           }
         ]
       },

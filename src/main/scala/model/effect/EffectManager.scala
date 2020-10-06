@@ -1,11 +1,12 @@
 package model.effect
+
 import common.CoinUtil
 import common.CoinUtil.CoinValue
 import common.CoinUtil.CoinValue.CoinValue
 import model.event.Events.Event
 
 object EffectManager {
-  private var totalParamsSeq :Seq[Params] = Seq()
+  private var totalParamsSeq: Seq[Params] = Seq()
 
   def convertJsonEffectToAttackEffect(jsonEffect: Option[Seq[Effect]]): Option[AttackEffect] = {
     val mainEffect: Effect = jsonEffect.get.head
@@ -33,13 +34,19 @@ object EffectManager {
         if (basicCoinSide != "") {
           //do dmg according to Coin Value
           var newBasicDmgToDo = 0
+          var iterationReduce = 1
+          if (basicCoinFlipNumber == -1) iterationReduce = 0
+
           @scala.annotation.tailrec
           def modifyDmgCount(iterationLeft: Int): Int = iterationLeft match {
             case 0 => newBasicDmgToDo
             case _ =>
               if (CoinUtil.flipACoin().toString == basicCoinSide)
                 newBasicDmgToDo += basicDmgToDo
-              modifyDmgCount(iterationLeft - 1)
+              else if (basicCoinFlipNumber == -1)
+                iterationReduce = iterationLeft
+
+              modifyDmgCount(iterationLeft - iterationReduce)
           }
           basicDmgToDo = modifyDmgCount(basicCoinFlipNumber)
         }
@@ -73,7 +80,7 @@ object EffectManager {
       case h :: t if h.name == EffectType.doesNDmgAndHitMyself_OR_doesNdmg => {
         //TODO duplicate code
         val effectParams = jsonEffect.find(effect => effect.name == EffectType.doesNDmgAndHitMyself_OR_doesNdmg).get.params.head.asInstanceOf[DmgMyselfOrNotParams]
-          returnedAttack = returnedEffect(new DoesNDmgAndDmgMyself(basicDmgToDo, basicEnemyToAtk), effectParams)
+        returnedAttack = returnedEffect(new DoesNDmgAndDmgMyself(basicDmgToDo, basicEnemyToAtk), effectParams)
       }
       //Base atk dmg and discard Energy
       case h :: t if h.name == EffectType.discardEnergy => {
@@ -93,7 +100,7 @@ object EffectManager {
         val isTailBounded: String = effectParams.tailBounded
         val isHeadBounded: String = effectParams.headBounded
         if (t.isEmpty) {
-          if ((isHeadBounded == "true" && CoinUtil.flipACoin() == CoinValue.Head) || (isTailBounded == "true" &&  CoinUtil.flipACoin() == CoinValue.Tail) || (isTailBounded == "" && isHeadBounded == ""))
+          if ((isHeadBounded == "true" && CoinUtil.flipACoin() == CoinValue.Head) || (isTailBounded == "true" && CoinUtil.flipACoin() == CoinValue.Tail) || (isTailBounded == "" && isHeadBounded == ""))
             returnedAttack = returnedEffect(new DoesNDmgAndSetImmunity(basicDmgToDo, basicEnemyToAtk), effectParams)
           else
             returnedAttack = returnedEffect(DoesNDmg(basicDmgToDo, basicEnemyToAtk), effectParams)
@@ -123,7 +130,7 @@ object EffectManager {
     returnedAttack
   }
 
-  private def returnedEffect(item: DoesNDmg, param:Params): AttackEffect = {
+  private def returnedEffect(item: DoesNDmg, param: Params): AttackEffect = {
     totalParamsSeq = totalParamsSeq :+ param
     item.params = totalParamsSeq
     item

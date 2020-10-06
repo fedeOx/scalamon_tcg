@@ -7,7 +7,6 @@ sealed trait Params {
   def name: String
 }
 
-
 sealed trait NDmgParams extends Params {
   def basicDmg: String
   def coinFlipNumber: String
@@ -42,6 +41,8 @@ sealed trait SetImmunityParams extends Params {
 sealed trait RecoveryParams extends Params {
   def recoveryAmount: String
   def pokemonToApply: String
+  def headBounded:String
+  def tailBounded:String
 }
 sealed trait DiscardEnergyParams extends Params {
   def discardAmount: String
@@ -158,17 +159,19 @@ object SetImmunityParams {
 
 }
 object RecoveryParams {
-  def apply(name: String, recoveryAmount: String, pokemonToApply: String): RecoveryParams = recoveryParamsImpl(name, recoveryAmount, pokemonToApply)
+  def apply(name: String, recoveryAmount: String, pokemonToApply: String,headBounded:String,tailBounded:String): RecoveryParams = recoveryParamsImpl(name, recoveryAmount, pokemonToApply,headBounded,tailBounded)
   implicit val decoder: Decoder[RecoveryParams] = new Decoder[RecoveryParams] {
     override def apply(c: HCursor): Result[RecoveryParams] =
       for {
         _recoveryAmount <- c.downField("recoveryAmount").as[Option[String]]
         _pokemonToApply <- c.downField("pokemonToApply").as[Option[String]]
+        _headBounded <- c.downField("headBounded").as[Option[String]]
+        _tailBounded <- c.downField("tailBounded").as[Option[String]]
       } yield {
-        recoveryParamsImpl(EffectType.recovery.toString, _recoveryAmount.get, _pokemonToApply.get)
+        recoveryParamsImpl(EffectType.recovery.toString, _recoveryAmount.get, _pokemonToApply.get,_headBounded.get,_tailBounded.get)
       }
   }
-  private case class recoveryParamsImpl( name: String, recoveryAmount: String, pokemonToApply: String) extends RecoveryParams
+  private case class recoveryParamsImpl( name: String, recoveryAmount: String, pokemonToApply: String,headBounded:String,tailBounded:String) extends RecoveryParams
 
 }
 object DiscardEnergyParams {
