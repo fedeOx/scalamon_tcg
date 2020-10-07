@@ -143,7 +143,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   }
 
   def damageBench(event: DamageBenchEffect): Unit = {
-    PopupBuilder.damageBenchedPokemonScreen(this, humanBoard.myBoard,
+    PopupBuilder.openDamageBenchedPokemonScreen(this, humanBoard.myBoard,
       aIBoard.myBoard, event.pokemonToDamage, event.damage)
   }
 

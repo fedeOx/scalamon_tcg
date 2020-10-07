@@ -175,7 +175,7 @@ object PopupBuilder extends PopupBuilder {
     dialog.show()
   }
 
-  def damageBenchedPokemonScreen(parent: Window, humanBoard: Board, aiBoard: Board, cardToSelect: Int, damage: Int) : Unit = {
+  def openDamageBenchedPokemonScreen(parent: Window, humanBoard: Board, aiBoard: Board, cardToSelect: Int, damage: Int) : Unit = {
     var cardSelected: Seq[PokemonCard] = Seq()
     var dialog : Stage = new Stage()
     dialog = createBenchSelectionContent(parent, aiBoard.pokemonBench, cardIndex => {
@@ -315,7 +315,6 @@ object PopupBuilder extends PopupBuilder {
 
   def openEndGameScreen(parent: Window, playerWon: Boolean): Unit = {
     val dialog: Stage = new Stage() {
-      private val gameStage = parent
       initOwner(parent)
       initModality(Modality.ApplicationModal)
       scene = new Scene(300, 200) {
@@ -328,8 +327,8 @@ object PopupBuilder extends PopupBuilder {
           children = List(new Label(if (playerWon) "You won!" else "You lose!"),
             new Button("Back to menu") {
               onAction = _ => {
-                scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close();
-                GameLauncher.stage.asInstanceOf[Stage].scene = StartGameScene(controller)
+                scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+                GameLauncher.stage.asInstanceOf[Stage].scene = StartGameScene(Controller())
                 GameLauncher.stage.width = 500
                 GameLauncher.stage.height = 300
               }
