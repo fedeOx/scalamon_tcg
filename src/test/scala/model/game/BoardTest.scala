@@ -3,12 +3,14 @@ package model.game
 import model.core.DataLoader
 import model.exception.InvalidOperationException
 import model.game.Cards.{Card, PokemonCard}
+import model.game.SetType.SetType
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 
 class BoardTest extends AnyFlatSpec with GivenWhenThen {
-/*
-  val cards: Seq[Card] = DataLoader.loadSet(SetType.Base)
+
+  val dataLoader: DataLoader = DataLoader()
+  val cards: Seq[Card] = dataLoader.loadSet(SetType.Base)
   val board: Board = Board(cards)
 
   behavior of "A Board"
@@ -41,10 +43,10 @@ class BoardTest extends AnyFlatSpec with GivenWhenThen {
   }
 
   it should "add/remove pokemon to/from bench if it is possible" in {
-    val pokemonToAdd: PokemonCard = PokemonCard("1", "base1", "rare", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
+    val pokemonToAdd: Option[PokemonCard] = getPokemon(SetType.Base, "Bulbasaur")
     for (i <- board.pokemonBench.indices) {
       assert(board.pokemonBench(i).isEmpty)
-      board.putPokemonInBenchPosition(Some(pokemonToAdd), i)
+      board.putPokemonInBenchPosition(pokemonToAdd, i)
       assert(board.pokemonBench(i).nonEmpty)
     }
 
@@ -54,24 +56,27 @@ class BoardTest extends AnyFlatSpec with GivenWhenThen {
       assert(board.pokemonBench(i).isEmpty)
     }
 
+    val outOfBoundPosition = board.pokemonBench.indices.size
     intercept[InvalidOperationException] {
-      board.putPokemonInBenchPosition(Some(pokemonToAdd), board.pokemonBench.indices.size)
+      board.putPokemonInBenchPosition(pokemonToAdd, outOfBoundPosition)
     }
 
     intercept[InvalidOperationException] {
-      board.putPokemonInBenchPosition(None, board.pokemonBench.indices.size)
+      board.putPokemonInBenchPosition(None, outOfBoundPosition)
     }
   }
 
   it should "add an active pokemon to the discard stack when it is made KO" in {
-    val activePokemon: PokemonCard = PokemonCard("1", "base1", "rare", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
-    board.activePokemon = Some(activePokemon)
+    val activePokemon: Option[PokemonCard] = getPokemon(SetType.Base, "Bulbasaur")
+    board.activePokemon = activePokemon
     board.addCardsToDiscardStack(board.activePokemon.get :: Nil)
     board.activePokemon = None
     assert(board.discardStack.nonEmpty)
     assert(board.activePokemon.isEmpty)
   }
 
+  private def getPokemon(set: SetType, pokemonName: String): Option[PokemonCard] =
+    dataLoader.loadSet(set).filter(p => p.isInstanceOf[PokemonCard] && p.asInstanceOf[PokemonCard].name == pokemonName)
+      .map(p => p.asInstanceOf[PokemonCard]).headOption
 
- */
 }
