@@ -106,6 +106,8 @@ object ActivePkmnZone {
             onAction = event => {
               PopupBuilder.openBenchSelectionScreen(board.gameWindow, parentBoard.myBoard.pokemonBench, isAttackingPokemonKO = false)
               event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+              //PopupBuilder.openDamageBenchedPokemonScreen(board.gameWindow, parentBoard.myBoard,
+                //parentBoard.opponentBoard, 2, 20)
             }
           }
           buttonContainer.children = buttons
