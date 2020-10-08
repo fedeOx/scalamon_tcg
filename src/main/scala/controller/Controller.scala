@@ -24,6 +24,11 @@ trait Controller {
   def loadDecks(set: SetType): Unit
 
   /**
+   * It makes [[model.core.DataLoader]] loads all the available custom decks and notify them to all observers.
+   */
+  def loadCustomDecks(): Unit
+
+  /**
    * It makes [[model.core.DataLoader]] loads the list of [[model.game.Cards.Card]] of the specified set and notify
    * them to all observers.
    * @param set the set whose cards must be loaded
@@ -149,6 +154,13 @@ object Controller {
     override def loadDecks(set: SetType): Unit = new Thread {
       override def run(): Unit = {
         val deckCards: Map[String, Seq[DeckCard]] = dataLoader.loadDecks(set)
+        dataLoader.notifyObservers(Event.showDeckCardsEvent(deckCards))
+      }
+    }.start()
+
+    override def loadCustomDecks(): Unit = new Thread {
+      override def run(): Unit = {
+        val deckCards: Map[String, Seq[DeckCard]] = dataLoader.loadCustomDecks()
         dataLoader.notifyObservers(Event.showDeckCardsEvent(deckCards))
       }
     }.start()

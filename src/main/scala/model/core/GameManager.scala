@@ -258,7 +258,7 @@ object GameManager {
         } else {
           if (attackingPokemon.status == StatusType.Confused && new Random().nextInt(2) == 0) {
             attackingPokemon.addDamage(ConfusedDamage, Seq())
-          } else {
+          } else if (attackingPokemon.hasEnergies(attack.cost)) {
             attack.effect.get.useEffect(attackingBoard, defendingBoard)
             this.notifyObservers(Event.attackEnded())
           }
