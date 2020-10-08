@@ -99,7 +99,7 @@ object PlayerBoard {
         buttonMaterial.diffuseMap = new Image("/assets/endturn.png")
         material = buttonMaterial
         width = 3
-        height = 2
+        height = 3
         translateX = 42
         translateY = 5
         depth = 0.6

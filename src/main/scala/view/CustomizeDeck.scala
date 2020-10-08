@@ -131,8 +131,14 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
         GameLauncher.stage.scene = DeckSelection(controller)
       }
     }, new VBox(new HBox(new Label("Deck name: ") {
-      id = "deckNameLabel"; margin = Insets(0, 10, 0, 10)
-    }, textFieldName), buttonConfirm,boxDeckSelect) {
+      id = "deckNameLabel";
+    }, textFieldName){
+      spacing = 10
+      margin = Insets(0, 10, 0, 10)
+    }, new HBox(boxDeckSelect, buttonConfirm) {
+      spacing = 10
+      margin = Insets(10, 10, 0, 10)
+    }) {
       padding = Insets(5, 0, 0, 30)
     })
   }

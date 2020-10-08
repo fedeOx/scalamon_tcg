@@ -28,6 +28,8 @@ object Events {
 
     def customDeckSavedEvent(success: Boolean): Event = CustomDeckSaved(success)
 
+    def damageBenchEffect(pokemonToDamage: Int, damage: Int): Event = DamageBenchEffect(pokemonToDamage, damage)
+
     case class ShowDeckCards(deckCards: Map[String, Seq[DeckCard]]) extends Event
     case class ShowSetCards(setCards: Seq[Card]) extends Event
     case class BuildGameField(playerBoard: Board, opponentBoard: Board) extends Event
@@ -38,6 +40,7 @@ object Events {
     case class AttackEnded() extends Event
     case class EndGame() extends Event
     case class CustomDeckSaved(success: Boolean) extends Event
+    case class DamageBenchEffect(pokemonToDamage: Int, damage: Int) extends Event
   }
 
 }
