@@ -9,84 +9,98 @@
         "cards": [
             {
                 "id": "base1-44",
+                "set": "base",
                 "name": "Bulbasaur",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-30",
+                "set": "base",
                 "name": "Ivysaur",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-15",
+                "set": "base",
                 "name": "Venusaur",
                 "rarity": "Rare",
                 "count": 2
             },
             {
                 "id": "base1-26",
+                "set": "base",
                 "name": "Dratini",
                 "rarity": "Uncommon",
                 "count": 3
             },
             {
                 "id": "base1-18",
+                "set": "base",
                 "name": "Dragonair",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-69",
+                "set": "base",
                 "name": "Weedle",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-33",
+                "set": "base",
                 "name": "Kakuna",
                 "rarity": "Uncommon",
                 "count": 3
             },
             {
                 "id": "base1-17",
+                "set": "base",
                 "name": "Beedrill",
                 "rarity": "Rare",
                 "count": 1
             },
             {
                 "id": "base1-65",
+                "set": "base",
                 "name": "Staryu",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-64",
+                "set": "base",
                 "name": "Starmie",
                 "rarity": "Common",
                 "count": 3
             },
             {
                 "id": "base1-35",
+                "set": "base",
                 "name": "Magikarp",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-6",
+                "set": "base",
                 "name": "Gyarados",
                 "rarity": "Rare Holo",
                 "count": 2
             },
             {
                 "id": "base1-99",
+                "set": "base",
                 "name": "Grass Energy",
                 "rarity": "Common",
                 "count": 16
             },
             {
                 "id": "base1-102",
+                "set": "base",
                 "name": "Water Energy",
                 "rarity": "Common",
                 "count": 12
@@ -103,108 +117,126 @@
         "cards": [
             {
                 "id": "base1-58",
+                "set": "base",
                 "name": "Pikachu",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-16",
+                "set": "base",
                 "name": "Zapdos",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-21",
+                "set": "base",
                 "name": "Electrode",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-67",
+                "set": "base",
                 "name": "Voltorb",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-20",
+                "set": "base",
                 "name": "Electabuzz",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-9",
+                "set": "base",
                 "name": "Magneton",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-14",
+                "set": "base",
                 "name": "Raichu",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-53",
+                "set": "base",
                 "name": "Magnemite",
                 "rarity": "Common",
                 "count": 3
             },
             {
                 "id": "base1-43",
+                "set": "base",
                 "name": "Abra",
                 "rarity": "Common",
                 "count": 3
             },
             {
                 "id": "base1-32",
+                "set": "base",
                 "name": "Kadabra",
                 "rarity": "Uncommon",
                 "count": 1
             },
             {
                 "id": "base1-1",
+                "set": "base",
                 "name": "Alakazam",
                 "rarity": "Uncommon",
                 "count": 1
             },
             {
                 "id": "base1-50",
+                "set": "base",
                 "name": "Gastly",
                 "rarity": "Common",
                 "count": 3
             },
             {
                 "id": "base1-29",
+                "set": "base",
                 "name": "Haunter",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-49",
+                "set": "base",
                 "name": "Drowzee",
                 "rarity": "Common",
                 "count": 2
             },
             {
                 "id": "base1-31",
+                "set": "base",
                 "name": "Jynx",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-10",
+                "set": "base",
                 "name": "Mewtwo",
                 "rarity": "Rare Holo",
                 "count": 1
             },
             {
                 "id": "base1-100",
+                "set": "base",
                 "name": "Lightning Energy",
                 "rarity": "Common",
                 "count": 12
             },
             {
                 "id": "base1-101",
+                "set": "base",
                 "name": "Psychic Energy",
                 "rarity": "Common",
                 "count": 16
@@ -221,96 +253,112 @@
         "cards": [
             {
                 "id": "base1-46",
+                "set": "base",
                 "name": "Charmander",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-24",
+                "set": "base",
                 "name": "Charmeleon",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-4",
+                "set": "base",
                 "name": "Charizard",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-36",
+                "set": "base",
                 "name": "Magmar",
                 "rarity": "Uncommon",
                 "count": 4
             },
             {
                 "id": "base1-3",
+                "set": "base",
                 "name": "Chansey",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-68",
+                "set": "base",
                 "name": "Vulpix",
                 "rarity": "Common",
                 "count": 2
             },
             {
                 "id": "base1-12",
+                "set": "base",
                 "name": "Ninetales",
                 "rarity": "Rare Holo",
                 "count": 1
             },
             {
                 "id": "base1-28",
+                "set": "base",
                 "name": "Growlithe",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-23",
+                "set": "base",
                 "name": "Arcanine",
                 "rarity": "Uncommon",
                 "count": 1
             },
             {
                 "id": "base1-69",
+                "set": "base",
                 "name": "Weedle",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-55",
+                "set": "base",
                 "name": "Nidoran♂",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-37",
+                "set": "base",
                 "name": "Nidorino",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-11",
+                "set": "base",
                 "name": "Nidoking",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-66",
+                "set": "base",
                 "name": "Tangela",
                 "rarity": "Common",
                 "count": 2
             },
             {
                 "id": "base1-98",
+                "set": "base",
                 "name": "Fire Energy",
                 "rarity": "Common",
                 "count": 18
             },
             {
                 "id": "base1-99",
+                "set": "base",
                 "name": "Grass Energy",
                 "rarity": "Common",
                 "count": 10
@@ -327,108 +375,126 @@
         "cards": [
             {
                 "id": "base1-62",
+                "set": "base",
                 "name": "Sandshrew",
                 "rarity": "Common",
                 "count": 3
             },
             {
                 "id": "base1-52",
+                "set": "base",
                 "name": "Machop",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-34",
+                "set": "base",
                 "name": "Machoke",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-8",
+                "set": "base",
                 "name": "Machamp",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-2",
+                "set": "base",
                 "name": "Blastoise",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-59",
+                "set": "base",
                 "name": "Poliwag",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-41",
+                "set": "base",
                 "name": "Seal",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-38",
+                "set": "base",
                 "name": "Poliwhirl",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-25",
+                "set": "base",
                 "name": "Dewgong",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-13",
+                "set": "base",
                 "name": "Poliwrath",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-56",
+                "set": "base",
                 "name": "Onix",
                 "rarity": "Common",
                 "count": 3
             },
             {
                 "id": "base1-7",
+                "set": "base",
                 "name": "Hitmonchan",
                 "rarity": "Rare Holo",
                 "count": 1
             },
             {
                 "id": "base1-63",
+                "set": "base",
                 "name": "Squirtle",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-42",
+                "set": "base",
                 "name": "Wartortle",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-65",
+                "set": "base",
                 "name": "Staryu",
                 "rarity": "Common",
                 "count": 3
             },
             {
                 "id": "base1-27",
+                "set": "base",
                 "name": "Farfetch'd",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-97",
+                "set": "base",
                 "name": "Fighting Energy",
                 "rarity": "Common",
                 "count": 16
             },
             {
                 "id": "base1-102",
+                "set": "base",
                 "name": "Water Energy",
                 "rarity": "Common",
                 "count": 20

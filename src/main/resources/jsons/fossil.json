@@ -1278,7 +1278,7 @@
         "name": "Water Gun",
         "cost": [
           "Water",
-          "Colorless"
+          "Water"
         ],
         "convertedEnergyCost": 2,
         "damage": "20+",
@@ -1297,8 +1297,8 @@
       {
         "name": "Spike Cannon",
         "cost": [
-          "Colorless",
-          "Colorless"
+          "Water",
+          "Water"
         ],
         "convertedEnergyCost": 2,
         "damage": "30×",
@@ -1306,7 +1306,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":[{"basicDmgToDo": "20","coinFlipNumber":"2","coinSide":"head","enemyToAtk":"single"}]
+            "params":[{"basicDmgToDo": "30","coinFlipNumber":"2","coinSide":"head","enemyToAtk":"single"}]
           }
         ]
       }

@@ -54,11 +54,12 @@ class DataLoaderTest extends AnyFlatSpec with GivenWhenThen {
     }
   }
 
-  /*it must "save and load custom decks correctly" in {
+  it must "save and load custom decks correctly" in {
     Given("a custom deck")
     val deckName: String = "myCustomDeckName"
-    val customDeck: Seq[DeckCard] = DeckCard("base-1", 1, "myPokemon", "rare", 1) :: DeckCard("base-2", 2, "myPokemon2", "rare", 1) ::
-      DeckCard("base-3", 3, "myPokemon2", "rare", 1) :: Nil
+    val customDeck: Seq[DeckCard] = DeckCard("base-1", 1, Some(SetType.Base), "myPokemon", "rare", 1) ::
+      DeckCard("base-2", 2, Some(SetType.Base), "myPokemon2", "rare", 1) ::
+      DeckCard("base-3", 3, Some(SetType.Base), "myPokemon2", "rare", 1) :: Nil
 
     When("the custom deck is saved")
     dataLoader.saveCustomDeck(CustomDeck(deckName, SetType.Base, customDeck))
@@ -68,14 +69,14 @@ class DataLoaderTest extends AnyFlatSpec with GivenWhenThen {
     assert(cursor.values.get.map(i => i.hcursor.downField("name")).exists(i => i.as[String].toOption.get == deckName))
 
     When("an existent custom deck is choosen")
-    val existentCustomDeck: Seq[DeckCard] = dataLoader.loadCustomSingleDeck(SetType.Base, deckName)
+    val existentCustomDeck: Seq[DeckCard] = dataLoader.loadSingleCustomDeck(deckName)
 
     Then("the card list of the specified custom deck must be loaded")
     assert(existentCustomDeck.nonEmpty && existentCustomDeck == customDeck)
 
     resetCustomDecksFile(deckName)
   }
-*/
+
   private def buildCursor(inputFile: InputStream): HCursor = {
     val source = Source.fromInputStream(inputFile)
     var lines = ""
