@@ -13,9 +13,9 @@ case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEff
   override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
     atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench, defendingBoard.pokemonBench).foreach(pkm =>
       if (pkm == defendingBoard.activePokemon)
-        pkm.get.addDamage(totalDmgToEnemyPkm, attackingBoard.activePokemon.get.pokemonTypes)
+        pkm.get.addDamage(totalDmgToEnemyPkm-pkm.get.damageModifier, attackingBoard.activePokemon.get.pokemonTypes)
       else
-        pkm.get.addDamage(totalDmgToEnemyPkm, Seq(EnergyType.Colorless)))
+        pkm.get.addDamage(totalDmgToEnemyPkm-pkm.get.damageModifier, Seq(EnergyType.Colorless)))
 
     Thread.sleep(2500)
   }
@@ -96,7 +96,18 @@ sealed trait SetImmunity extends AttackEffect {
 sealed trait MultipleTargetDmg extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[ToBenchParams]).last.asInstanceOf[ToBenchParams]
-    val pokemonToDoDmg: Seq[Option[PokemonCard]] = atkTo(effectParams.benchToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench.filter(c => c.isDefined))
+    var benchToApply = ""
+    //case dmg to bench without coinflip
+    if (effectParams.headDmgTo == "" && effectParams.tailDmgTo == "")
+      benchToApply = effectParams.benchToApply
+    else {
+      if (CoinUtil.flipACoin() == CoinValue.Head)
+        benchToApply = effectParams.headDmgTo
+      else
+        benchToApply = effectParams.tailDmgTo
+    }
+    val pokemonToDoDmg: Seq[Option[PokemonCard]] = atkTo(benchToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench.filter(c => c.isDefined), defendingBoard.pokemonBench.filter(c => c.isDefined))
+
     //add dmg to all pokemon
     var numberOfPokemonToApply: Int = effectParams.limit.toInt
     if (numberOfPokemonToApply == -1)
@@ -140,6 +151,19 @@ sealed trait addStatus extends AttackEffect {
   }
 }
 
+sealed trait PreventDmg extends AttackEffect {
+  abstract override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
+    val effectParams = params.find(p => p.isInstanceOf[PreventParams]).get.asInstanceOf[PreventParams]
+    attackingBoard.activePokemon.get.damageModifier = effectParams.dmgToPrevent.toInt
+    super.useEffect(attackingBoard, defendingBoard)
+  }
+}
+
+class Recovery(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with RecoverLife
+
+class Prevent(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with PreventDmg
+
+
 class DoesNDmgForEachEnergyAttachedTo(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with ForEachEnergyAttachedTo
 
 class DoesNDmgForEachDamageCount(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with ForEachDamageCount
@@ -159,6 +183,7 @@ class DoesDmgToMultipleTarget(dmgCount: Int, pokemonToApply: String) extends Doe
 class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with addStatus
 
 class DoesDmgToMultipleTarget_AND_DmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesDmgToMultipleTarget(dmgCount, pokemonToApply) with DmgMySelf
+
 
 
 private object utils {

@@ -83,7 +83,6 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
       background = Background.Empty
       id = "gridPane"
       alignment = Pos.CenterLeft
-
       vgap = 20
       hgap = 20
       //padding = Insets(5, 20, 5, 20)

@@ -15,6 +15,8 @@ sealed trait NDmgParams extends Params {
 }
 
 sealed trait ToBenchParams extends Params {
+  def headDmgTo: String
+  def tailDmgTo: String
   def benchToApply : String
   def dmgToDo : String
   def limit : String
@@ -60,6 +62,9 @@ sealed trait DmgMyselfOrNotParams extends Params {
   def tailDmg: String
   def headDmg: String
 }
+sealed trait PreventParams extends  Params{
+  def dmgToPrevent : String
+}
 
 object NDmgParams {
   implicit val decoder: Decoder[NDmgParams] = new Decoder[NDmgParams] {
@@ -83,18 +88,20 @@ object NDmgParams {
 }
 
 object ToBenchParams {
-  def apply(name:String , benchToApply : String ,dmgToDo : String, limit : String): ToBenchParams = ToBenchParamsImpl(name , benchToApply  ,dmgToDo , limit )
+  def apply(name:String ,headDmgTo: String ,tailDmgTo: String , benchToApply : String ,dmgToDo : String, limit : String): ToBenchParams = ToBenchParamsImpl(name ,headDmgTo ,tailDmgTo, benchToApply  ,dmgToDo , limit )
   implicit val decoder: Decoder[ToBenchParams] = new Decoder[ToBenchParams] {
     override def apply(c: HCursor): Result[ToBenchParams] =
       for {
+        _headDmgTo <- c.downField("headDmg").as[String]
+        _tailDmgTo <- c.downField("tailDmg").as[String]
         _benchToApply <- c.downField("benchToApply").as[Option[String]]
         _dmgToDo <- c.downField("dmgToDo").as[Option[String]]
         _limit <- c.downField("limit").as[Option[String]]
       } yield {
-        ToBenchParamsImpl(EffectType.eachDmg.toString, _benchToApply.get, _dmgToDo.get,_limit.get)
+        ToBenchParamsImpl(EffectType.eachDmg.toString,_headDmgTo,_tailDmgTo, _benchToApply.get, _dmgToDo.get,_limit.get)
       }
   }
-  private case class ToBenchParamsImpl(name:String , benchToApply : String ,dmgToDo : String, limit : String) extends ToBenchParams
+  private case class ToBenchParamsImpl(name:String ,headDmgTo: String ,tailDmgTo: String, benchToApply : String ,dmgToDo : String, limit : String) extends ToBenchParams
 
 }
 
@@ -228,3 +235,16 @@ object DmgMyselfOrNotParams {
 
 }
 
+object PreventParams {
+  def apply(name: String, dmgToPrevent: String): PreventParams = PreventParamsImpl(name, dmgToPrevent)
+  implicit val decoder: Decoder[PreventParams] = new Decoder[PreventParams] {
+    override def apply(c: HCursor): Result[PreventParams] =
+      for {
+        _dmgToPrevent <- c.downField("dmgToPrevent").as[Option[String]]
+      } yield {
+        PreventParamsImpl(EffectType.prevent.toString, _dmgToPrevent.get)
+      }
+  }
+  private case class PreventParamsImpl(name: String, dmgToPrevent: String) extends PreventParams
+
+}

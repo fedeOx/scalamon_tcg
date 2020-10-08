@@ -23,14 +23,15 @@ import view.PopupBuilder
  */
 class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with Observer {
   val zoomZone: ZoomZone = ZoomZone()
-  var turnOwner : TurnOwner = TurnOwner.Player
+  var turnOwner: TurnOwner = TurnOwner.Player
+  var isHandlingEffect: Boolean = false
   private val WIDTH = 1600
   private val HEIGHT = 1000
   private val TITLE = "Scalamon"
-  private val aIBoard = PlayerBoard(isHumans = false,this)
-  private val humanBoard = PlayerBoard(isHumans = true,this)
-  private var loadingMessage : Stage = _
-  private var gameEnded : Boolean = false
+  private val aIBoard = PlayerBoard(isHumans = false, this)
+  private val humanBoard = PlayerBoard(isHumans = true, this)
+  private var loadingMessage: Stage = _
+  private var gameEnded: Boolean = false
   title = TITLE
   icons += new Image("/assets/icon.png")
   controller.gameManager.addObserver(this)
@@ -78,6 +79,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     case event: FlipCoin => flipCoin(event)
     case _: UpdateBoards => updateBoards()
     case event: NextTurn => handleTurnStart(event)
+    case event: DamageBenchEffect => damageBench(event)
     case event: PokemonKO => handleKO(event)
     case _: AttackEnded => handleAttackEnd()
     case _: EndGame => endGame()
@@ -118,11 +120,11 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     })
   }
 
-  private def handleTurnStart(event: NextTurn) : Unit = {
+  private def handleTurnStart(event: NextTurn): Unit = {
     Platform.runLater(humanBoard.updateDeckAndDiscardStack())
-    if(!gameEnded){
+    if (!gameEnded) {
       turnOwner = event.turnOwner
-      if(event.turnOwner == TurnOwner.Player) {
+      if (event.turnOwner == TurnOwner.Player) {
         humanBoard.alterButton(false)
         controller.activePokemonStatusCheck()
         Platform.runLater({
@@ -140,6 +142,12 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     }
   }
 
+  def damageBench(event: DamageBenchEffect): Unit = {
+    isHandlingEffect = true
+    PopupBuilder.openDamageBenchedPokemonScreen(this, humanBoard.myBoard,
+      aIBoard.myBoard, event.pokemonToDamage, event.damage)
+  }
+
   private def handleKO(event: PokemonKO): Unit = {
     if (event.board.eq(humanBoard.myBoard) && humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined)
       && aIBoard.myBoard.prizeCards.size > 1)
@@ -154,17 +162,18 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   }
 
   private def handleAttackEnd(): Unit = {
-    if (turnOwner.equals(TurnOwner.Player) && !humanBoard.myBoard.activePokemon.get.isKO) {
+    if (turnOwner.equals(TurnOwner.Player) && !humanBoard.myBoard.activePokemon.get.isKO
+      && !isHandlingEffect) {
       Platform.runLater(controller.endTurn())
     }
   }
 
-  private def endGame() : Unit = {
+  private def endGame(): Unit = {
     val playerBoard = humanBoard.myBoard
     val opponentBoard = humanBoard.opponentBoard
     var playerWon: Boolean = false
     gameEnded = true
-    if(playerBoard.prizeCards.isEmpty ||
+    if (playerBoard.prizeCards.isEmpty ||
       (opponentBoard.activePokemon.get.isKO && !opponentBoard.pokemonBench.exists(card => card.isDefined)))
       playerWon = true
     else if (opponentBoard.prizeCards.isEmpty)

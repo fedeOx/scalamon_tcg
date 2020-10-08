@@ -1,7 +1,6 @@
 package view
 
 import controller.Controller
-import model.core.DataLoader
 import scalafx.scene.Scene
 import scalafx.scene.control.Button
 import scalafx.scene.layout.BorderPane

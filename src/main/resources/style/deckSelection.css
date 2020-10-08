@@ -5,7 +5,7 @@
     -fx-background-repeat: stretch;
 }
 
-#Zap , #Overgrowth , #Blackout, #Brushfire, #addDeck , #cardSelect,.deckSelection{
+#Zap , #Overgrowth , #Blackout, #Brushfire, #cardSelect,.deckSelection{
     -fx-min-height: 250;
     -fx-min-width: 100;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
@@ -40,6 +40,13 @@
     -fx-max-height: 450;
 }
 #addDeck{
+    -fx-padding: 10;
+    -fx-pref-height: 100;
+    -fx-pref-width: 100;
+    -fx-background-radius: 5;
+    -fx-background-size: 100% 100%;
+    -fx-background-repeat: stretch;
+    -fx-background-color: transparent;
     -fx-background-image: url("/assets/addicon.png");
 }
 #startGame-btn {

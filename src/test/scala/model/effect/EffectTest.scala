@@ -9,25 +9,25 @@ import model.game.EnergyType.EnergyType
 import org.scalatest.flatspec.AnyFlatSpec
 
 object BoardTmp {
-  var iaBoard : Board = Board(Seq())
-  var playerBoard : Board = Board(Seq())
+  var iaBoard: Board = Board(Seq())
+  var playerBoard: Board = Board(Seq())
 }
 
 import org.scalatest.GivenWhenThen
 
 class EffectTest() extends AnyFlatSpec with GivenWhenThen {
 
-  val controller : Controller = Controller()
-  val cardList: Seq[Card] = DataLoader().loadSet(SetType.Base)
-    .filter(c => c.isInstanceOf[Card])
+  val controller: Controller = Controller()
+  val cardList: Seq[Card] = DataLoader().loadSet(SetType.Base) ++ DataLoader().loadSet(SetType.Fossil)
   val pokemonCards: Seq[Card] = cardList.filter(p => p.isInstanceOf[PokemonCard])
   val energyCards: Seq[Card] = cardList.filter(p => p.isInstanceOf[EnergyCard])
 
   behavior of "Pokemons Effect"
 
+
   it should "damage the enemy based on my water energies limited by 2 " in {
     Given(" a pokemon with damage based on its assigned energy")
-    BoardTmp.iaBoard.activePokemon =  getSpecificPokemon("Blastoise")
+    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Blastoise")
     And(" a pokemon with water weakness ")
     BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Charizard")
     When("we add 4 energies to the atker")
@@ -71,8 +71,8 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
     BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Squirtle"), 1)
     BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Abra"), 2)
 
-    BoardTmp.iaBoard.putPokemonInBenchPosition(getSpecificPokemon("Magikarp"),0)
-    BoardTmp.iaBoard.putPokemonInBenchPosition(getSpecificPokemon("Charmeleon"),1)
+    BoardTmp.iaBoard.putPokemonInBenchPosition(getSpecificPokemon("Magikarp"), 0)
+    BoardTmp.iaBoard.putPokemonInBenchPosition(getSpecificPokemon("Charmeleon"), 1)
 
     When("atker do attack")
     BoardTmp.iaBoard.activePokemon.get.attacks(1).effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard)
@@ -127,12 +127,12 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
   it should "damage and discard ALL energies" in {
     Given("a pokemon with this effect")
     BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Zapdos")
-    addEnergiesToPokemon(EnergyType.Lightning,4,BoardTmp.iaBoard.activePokemon.get)
+    addEnergiesToPokemon(EnergyType.Lightning, 4, BoardTmp.iaBoard.activePokemon.get)
     BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Charizard")
     BoardTmp.playerBoard.activePokemon.get.actualHp = 120
     Then("apply effect")
     BoardTmp.iaBoard.activePokemon.get.attacks.last.effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard)
-    assert( BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 100 && BoardTmp.iaBoard.activePokemon.get.totalEnergiesStored == 0)
+    assert(BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 100 && BoardTmp.iaBoard.activePokemon.get.totalEnergiesStored == 0)
 
   }
 
@@ -181,12 +181,84 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
     Then("apply effect")
     And("the attacking pokemon should confuse enemy")
     BoardTmp.iaBoard.activePokemon.get.attacks.head.effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard)
-    assert((BoardTmp.playerBoard.activePokemon.get.status == StatusType.NoStatus || BoardTmp.playerBoard.activePokemon.get.status == StatusType.Confused) && BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp-10)
+    assert((BoardTmp.playerBoard.activePokemon.get.status == StatusType.NoStatus || BoardTmp.playerBoard.activePokemon.get.status == StatusType.Confused) && BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 10)
   }
+
+  it should "damage opponent pkm  by value and all pokemon on the opposing bench or the atker bench" in {
+    Given("Articuno")
+    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Articuno")
+    BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Golbat")
+    BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Dugtrio"), 0)
+    BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Zapdos"), 1)
+    BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Electrode"), 2)
+
+    BoardTmp.iaBoard.putPokemonInBenchPosition(getSpecificPokemon("Dratini"), 0)
+    BoardTmp.iaBoard.putPokemonInBenchPosition(getSpecificPokemon("Diglett"), 1)
+
+    When("atker do attack")
+    BoardTmp.iaBoard.activePokemon.get.attacks(1).effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard)
+    Then(" dmg enemy pokemon by 50")
+    assert(BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 50)
+    And("damage all the enemy benched pokemon by 10 if head or my benched pokemon if tail")
+    assert((BoardTmp.playerBoard.pokemonBench.head.get.actualHp == BoardTmp.playerBoard.pokemonBench.head.get.initialHp - 10 &&
+      BoardTmp.playerBoard.pokemonBench(1).get.actualHp == BoardTmp.playerBoard.pokemonBench(1).get.initialHp - 10 &&
+      BoardTmp.playerBoard.pokemonBench(2).get.actualHp == BoardTmp.playerBoard.pokemonBench(2).get.initialHp - 10) || (
+      BoardTmp.iaBoard.pokemonBench.head.get.actualHp == BoardTmp.iaBoard.pokemonBench.head.get.initialHp - 10 &&
+        BoardTmp.iaBoard.pokemonBench(1).get.actualHp == BoardTmp.iaBoard.pokemonBench(1).get.initialHp - 10))
+  }
+
+  it should "the pokemon must damage the defending pokemon and a pokemon on its bench" in {
+    Given("gengar")
+    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Gengar")
+    BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Tentacruel")
+    BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Lapras"), 0)
+    BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Golem"), 1)
+    BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Graveler"), 2)
+    When("atker do attack")
+    BoardTmp.iaBoard.activePokemon.get.attacks.head.effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard)
+    Then(" dmg enemy pokemon by 30")
+    assert(BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 30)
+    And("damage one of the opposing bench pokemon by 10")
+    assert(BoardTmp.playerBoard.pokemonBench.head.get.actualHp == BoardTmp.playerBoard.pokemonBench.head.get.initialHp - 10)
+  }
+  it should "the pokemon must recover 20 of life" in {
+    Given("Golbat")
+    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Golbat")
+    BoardTmp.iaBoard.activePokemon.get.addDamage(20,Seq(EnergyType.Colorless))
+    BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Tentacruel")
+    When("atker do attack")
+    BoardTmp.iaBoard.activePokemon.get.attacks(1).effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard)
+    Then(" dmg enemy pokemon by 20")
+    assert(BoardTmp.playerBoard.activePokemon.get.actualHp == (BoardTmp.playerBoard.activePokemon.get.initialHp - 20))
+    And("recover 20 hp")
+    assert( BoardTmp.iaBoard.activePokemon.get.actualHp == BoardTmp.iaBoard.activePokemon.get.initialHp )
+  }
+
+  it should "the pokemon must not take damage on the next turn if less than 30" in {
+    Given("Graveler")
+    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Graveler")
+    BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Tentacruel")
+    When("atker do attack")
+    BoardTmp.iaBoard.activePokemon.get.attacks.head.effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard)
+    Then("Graveler must have the modifier field at 30")
+    assert(BoardTmp.iaBoard.activePokemon.get.damageModifier == 30)
+    And("Tentacruel do 10 dmg ")
+    BoardTmp.playerBoard.activePokemon.get.attacks(1).effect.get.useEffect(BoardTmp.playerBoard, BoardTmp.iaBoard)
+    Then("Graveler must have all life")
+    assert( BoardTmp.iaBoard.activePokemon.get.actualHp == BoardTmp.iaBoard.activePokemon.get.initialHp )
+    And("Set Hitmonlee to do 50 dmg ")
+    BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Hitmonlee")
+    BoardTmp.playerBoard.activePokemon.get.attacks(1).effect.get.useEffect(BoardTmp.playerBoard, BoardTmp.iaBoard)
+    Then("Graveler must lose 20 hp")
+    assert( BoardTmp.iaBoard.activePokemon.get.actualHp == (BoardTmp.iaBoard.activePokemon.get.initialHp-20) )
+  }
+
+
+
 
   def getSpecificPokemon(_name: String): Option[PokemonCard] = {
     val pokemonCard: Option[PokemonCard] = pokemonCards.find(pkm => pkm.asInstanceOf[PokemonCard].name == _name).asInstanceOf[Option[PokemonCard]]
-    pokemonCard
+    Some(PokemonCard(pokemonCard.get.id, pokemonCard.get.imageNumber, pokemonCard.get.belongingSet, pokemonCard.get.belongingSetCode, pokemonCard.get.rarity, pokemonCard.get.pokemonTypes, pokemonCard.get.name, pokemonCard.get.initialHp, pokemonCard.get.weaknesses, pokemonCard.get.resistances, pokemonCard.get.retreatCost, pokemonCard.get.evolutionName, pokemonCard.get.attacks))
   }
 
   def addEnergiesToPokemon(energyType: EnergyType, numberOfEnergy: Int, pokemon: PokemonCard): Unit = {
