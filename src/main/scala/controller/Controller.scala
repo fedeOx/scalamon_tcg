@@ -170,8 +170,7 @@ object Controller {
     override def initGame(playerDeckCards: Seq[DeckCard], setList: Seq[SetType]): Unit = new Thread {
       override def run(): Unit = {
         val setCards: Seq[Card] = setList.flatMap(s => dataLoader.loadSet(s))
-        val opponentChosenDeckType = DeckType.values.filter(d => setList.contains(d.setType))
-          .toVector(new Random().nextInt(DeckType.values.size)) // Choose a random deck from the selected SetType
+        val opponentChosenDeckType = DeckType(new Random().nextInt(DeckType.values.count(d => setList.contains(d.setType))))
         val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(opponentChosenDeckType)
         gameManager.initBoards(playerDeckCards, opponentDeckCards, setCards)
         turnManager.flipACoin()
