@@ -18,11 +18,17 @@ import scala.io.Source
 
 trait DataLoader extends Observable {
   /**
-   * Loads all decks (custom decks included) of the specified cards set.
+   * Loads all decks of the specified cards set.
    * @param set the set whose decks must be loaded
    * @return a map whose entries contains the deck name as key and the deck's list of cards as value
    */
   def loadDecks(set: SetType): Map[String, Seq[DeckCard]]
+
+  /**
+   * Loads all custom decks.
+   * @return a map whose entries contains the deck name as key and the deck's list of cards as value
+   */
+  def loadCustomDecks(): Map[String, Seq[DeckCard]]
 
   /**
    * Loads the specified deck belonging to the specified set.
@@ -32,12 +38,11 @@ trait DataLoader extends Observable {
   def loadSingleDeck(deck: DeckType): Seq[DeckCard]
 
   /**
-   * Loads the specified custom deck belonging to the specified set.
-   * @param set the set whose custom decks must be loaded
+   * Loads the specified custom deck.
    * @param deckName the name of the deck to be loaded
    * @return the deck's list of cards or an empty list if the deck name specified does not exist
    */
-  def loadCustomSingleDeck(set: SetType, deckName: String): Seq[DeckCard]
+  def loadSingleCustomDeck(deckName: String): Seq[DeckCard]
 
   /**
    * Loads all the card belonging to the specified set.
@@ -70,14 +75,19 @@ object DataLoader {
     override def loadDecks(set: SetType): Map[String, Seq[DeckCard]] = {
       val map: mutable.Map[String, Seq[DeckCard]] = mutable.Map()
       DeckType.values.filter(v => v.setType == set).foreach(v => map += (v.name -> loadSingleDeck(v)))
-      loadCustomDecksNames(set).map(n => map += (n -> loadCustomSingleDeck(set, n)))
+      map.toImmutableMap
+    }
+
+    override def loadCustomDecks(): Map[String, Seq[DeckCard]] = {
+      val map: mutable.Map[String, Seq[DeckCard]] = mutable.Map()
+      loadCustomDecksNames.map(n => map += (n -> loadSingleCustomDeck(n)))
       map.toImmutableMap
     }
 
     override def loadSingleDeck(deck: DeckType): Seq[DeckCard] =
       buildDeck(buildCursor(inputStream(CardsDirectory + DeckResCode + deck.setType + ResExtension, fromResource = true)), deck.name)
 
-    override def loadCustomSingleDeck(set: SetType, deckName: String): Seq[DeckCard] =
+    override def loadSingleCustomDeck(deckName: String): Seq[DeckCard] =
       buildDeck(buildCursor(inputStream(SaveDirectory + CustomDeckFileName, fromResource = false)), deckName)
 
     override def loadSet(set: SetType): Seq[Card] =
@@ -102,13 +112,12 @@ object DataLoader {
       success
     }
 
-    private def loadCustomDecksNames(set: SetType): Seq[String] = {
+    private def loadCustomDecksNames: Seq[String] = {
       var list: Seq[String] = List.empty
       if (Files.exists(Paths.get(SaveDirectory + CustomDeckFileName))) {
         val cursor = buildCursor(inputStream(SaveDirectory + CustomDeckFileName, fromResource = false))
         if (cursor.values.nonEmpty) {
-          list = cursor.values.get.filter(c => c.hcursor.downField("set").as[SetType].toOption.get == set)
-            .map(c => c.hcursor.downField("name").as[String].toOption.get).toList
+          list = cursor.values.get.map(c => c.hcursor.downField("name").as[String].toOption.get).toList
         }
       }
       list

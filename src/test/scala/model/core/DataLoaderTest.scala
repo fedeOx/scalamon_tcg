@@ -69,7 +69,7 @@ class DataLoaderTest extends AnyFlatSpec with GivenWhenThen {
     assert(cursor.values.get.map(i => i.hcursor.downField("name")).exists(i => i.as[String].toOption.get == deckName))
 
     When("an existent custom deck is choosen")
-    val existentCustomDeck: Seq[DeckCard] = dataLoader.loadCustomSingleDeck(SetType.Base, deckName)
+    val existentCustomDeck: Seq[DeckCard] = dataLoader.loadSingleCustomDeck(deckName)
 
     Then("the card list of the specified custom deck must be loaded")
     assert(existentCustomDeck.nonEmpty && existentCustomDeck == customDeck)
