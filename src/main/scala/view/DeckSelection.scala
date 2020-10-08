@@ -18,7 +18,6 @@ import scalafx.scene.layout._
 import scalafx.scene.text.Font
 import view.game.GameBoardView
 
-import scala.collection.mutable
 
 case class CardView(id: String, imageNumber: Int, name: String, rarity: String, var count: Int, set: SetType) {
   val idCard = new StringProperty(this, "id", id)
@@ -37,7 +36,10 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
   val cssStyle: String = getClass.getResource("/style/deckSelection.css").toExternalForm
   stylesheets += cssStyle
   controller.dataLoader.addObserver(this)
-  controller.loadDecks(SetType.Base)
+  SetType.values.foreach(set => {
+    controller.loadDecks(set)
+  })
+  //controller.loadDecks(SetType.Fossil)
 
   root = new BorderPane {
     id = "deckSelection-pane"
@@ -100,7 +102,7 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
 
   override def update(event: Events.Event): Unit = event match {
     case event if event.isInstanceOf[ShowDeckCards] => {
-      deckMap = event.asInstanceOf[ShowDeckCards].deckCards
+      deckMap = deckMap ++ event.asInstanceOf[ShowDeckCards].deckCards
       Platform.runLater(() => {
         scrollPane.content = createDeckPanel
       })
@@ -131,8 +133,6 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
       padding = Insets(5, 15, 5, 15)
     }
   }
-
-
 }
 
 
