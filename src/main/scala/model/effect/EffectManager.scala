@@ -78,7 +78,6 @@ object EffectManager {
         }
       }
       case h :: t if h.name == EffectType.doesNDmgAndHitMyself_OR_doesNdmg => {
-        //TODO duplicate code
         val effectParams = jsonEffect.find(effect => effect.name == EffectType.doesNDmgAndHitMyself_OR_doesNdmg).get.params.head.asInstanceOf[DmgMyselfOrNotParams]
         returnedAttack = returnedEffect(new DoesNDmgAndDmgMyself(basicDmgToDo, basicEnemyToAtk), effectParams)
       }
@@ -92,7 +91,7 @@ object EffectManager {
       //recover Life
       case h :: t if h.name == EffectType.recovery => {
         val effectParams = jsonEffect.find(effect => effect.name == EffectType.recovery).get.params.head.asInstanceOf[RecoveryParams]
-        returnedAttack = returnedEffect(new DiscardEnergyAndRecover(basicDmgToDo, basicEnemyToAtk), effectParams)
+        returnedAttack = returnedEffect(new Recovery(basicDmgToDo, basicEnemyToAtk), effectParams)
       }
       //Base atk dmg and set Immunity for the next turn
       case h :: t if h.name == EffectType.doesNDmgAndSetImmunity => {
@@ -114,6 +113,7 @@ object EffectManager {
       case h :: t if h.name== EffectType.toBench => {
         val effectParams = jsonEffect.filter(effect => effect.name == EffectType.toBench).last.params.head.asInstanceOf[ToBenchParams]
         returnedAttack = returnedEffect(new DoesDmgToMultipleTarget(basicDmgToDo, basicEnemyToAtk), effectParams)
+        if(t.nonEmpty)
         resolveAttack(t)
       }
       //Status
@@ -122,6 +122,11 @@ object EffectManager {
         returnedAttack = returnedEffect(new DoesDmgAndApplyStatus(basicDmgToDo, basicEnemyToAtk), effectParams)
         if (t.nonEmpty)
           resolveAttack(t)
+      }
+      case h :: t if h.name == EffectType.prevent =>{
+        val effectParams = jsonEffect.find(effect => effect.name == EffectType.prevent).get.params.head.asInstanceOf[PreventParams]
+        returnedAttack = returnedEffect(new Prevent(basicDmgToDo, basicEnemyToAtk), effectParams)
+
       }
       case _ :: t => resolveAttack(t)
     }

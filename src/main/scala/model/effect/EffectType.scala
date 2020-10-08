@@ -17,6 +17,7 @@ object EffectType extends Enumeration {
   val doesNDmgAndHitMyself_OR_doesNdmg: Value = Value("DoesNDmgAndDmgMyself_OR_doesNdmg")
   val doesNDmgAndSetImmunity: Value = Value("doesNDmgAndSetImmunity")
   val recovery: Value = Value("recovery")
+  val prevent : Value = Value("prevent")
 
   implicit val decoder: Decoder[effectType] = new Decoder[effectType] {
     override def apply(c: HCursor): Result[effectType] =
