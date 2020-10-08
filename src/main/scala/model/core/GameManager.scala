@@ -140,7 +140,7 @@ object GameManager {
   def apply(): GameManager = GameManagerImpl()
 
   val InitialHandCardNum = 7
-  val InitialPrizeCardNum = 1
+  val InitialPrizeCardNum = 6
   val PoisonDamage = 10
   val ConfusedDamage = 30
 
