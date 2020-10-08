@@ -168,33 +168,6 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
     }
   }
 
-  /*
-  it should "evolve a pokemon correctly" in new BaseContext with DataLoaderContext {
-    initBoards(SetType.Base, DeckType.Base1, DeckType.Base2)
-
-    Given("an active pokemon in a specific game condition and its evolution")
-    val damage = 20
-    val statusType: StatusType.Value = StatusType.Confused
-    val activePokemon: Option[PokemonCard] = getPokemon(SetType.Base, "Bulbasaur")
-    gameManager.setActivePokemon(activePokemon)
-    gameManager.playerBoard.activePokemon.get.status = statusType
-    gameManager.playerBoard.activePokemon.get.addDamage(damage, Seq(EnergyType.Colorless))
-    val energyCard: Option[EnergyCard] = getEnergy(SetType.Base, EnergyType.Grass)
-    gameManager.addEnergyToPokemon(activePokemon.get, energyCard.get)
-    val evolution: Option[PokemonCard] = getPokemon(SetType.Base, "Ivysaur")
-
-    When("the active pokemon is evolved")
-    gameManager.evolvePokemon(activePokemon.get, evolution.get)
-
-    Then("the active pokemon should be replaced by his evolution that inherit its game condition")
-    assert(gameManager.activePokemon(gameManager.playerBoard) == evolution)
-    assert(evolution.get.actualHp == evolution.get.initialHp - damage)
-    assert(evolution.get.status == statusType)
-    assert(evolution.get.hasEnergies(energyCard.get.energyType :: Nil))
-  }
-   FALLO FARE AL CONTROLLER
-  */
-
   it should "manage correctly a declaration of attack" in new BaseContext with DataLoaderContext {
     initBoards(SetType.Base, DeckType.Base1, DeckType.Base2)
     val playerBoard: Board = gameManager.playerBoard

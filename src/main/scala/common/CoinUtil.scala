@@ -6,7 +6,6 @@ import model.event.Events.Event
 import scala.util.Random
 
 object CoinUtil extends Observable {
-
   object CoinValue extends Enumeration {
     type CoinValue = Value
     val Head: Value = Value("head")
