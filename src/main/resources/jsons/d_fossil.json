@@ -9,54 +9,63 @@
         "cards": [
             {
                 "id": "base1-68",
+                "set": "base",
                 "name": "Vulpix",
                 "rarity": "Common",
                 "count": 5
             },
             {
                 "id": "base1-60",
+                "set": "base",
                 "name": "Ponyta",
                 "rarity": "Common",
                 "count": 5
             },
             {
                 "id": "base3-51",
+                "set": "fossil",
                 "name": "Krabby",
                 "rarity": "Common",
                 "count": 5
             },
             {
                 "id": "base3-38",
+                "set": "fossil",
                 "name": "Kingler",
                 "rarity": "Uncommon",
                 "count": 3
             },
             {
                 "id": "base3-49",
+                "set": "fossil",
                 "name": "Horsea",
                 "rarity": "Common",
                 "count": 5
             },
             {
                 "id": "base3-42",
+                "set": "fossil",
                 "name": "Seadra",
                 "rarity": "Uncommon",
                 "count": 5
             },
             {
                 "id": "base3-10",
+                "set": "fossil",
                 "name": "Lapras",
                 "rarity": "Rare Holo",
                 "count": 4
             },
             {
                 "id": "base1-98",
+                "set": "base",
                 "name": "Fire Energy",
                 "rarity": "Common",
                 "count": 14
             },
             {
                 "id": "base1-102",
+                "set": "base",
                 "name": "Water Energy",
                 "rarity": "Common",
                 "count": 14
@@ -73,66 +82,77 @@
         "cards": [
             {
                 "id": "base1-44",
+                "set": "base",
                 "name": "Bulbasaur",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base3-57",
+                "set": "fossil",
                 "name": "Zubat",
                 "rarity": "Common",
                 "count": 5
             },
             {
                 "id": "base3-34",
+                "set": "fossil",
                 "name": "Golbat",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base3-48",
+                "set": "fossil",
                 "name": "Grimer",
                 "rarity": "Common",
                 "count": 5
             },
             {
                 "id": "base3-13",
+                "set": "fossil",
                 "name": "Muk",
                 "rarity": "Rare Holo",
                 "count": 2
             },
             {
                 "id": "base1-51",
+                "set": "base",
                 "name": "Koffing",
                 "rarity": "Common",
                 "count": 5
             },
             {
                 "id": "base3-47",
+                "set": "fossil",
                 "name": "Geodude",
                 "rarity": "Common",
                 "count": 3
             },
             {
                 "id": "base3-37",
+                "set": "fossil",
                 "name": "Graveler",
                 "rarity": "Uncommon",
                 "count": 2
             },
             {
                 "id": "base1-56",
+                "set": "base",
                 "name": "Onix",
                 "rarity": "Common",
                 "count": 4
             },
             {
                 "id": "base1-99",
+                "set": "base",
                 "name": "Grass Energy",
                 "rarity": "Common",
                 "count": 16
             },
             {
                 "id": "base1-97",
+                "set": "base",
                 "name": "Fighting Energy",
                 "rarity": "Common",
                 "count": 12
