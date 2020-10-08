@@ -24,7 +24,7 @@ import view.PopupBuilder
 class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with Observer {
   val zoomZone: ZoomZone = ZoomZone()
   var turnOwner: TurnOwner = TurnOwner.Player
-  //TODO: AGGIUNGERE VARIABILE PER GESTIRE EFFETTO
+  var isHandlingEffect: Boolean = false
   private val WIDTH = 1600
   private val HEIGHT = 1000
   private val TITLE = "Scalamon"
@@ -143,6 +143,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   }
 
   def damageBench(event: DamageBenchEffect): Unit = {
+    isHandlingEffect = true
     PopupBuilder.openDamageBenchedPokemonScreen(this, humanBoard.myBoard,
       aIBoard.myBoard, event.pokemonToDamage, event.damage)
   }
@@ -161,7 +162,8 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   }
 
   private def handleAttackEnd(): Unit = {
-    if (turnOwner.equals(TurnOwner.Player) && !humanBoard.myBoard.activePokemon.get.isKO) {
+    if (turnOwner.equals(TurnOwner.Player) && !humanBoard.myBoard.activePokemon.get.isKO
+      && !isHandlingEffect) {
       Platform.runLater(controller.endTurn())
     }
   }

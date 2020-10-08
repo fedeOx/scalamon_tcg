@@ -2,7 +2,7 @@ package view
 
 import controller.Controller
 import model.game.Board
-import model.game.Cards.{Card, PokemonCard}
+import model.game.Cards.PokemonCard
 import scalafx.animation.{Interpolator, RotateTransition}
 import scalafx.geometry.Pos
 import scalafx.scene.control.{Button, Label}
@@ -15,6 +15,7 @@ import scalafx.scene.transform.Rotate
 import scalafx.scene.{Node, Scene}
 import scalafx.stage.{Modality, Stage, StageStyle, Window}
 import scalafx.util.Duration
+import view.game.GameBoardView
 
 trait PopupBuilder {
   /**
@@ -62,6 +63,17 @@ trait PopupBuilder {
    * @param isAttackingPokemonKO : true if this screen opens after the player's attacking pokémon goes KO
    */
   def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]], isAttackingPokemonKO: Boolean): Unit
+
+  /**
+   * Opens a screen that lets the player choose the opponent's pokemon(s) to damage
+   *
+   * @param parent       : the screen's parent window
+   * @param humanBoard   : the human player's board
+   * @param aiBoard      : the ai playaer's board
+   * @param cardToSelect : the number of cards to select
+   * @param damage       : the damage that has to be applied
+   */
+  def openDamageBenchedPokemonScreen(parent: Window, humanBoard: Board, aiBoard: Board, cardToSelect: Int, damage: Int): Unit
 
   /**
    * Opens a screen that visualizes the coin flip animation
@@ -165,7 +177,7 @@ object PopupBuilder extends PopupBuilder {
 
   def openBenchSelectionScreen(parent: Window, bench: Seq[Option[PokemonCard]], isAttackingPokemonKO: Boolean): Unit = {
     var dialog: Stage = new Stage()
-    dialog = createBenchSelectionContent(parent, bench, cardIndex => {
+    dialog = createBenchSelectionContent(parent, bench, 1, cardIndex => {
       controller.swap(cardIndex)
       if (isAttackingPokemonKO) {
         controller.endTurn()
@@ -175,18 +187,20 @@ object PopupBuilder extends PopupBuilder {
     dialog.show()
   }
 
-  def openDamageBenchedPokemonScreen(parent: Window, humanBoard: Board, aiBoard: Board, cardToSelect: Int, damage: Int) : Unit = {
+  def openDamageBenchedPokemonScreen(parent: Window, humanBoard: Board, aiBoard: Board, cardToSelect: Int, damage: Int): Unit = {
     var cardSelected: Seq[PokemonCard] = Seq()
-    var dialog : Stage = new Stage()
-    dialog = createBenchSelectionContent(parent, aiBoard.pokemonBench, cardIndex => {
+    var dialog: Stage = new Stage()
+    dialog = createBenchSelectionContent(parent, aiBoard.pokemonBench, cardToSelect, cardIndex => {
       val pokemonCard = aiBoard.pokemonBench(cardIndex).get
-      if(!cardSelected.contains(pokemonCard)) {
+      if (!cardSelected.contains(pokemonCard)) {
         cardSelected = cardSelected :+ pokemonCard
-        if(cardSelected.size.equals(cardToSelect) || cardSelected.size.equals(aiBoard.pokemonBench.count(c => c.isDefined))) {
+        if (cardSelected.size.equals(cardToSelect) || cardSelected.size.equals(aiBoard.pokemonBench.count(c => c.isDefined))) {
           cardSelected.foreach(card => {
-            controller.damageBenchedPokemon(card,humanBoard,aiBoard,
+            controller.damageBenchedPokemon(card, humanBoard, aiBoard,
               damage)
           })
+          parent.asInstanceOf[GameBoardView].isHandlingEffect = false
+          controller.endTurn()
           dialog.close()
         }
       } else {
@@ -196,7 +210,8 @@ object PopupBuilder extends PopupBuilder {
     dialog.show()
   }
 
-  private def createBenchSelectionContent(parent: Window, cards: Seq[Option[PokemonCard]], f: Int => Unit): Stage = {
+  private def createBenchSelectionContent(parent: Window, cards: Seq[Option[PokemonCard]],
+                                          pokemonNumber: Int, f: Int => Unit): Stage = {
     val windowHeight = 600
     val windowWidth = 1500
     val dialog: Stage = new Stage() {
@@ -228,7 +243,7 @@ object PopupBuilder extends PopupBuilder {
             onMouseEntered = _ => {
               style = "-fx-border-color: red; -fx-border-style: solid; -fx-border-width: 4px; -fx-border-radius: 10px;"
             }
-            onMouseExited = _ => if(!isSelected) style = ""
+            onMouseExited = _ => if (!isSelected) style = ""
             onMouseClicked = _ => {
               isSelected = !isSelected
               f(cardIndex)
@@ -242,7 +257,7 @@ object PopupBuilder extends PopupBuilder {
           prefWidth = windowWidth
           prefHeight = windowHeight
           alignment = Pos.Center
-          children = List(new Label("Choose a Pokémon from bench") {
+          children = List(new Label("Choose " + pokemonNumber + " Pokémon") {
             prefHeight = 100
             prefWidth = windowWidth - 150
             textAlignment = TextAlignment.Left
