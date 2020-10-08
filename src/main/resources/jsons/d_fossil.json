@@ -1,0 +1,142 @@
+[
+    {
+        "id": "d-base3-1",
+        "name": "LockDown",
+        "types": [
+            "Fire",
+            "Water"
+        ],
+        "cards": [
+            {
+                "id": "base1-68",
+                "name": "Vulpix",
+                "rarity": "Common",
+                "count": 5
+            },
+            {
+                "id": "base1-60",
+                "name": "Ponyta",
+                "rarity": "Common",
+                "count": 5
+            },
+            {
+                "id": "base3-51",
+                "name": "Krabby",
+                "rarity": "Common",
+                "count": 5
+            },
+            {
+                "id": "base3-38",
+                "name": "Kingler",
+                "rarity": "Uncommon",
+                "count": 3
+            },
+            {
+                "id": "base3-49",
+                "name": "Horsea",
+                "rarity": "Common",
+                "count": 5
+            },
+            {
+                "id": "base3-42",
+                "name": "Seadra",
+                "rarity": "Uncommon",
+                "count": 5
+            },
+            {
+                "id": "base3-10",
+                "name": "Lapras",
+                "rarity": "Rare Holo",
+                "count": 4
+            },
+            {
+                "id": "base1-98",
+                "name": "Fire Energy",
+                "rarity": "Common",
+                "count": 14
+            },
+            {
+                "id": "base1-102",
+                "name": "Water Energy",
+                "rarity": "Common",
+                "count": 14
+            }
+        ]
+    },
+    {
+        "id": "d-base3-2",
+        "name": "BodyGuard",
+        "types": [
+            "Grass",
+            "Fighting"
+        ],
+        "cards": [
+            {
+                "id": "base1-44",
+                "name": "Bulbasaur",
+                "rarity": "Common",
+                "count": 4
+            },
+            {
+                "id": "base3-57",
+                "name": "Zubat",
+                "rarity": "Common",
+                "count": 5
+            },
+            {
+                "id": "base3-34",
+                "name": "Golbat",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base3-48",
+                "name": "Grimer",
+                "rarity": "Common",
+                "count": 5
+            },
+            {
+                "id": "base3-13",
+                "name": "Muk",
+                "rarity": "Rare Holo",
+                "count": 2
+            },
+            {
+                "id": "base1-51",
+                "name": "Koffing",
+                "rarity": "Common",
+                "count": 5
+            },
+            {
+                "id": "base3-47",
+                "name": "Geodude",
+                "rarity": "Common",
+                "count": 3
+            },
+            {
+                "id": "base3-37",
+                "name": "Graveler",
+                "rarity": "Uncommon",
+                "count": 2
+            },
+            {
+                "id": "base1-56",
+                "name": "Onix",
+                "rarity": "Common",
+                "count": 4
+            },
+            {
+                "id": "base1-99",
+                "name": "Grass Energy",
+                "rarity": "Common",
+                "count": 16
+            },
+            {
+                "id": "base1-97",
+                "name": "Fighting Energy",
+                "rarity": "Common",
+                "count": 12
+            }
+        ]
+    }
+]

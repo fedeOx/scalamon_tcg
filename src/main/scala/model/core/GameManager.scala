@@ -221,9 +221,10 @@ object GameManager {
       if (pokemon.immune) {
         pokemon.immune = false
       }
+      pokemon.damageModifier = 0
       if (pokemon.status == StatusType.Poisoned) {
         pokemon.addDamage(PoisonDamage, Seq())
-        eventuallyRemoveKOActivePokemon(pokemon, board, opponentBoard, isPokemonInCharge = true) // GESTIONE KO + PESCATA CARTA PREMIO + CONTROLLO VITTORIA
+        eventuallyRemoveKOActivePokemon(pokemon, board, opponentBoard, isPokemonInCharge = true)
       }
     }
 
@@ -331,7 +332,7 @@ object GameManager {
     private def buildCardList(deckCards: Seq[DeckCard], setCards: Seq[Card])(cardList: Seq[Card]): Seq[Card] = deckCards match {
       case h :: t if setCards.exists(sc => sc.id == h.id) =>
         buildCardList(t, setCards)(cardList ++ deepCloneCards(List.fill(h.count)(setCards.find(sc => sc.id == h.id).get)))
-      case h :: _ => throw new CardNotFoundException("Card " + h.imageNumber + " not found in the specified set")
+      case h :: _ => throw new CardNotFoundException("Card " + h.id + " not found in the specified set")
       case _ => cardList
     }
 

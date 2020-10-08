@@ -6,6 +6,7 @@ import StatusType.StatusType
 import model.exception.InvalidOperationException
 import model.game.Cards.EnergyCard.EnergyCardType.EnergyCardType
 import model.game.EnergyType.EnergyType
+import model.game.SetType.SetType
 
 import scala.collection.mutable
 
@@ -14,6 +15,7 @@ object Cards {
   sealed trait Card {
     def id: String
     def imageNumber: Int
+    def belongingSet: SetType
     def name: String
     def rarity: String
     def belongingSetCode: String
@@ -35,6 +37,8 @@ object Cards {
     def attacks: Seq[Attack]
     def energiesMap: Map[EnergyType, Int]
     def energiesMap_=(energies: Map[EnergyType, Int]): Unit
+    def damageModifier: Int
+    def damageModifier_=(value: Int)
 
     def addEnergy(energyCard: EnergyCard): Unit
 
@@ -57,15 +61,17 @@ object Cards {
   }
 
   object PokemonCard {
-    def apply(id: String, imageId: Int, setCode: String, rarity: String, pokemonTypes: Seq[EnergyType], name: String,
-              initialHp: Int, weaknesses: Seq[Weakness], resistances: Seq[Resistance], retreatCost: Seq[EnergyType],
+    def apply(id: String, imageId: Int, belongingSet: SetType, setCode: String, rarity: String, pokemonTypes: Seq[EnergyType],
+              name: String, initialHp: Int, weaknesses: Seq[Weakness], resistances: Seq[Resistance], retreatCost: Seq[EnergyType],
               evolvesFrom: String, attacks: Seq[Attack]): PokemonCard =
-      PokemonCardImpl(id, imageId, setCode, rarity, pokemonTypes, name, initialHp, initialHp, weaknesses, resistances, retreatCost, evolvesFrom, attacks, immune = false, StatusType.NoStatus)
+      PokemonCardImpl(id, imageId, belongingSet, setCode, rarity, pokemonTypes, name, initialHp, initialHp, weaknesses,
+        resistances, retreatCost, evolvesFrom, attacks)
 
     implicit val decoder: Decoder[PokemonCard] = new Decoder[PokemonCard] {
       override def apply(c: HCursor): Result[PokemonCard] =
         for {
           _id <- c.downField("id").as[String]
+          _set <- c.downField("set").as[SetType]
           _setCode <- c.downField("setCode").as[String]
           _rarity <- c.downField("rarity").as[String]
           _pokemonTypes <- c.downField("types").as[Seq[EnergyType]]
@@ -78,12 +84,13 @@ object Cards {
           _attacks <- c.downField("attacks").as[Seq[Attack]]
         } yield {
           val imageNumber = _id.replace(c.downField("setCode").as[String].getOrElse("") + "-", "").toInt
-          PokemonCard(_id, imageNumber, _setCode, _rarity, _pokemonTypes, _name, _initHp.toInt, _weaknesses, _resistances, _retreatCost, _evolvesFrom, _attacks)
+          PokemonCard(_id, imageNumber, _set, _setCode, _rarity, _pokemonTypes, _name, _initHp.toInt, _weaknesses, _resistances, _retreatCost, _evolvesFrom, _attacks)
         }
     }
 
     case class PokemonCardImpl(override val id: String,
                                override val imageNumber: Int,
+                               override val belongingSet: SetType,
                                override val belongingSetCode: String,
                                override val rarity: String,
                                override val pokemonTypes: Seq[EnergyType],
@@ -95,8 +102,9 @@ object Cards {
                                override val retreatCost: Seq[EnergyType],
                                override val evolutionName: String,
                                override val attacks: Seq[Attack],
-                               override var immune: Boolean,
-                               override var status : StatusType,
+                               override var damageModifier: Int = 0,
+                               override var immune: Boolean = false,
+                               override var status: StatusType = StatusType.NoStatus,
                                override var energiesMap: Map[EnergyType, Int] = Map()) extends PokemonCard {
 
       import common.MyMapHelpers._
@@ -177,8 +185,8 @@ object Cards {
 
       override def isBase: Boolean = evolutionName == ""
 
-      override def clonePokemonCard: PokemonCard = copy(id, imageNumber, belongingSetCode, rarity, pokemonTypes, name,
-        initialHp, actualHp, weaknesses, resistances, retreatCost, evolutionName, attacks, immune, status, energiesMap)
+      override def clonePokemonCard: PokemonCard = copy(id, imageNumber, belongingSet, belongingSetCode, rarity, pokemonTypes, name,
+        initialHp, actualHp, weaknesses, resistances, retreatCost, evolutionName, attacks, damageModifier, immune, status, energiesMap)
     }
   }
 
@@ -206,27 +214,29 @@ object Cards {
       }
     }
 
-    def apply(id: String, imageId: Int, name: String, rarity: String,  setCode: String, energyType: EnergyType,
+    def apply(id: String, imageId: Int, belongingSet: SetType, name: String, rarity: String,  setCode: String, energyType: EnergyType,
               energyCardType: EnergyCardType): EnergyCard =
-      EnergyCardImpl(id, imageId, name, rarity, setCode, energyType, energyCardType)
+      EnergyCardImpl(id, imageId, belongingSet, name, rarity, setCode, energyType, energyCardType)
 
     implicit val decoder: Decoder[EnergyCard] = new Decoder[EnergyCard] {
       override def apply(c: HCursor): Result[EnergyCard] =
         for {
           _id <- c.downField("id").as[String]
           _name <- c.downField("name").as[String]
+          _set <- c.downField("set").as[SetType]
           _rarity <- c.downField("rarity").as[String]
           _setCode <- c.downField("setCode").as[String]
           _energyType <- c.downField("type").as[EnergyType]
           _energyCardType <- c.downField("subtype").as[EnergyCardType]
         } yield {
           val imageId = _id.replace(c.downField("setCode").as[String].getOrElse("") + "-", "").toInt
-          EnergyCard(_id, imageId, _name, _rarity, _setCode, _energyType, _energyCardType)
+          EnergyCard(_id, imageId, _set, _name, _rarity, _setCode, _energyType, _energyCardType)
         }
     }
 
     case class EnergyCardImpl(override val id: String,
                               override val imageNumber: Int,
+                              override val belongingSet : SetType,
                               override val name: String,
                               override val rarity: String,
                               override val belongingSetCode: String,
@@ -242,7 +252,7 @@ object Cards {
         case _ => 2
       }
 
-      override def cloneEnergyCard: EnergyCard = copy(id, imageNumber, name, rarity, belongingSetCode, energyType, energyCardType)
+      override def cloneEnergyCard: EnergyCard = copy(id, imageNumber, belongingSet, name, rarity, belongingSetCode, energyType, energyCardType)
     }
   }
 }
