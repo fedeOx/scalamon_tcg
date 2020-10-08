@@ -327,10 +327,14 @@ object PopupBuilder extends PopupBuilder {
           children = List(new Label(if (playerWon) "You won!" else "You lose!"),
             new Button("Back to menu") {
               onAction = _ => {
+                val newGameController = Controller()
                 scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
-                GameLauncher.stage.asInstanceOf[Stage].scene = StartGameScene(Controller())
+                GameLauncher.stage.onCloseRequest = _ => newGameController.resetGame()
+                GameLauncher.stage.asInstanceOf[Stage].scene = StartGameScene(newGameController)
                 GameLauncher.stage.width = 500
                 GameLauncher.stage.height = 300
+                GameLauncher.stage.x = 500
+                GameLauncher.stage.y = 300
               }
             })
         }
