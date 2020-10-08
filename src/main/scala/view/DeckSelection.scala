@@ -18,6 +18,8 @@ import scalafx.scene.layout._
 import scalafx.scene.text.Font
 import view.game.GameBoardView
 
+import scala.collection.immutable.ListMap
+
 
 case class CardView(id: String, imageNumber: Int, name: String, rarity: String, var count: Int, set: SetType) {
   val idCard = new StringProperty(this, "id", id)
@@ -33,13 +35,17 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
   val tableView: TableView[CardView] = viewUtils.createTableView(cardsTableItem)
   var deckMap: Map[String, Seq[DeckCard]] = Map()
   val scrollPane: ScrollPane = new ScrollPane()
+  scrollPane.minWidth = 600
+  scrollPane.minHeight = 900
   val cssStyle: String = getClass.getResource("/style/deckSelection.css").toExternalForm
   stylesheets += cssStyle
   controller.dataLoader.addObserver(this)
+
+  controller.loadCustomDecks()
   SetType.values.foreach(set => {
     controller.loadDecks(set)
   })
-  //controller.loadDecks(SetType.Fossil)
+
 
   root = new BorderPane {
     id = "deckSelection-pane"
@@ -76,10 +82,10 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
     new GridPane {
       background = Background.Empty
       id = "gridPane"
-      alignment = Pos.Center
-      hgap = 10
-      vgap = 10
-      padding = Insets(5, 20, 5, 20)
+      alignment = Pos.CenterLeft
+      vgap = 20
+      hgap = 20
+      //padding = Insets(5, 20, 5, 20)
       val addDeckCustom: Button = new Button()
       addDeckCustom.id = "addDeck"
       addDeckCustom.text = ""
@@ -97,13 +103,16 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
           rowIndexcnt += 1
         }
       })
+
     }
+
   }
 
   override def update(event: Events.Event): Unit = event match {
     case event if event.isInstanceOf[ShowDeckCards] => {
-      deckMap = deckMap ++ event.asInstanceOf[ShowDeckCards].deckCards
       Platform.runLater(() => {
+        deckMap = deckMap ++ event.asInstanceOf[ShowDeckCards].deckCards
+        deckMap = ListMap(deckMap.toSeq.sortWith(_._1 < _._1):_*)
         scrollPane.content = createDeckPanel
       })
     }
@@ -130,7 +139,7 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
       id = "deckNameLabel"
     }) {
       alignment = Pos.Center;
-      padding = Insets(5, 15, 5, 15)
+     // padding = Insets(5, 15, 5, 15)
     }
   }
 }
