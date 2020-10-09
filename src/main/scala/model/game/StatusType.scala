@@ -1,5 +1,9 @@
 package model.game
 
+import io.circe.Decoder.Result
+import io.circe.{Decoder, HCursor}
+import model.game.EnergyType.EnergyType
+
 object StatusType extends Enumeration {
   type StatusType = Value
   val NoStatus : Value = Value("noStatus")
@@ -10,4 +14,13 @@ object StatusType extends Enumeration {
 
   def withNameWithDefault(name: String): Value =
     values.find(_.toString.toLowerCase == name.toLowerCase()).getOrElse(NoStatus)
+
+  implicit val decoder: Decoder[StatusType] = new Decoder[StatusType] {
+    override def apply(c: HCursor): Result[StatusType] =
+      for {
+        t <- c.as[String]
+      } yield {
+        StatusType.withNameWithDefault(t)
+      }
+  }
 }
