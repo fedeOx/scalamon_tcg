@@ -13,9 +13,9 @@ case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEff
   override def useEffect(attackingBoard: Board, defendingBoard: Board): Unit = {
     atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench, defendingBoard.pokemonBench).foreach(pkm =>
       if (pkm == defendingBoard.activePokemon)
-        pkm.get.addDamage(totalDmgToEnemyPkm-pkm.get.damageModifier, attackingBoard.activePokemon.get.pokemonTypes)
+        pkm.get.addDamage(totalDmgToEnemyPkm - pkm.get.damageModifier, attackingBoard.activePokemon.get.pokemonTypes)
       else
-        pkm.get.addDamage(totalDmgToEnemyPkm-pkm.get.damageModifier, Seq(EnergyType.Colorless)))
+        pkm.get.addDamage(totalDmgToEnemyPkm - pkm.get.damageModifier, Seq(EnergyType.Colorless)))
 
     Thread.sleep(2500)
   }
@@ -179,7 +179,6 @@ class DoesDmgToMultipleTarget(dmgCount: Int, pokemonToApply: String) extends Doe
 class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with addStatus
 
 class DoesDmgToMultipleTarget_AND_DmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesDmgToMultipleTarget(dmgCount, pokemonToApply) with DmgMySelf
-
 
 
 private object utils {

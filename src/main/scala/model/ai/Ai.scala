@@ -139,7 +139,7 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     totalweight -= (pokemon.initialHp - pokemon.actualHp)
     if (pokemon.weaknesses.nonEmpty) {
       if (pokemon.weaknesses.head.energyType == playerBoard.activePokemon.get.pokemonTypes.head)
-        totalweight -= WeightAi.WeakPokemon
+        totalweight += WeightAi.WeakPokemon
     }
     totalweight += pokemon.totalEnergiesStored * WeightAi.HasEnergy
     if (pokemon.evolutionName != "")
