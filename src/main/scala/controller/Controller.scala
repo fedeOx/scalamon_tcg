@@ -226,7 +226,6 @@ object Controller {
     override def drawCard(): Unit = gameManager.drawCard()
 
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
-
       case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !gameManager.isActivePokemonEmpty() && !energyCardAlreadyAssigned =>
         gameManager.addEnergyToPokemon(gameManager.activePokemon().get, c.asInstanceOf[EnergyCard])
         energyCardAlreadyAssigned = true
@@ -245,7 +244,6 @@ object Controller {
     }
 
     override def selectBenchLocation(position: Int): Unit = handCardSelected match {
-
       case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !gameManager.isBenchLocationEmpty(position) && !energyCardAlreadyAssigned =>
         gameManager.addEnergyToPokemon(gameManager.pokemonBench()(position).get, c.asInstanceOf[EnergyCard])
         energyCardAlreadyAssigned = true

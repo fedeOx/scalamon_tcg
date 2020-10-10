@@ -259,9 +259,10 @@ object GameManager {
           if (attackingPokemon.status == StatusType.Confused && new Random().nextInt(2) == 0) {
             attackingPokemon.addDamage(ConfusedDamage, Seq())
           } else if (attackingPokemon.hasEnergies(attack.cost)) {
-            attack.effect.get.useEffect(attackingBoard, defendingBoard)
-            this.notifyObservers(Event.attackEnded())
+            attack.effect.get.useEffect(attackingBoard, defendingBoard,this)
           }
+          this.notifyObservers(Event.attackEnded())
+
           eventuallyRemoveKOBenchedPokemon(defendingBoard, attackingBoard)
           eventuallyRemoveKOBenchedPokemon(attackingBoard, defendingBoard)
 
