@@ -144,8 +144,10 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
 
   def damageBench(event: DamageBenchEffect): Unit = {
     isHandlingEffect = true
-    PopupBuilder.openDamageBenchedPokemonScreen(this, humanBoard.myBoard,
-      aIBoard.myBoard, event.pokemonToDamage, event.damage)
+    Platform.runLater({
+      PopupBuilder.openDamageBenchedPokemonScreen(this, humanBoard.myBoard,
+        aIBoard.myBoard, event.pokemonToDamage, event.damage)
+    })
   }
 
   private def handleKO(event: PokemonKO): Unit = {

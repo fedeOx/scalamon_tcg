@@ -9,7 +9,7 @@ import model.game.Cards.PokemonCard
 import model.effect.EffectType.effectType
 
 trait AttackEffect {
-  def useEffect(attackingBoard: Board, defendingBoard: Board): Unit
+  def useEffect(attackingBoard: Board, defendingBoard: Board,gameManager: GameManager): Unit
   var params: Seq[Params]
   var totalDmgToEnemyPkm: Int
 }
