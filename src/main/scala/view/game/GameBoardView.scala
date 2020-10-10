@@ -110,11 +110,13 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
       humanBoard.updateHand()
       humanBoard.updateBench()
       humanBoard.updateDeckAndDiscardStack()
+      humanBoard.updatePrizes()
       if (!humanBoard.isFirstTurn) {
         Platform.runLater({
           aIBoard.updateBench()
           aIBoard.updateActive()
           aIBoard.updateDeckAndDiscardStack()
+          aIBoard.updatePrizes()
         })
       }
     })

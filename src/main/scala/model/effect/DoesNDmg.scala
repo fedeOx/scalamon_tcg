@@ -112,7 +112,7 @@ sealed trait MultipleTargetDmg extends AttackEffect {
       numberOfPokemonToApply = pokemonToDoDmg.size
       for (i <- 0 until numberOfPokemonToApply)
         pokemonToDoDmg(i).get.addDamage(effectParams.dmgToDo, Seq(EnergyType.Colorless))
-    } else
+    } else if (defendingBoard.pokemonBench.count(c => c.isDefined) > 0)
       gameManager.notifyObservers(Event.damageBenchEffect(numberOfPokemonToApply, effectParams.dmgToDo))
 
     super.useEffect(attackingBoard, defendingBoard, gameManager)

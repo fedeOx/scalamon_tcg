@@ -40,7 +40,7 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
       if (textFieldName.text.value != "") {
         var totalCard = 0
         cardsTableItem.foreach(p => {seqDeck = seqDeck :+ DeckCard(p.id, p.imageNumber,Some(p.set), p.name, p.rarity, p.count) ; totalCard += p.count})
-        if (totalCard >= 1) {
+        if (totalCard >= 60) {
           controller.createCustomDeck(CustomDeck(textFieldName.text.value, setType, seqDeck))
         } else {
           PopupBuilder.openInvalidOperationMessage(parentWindow, "A deck must have at least 60 cards!")
