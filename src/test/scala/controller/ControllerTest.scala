@@ -66,7 +66,6 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen wit
 
   it must "make GameManager notify observers when the game field is ready" in {
     controller.gameManager.addObserver(observerMock)
-    CoinUtil.addObserver(observerMock)
     inAnyOrder {
       (observerMock.update _).expects(where {e: Event => {
         e.isInstanceOf[BuildGameField]
@@ -76,12 +75,8 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen wit
         checkBoardCorrectness(event.playerBoard)
         checkBoardCorrectness(event.opponentBoard)
       }})
-      (observerMock.update _).expects(where {e: Event => {
-        e.isInstanceOf[FlipCoin]
-      }})
     }
     initGame()
-    CoinUtil.reset()
   }
 
   it must "make TurnManager notify observers when both human player and AI player are ready to play" in {
