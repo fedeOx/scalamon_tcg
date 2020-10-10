@@ -21,8 +21,8 @@ object EffectManager {
   private def doesNDmgEffectSpecialize(jsonEffect: Seq[Effect]): AttackEffect = {
     totalParamsSeq = Seq()
     val effectParams = jsonEffect.head.params.head.asInstanceOf[NDmgParams]
-    var basicDmgToDo = effectParams.basicDmg.toInt
-    val basicCoinFlipNumber = effectParams.coinFlipNumber.toInt
+    var basicDmgToDo = effectParams.basicDmg
+    val basicCoinFlipNumber = effectParams.coinFlipNumber
     val basicCoinSide = effectParams.coinSide
     val basicEnemyToAtk = effectParams.enemyToAtk
     var returnedAttack: AttackEffect = null
@@ -96,10 +96,10 @@ object EffectManager {
       //Base atk dmg and set Immunity for the next turn
       case h :: t if h.name == EffectType.doesNDmgAndSetImmunity => {
         val effectParams = jsonEffect.find(effect => effect.name == EffectType.doesNDmgAndSetImmunity).get.params.head.asInstanceOf[SetImmunityParams]
-        val isTailBounded: String = effectParams.tailBounded
-        val isHeadBounded: String = effectParams.headBounded
+        val isTailBounded: Boolean = effectParams.tailBounded
+        val isHeadBounded: Boolean = effectParams.headBounded
         if (t.isEmpty) {
-          if ((isHeadBounded == "true" && CoinUtil.flipACoin() == CoinValue.Head) || (isTailBounded == "true" && CoinUtil.flipACoin() == CoinValue.Tail) || (isTailBounded == "" && isHeadBounded == ""))
+          if ((isHeadBounded  && CoinUtil.flipACoin() == CoinValue.Head) || (isTailBounded && CoinUtil.flipACoin() == CoinValue.Tail) || (!isTailBounded  && !isHeadBounded))
             returnedAttack = returnedEffect(new DoesNDmgAndSetImmunity(basicDmgToDo, basicEnemyToAtk), effectParams)
           else
             returnedAttack = returnedEffect(DoesNDmg(basicDmgToDo, basicEnemyToAtk), effectParams)
