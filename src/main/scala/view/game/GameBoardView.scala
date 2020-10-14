@@ -5,7 +5,7 @@ import common.{CoinUtil, Observer, TurnOwner}
 import controller.Controller
 import javafx.scene.paint.ImagePattern
 import model.event.Events
-import model.event.Events.Event._
+import model.event.Events._
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
@@ -75,18 +75,18 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   onCloseRequest = _ => controller.resetGame()
 
   override def update(event: Events.Event): Unit = event match {
-    case event: BuildGameField => initializeBoards(event)
-    case event: FlipCoin => flipCoin(event)
-    case _: UpdateBoards => updateBoards()
-    case event: NextTurn => handleTurnStart(event)
-    case event: DamageBenchEffect => damageBench(event)
-    case event: PokemonKO => handleKO(event)
-    case _: AttackEnded => handleAttackEnd()
-    case _: EndGame => endGame()
+    case event: BuildGameFieldEvent => initializeBoards(event)
+    case event: FlipCoinEvent => flipCoin(event)
+    case _: UpdateBoardsEvent => updateBoards()
+    case event: NextTurnEvent => handleTurnStart(event)
+    case event: DamageBenchEvent => damageBench(event)
+    case event: PokemonKOEvent => handleKO(event)
+    case _: AttackEndedEvent => handleAttackEnd()
+    case _: EndGameEvent => endGame()
     case _ =>
   }
 
-  private def initializeBoards(event: BuildGameField): Unit = {
+  private def initializeBoards(event: BuildGameFieldEvent): Unit = {
     humanBoard.myBoard = event.playerBoard
     humanBoard.opponentBoard = event.opponentBoard
     aIBoard.myBoard = event.opponentBoard
@@ -100,7 +100,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     Platform.runLater(PopupBuilder.closeLoadingScreen(loadingMessage))
   }
 
-  private def flipCoin(event: FlipCoin): Unit = {
+  private def flipCoin(event: FlipCoinEvent): Unit = {
     Platform.runLater(PopupBuilder.openCoinFlipScreen(this, event.isHead))
   }
 
@@ -122,7 +122,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     })
   }
 
-  private def handleTurnStart(event: NextTurn): Unit = {
+  private def handleTurnStart(event: NextTurnEvent): Unit = {
     Platform.runLater(humanBoard.updateDeckAndDiscardStack())
     if (!gameEnded) {
       turnOwner = event.turnOwner
@@ -144,7 +144,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     }
   }
 
-  def damageBench(event: DamageBenchEffect): Unit = {
+  def damageBench(event: DamageBenchEvent): Unit = {
     isHandlingEffect = true
     Platform.runLater({
       PopupBuilder.openDamageBenchedPokemonScreen(this, humanBoard.myBoard,
@@ -152,7 +152,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     })
   }
 
-  private def handleKO(event: PokemonKO): Unit = {
+  private def handleKO(event: PokemonKOEvent): Unit = {
     if (event.board.eq(humanBoard.myBoard) && humanBoard.myBoard.activePokemon.get.isKO && humanBoard.myBoard.pokemonBench.exists(card => card.isDefined)
       && aIBoard.myBoard.prizeCards.size > 1)
       Platform.runLater(PopupBuilder.openBenchSelectionScreen(this,

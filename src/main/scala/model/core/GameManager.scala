@@ -1,7 +1,7 @@
 package model.core
 
 import common.Observable
-import model.event.Events.Event
+import model.event.Events.{AttackEndedEvent, BuildGameFieldEvent, EndGameEvent, PokemonKOEvent, UpdateBoardsEvent}
 import model.exception.{CardNotFoundException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, Board, DeckCard, EnergyType, StatusType}
@@ -155,7 +155,7 @@ object GameManager {
 
       _playerBoard = Some(buildBoard(playerCards))
       _opponentBoard = Some(buildBoard(opponentCards))
-      this.notifyObservers(Event.buildGameFieldEvent(_playerBoard.get, _opponentBoard.get))
+      this.notifyObservers(BuildGameFieldEvent(_playerBoard.get, _opponentBoard.get))
     }
 
     override def playerBoard: Board = {
@@ -190,7 +190,7 @@ object GameManager {
 
     override def drawCard(board: Board = playerBoard): Unit = {
       if (board.deck.isEmpty) {
-        this.notifyObservers(Event.endGameEvent())
+        this.notifyObservers(EndGameEvent())
       } else {
         board.addCardsToHand(board.popDeck(1))
         notifyBoardUpdate()
@@ -261,7 +261,7 @@ object GameManager {
           } else if (attackingPokemon.hasEnergies(attack.cost)) {
             attack.effect.get.useEffect(attackingBoard, defendingBoard,this)
           }
-          this.notifyObservers(Event.attackEnded())
+          this.notifyObservers(AttackEndedEvent())
 
           eventuallyRemoveKOBenchedPokemon(defendingBoard, attackingBoard)
           eventuallyRemoveKOBenchedPokemon(attackingBoard, defendingBoard)
@@ -282,9 +282,9 @@ object GameManager {
     private def eventuallyRemoveKOActivePokemon(activePokemon: PokemonCard, board: Board, otherBoard: Board, isPokemonInCharge: Boolean): Unit = {
       if (activePokemon.isKO) {
         if (!pokemonBench(board).exists(c => c.nonEmpty)) {
-          this.notifyObservers(Event.endGameEvent()) // Win check
+          this.notifyObservers(EndGameEvent()) // Win check
         } else {
-          this.notifyObservers(Event.pokemonKOEvent(isPokemonInCharge,board))
+          this.notifyObservers(PokemonKOEvent(isPokemonInCharge,board))
           drawPrizeCard(otherBoard)
         }
       }
@@ -301,7 +301,7 @@ object GameManager {
     private def drawPrizeCard(board: Board): Unit = {
       board.addCardsToHand(board.popPrizeCard(1))
       if (board.prizeCards.isEmpty) { // Win check
-        this.notifyObservers(Event.endGameEvent())
+        this.notifyObservers(EndGameEvent())
       }
     }
 
@@ -359,7 +359,7 @@ object GameManager {
     }
 
     private def notifyBoardUpdate(): Unit = {
-      this.notifyObservers(Event.updateBoardsEvent())
+      this.notifyObservers(UpdateBoardsEvent())
     }
   }
 }

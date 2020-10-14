@@ -1,8 +1,7 @@
 package model.core
 
 import common.Observer
-import model.event.Events.Event
-import model.event.Events.Event.{AttackEnded, BuildGameField, EndGame, PokemonKO, UpdateBoards}
+import model.event.Events.{AttackEndedEvent, BuildGameFieldEvent, EndGameEvent, Event, PokemonKOEvent, UpdateBoardsEvent}
 import model.exception.{CardNotFoundException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.DeckType.DeckType
@@ -48,9 +47,9 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
 
   it should "build game field correctly and notify observers when it happens" in new BaseContext {
     (attachObserver().update _).expects(where {e: Event => {
-      e.isInstanceOf[BuildGameField]
-      e.asInstanceOf[BuildGameField].playerBoard.isInstanceOf[Board]
-      e.asInstanceOf[BuildGameField].opponentBoard.isInstanceOf[Board]
+      e.isInstanceOf[BuildGameFieldEvent]
+      e.asInstanceOf[BuildGameFieldEvent].playerBoard.isInstanceOf[Board]
+      e.asInstanceOf[BuildGameFieldEvent].opponentBoard.isInstanceOf[Board]
     }})
     initBoards(SetType.Base, DeckType.Base1, DeckType.Base2)
     val playerBoard: Board = gameManager.playerBoard
@@ -79,7 +78,7 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
   it should "notify observers when a card is draw from player deck" in new BaseContext {
     initBoards(SetType.Base, DeckType.Base1, DeckType.Base2)
     (attachObserver().update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdateBoards]
+      e.isInstanceOf[UpdateBoardsEvent]
     }})
     gameManager.drawCard(gameManager.playerBoard)
   }
@@ -90,7 +89,7 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
     val observer: Observer = attachObserver()
 
     (observer.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdateBoards]
+      e.isInstanceOf[UpdateBoardsEvent]
     }})
 
     Given("a new active pokemon")
@@ -103,7 +102,7 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
     assert(playerBoard.activePokemon.nonEmpty && playerBoard.activePokemon == activePokemon)
 
     (observer.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdateBoards]
+      e.isInstanceOf[UpdateBoardsEvent]
     }})
 
     Given("a new bench pokemon and a bench position")
@@ -117,7 +116,7 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
     assert(playerBoard.pokemonBench(benchPosition).nonEmpty && playerBoard.pokemonBench(benchPosition) == benchPokemon)
 
     (observer.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdateBoards]
+      e.isInstanceOf[UpdateBoardsEvent]
     }})
 
     Given("a replacement bench position")
@@ -200,13 +199,13 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
     val observer: Observer = attachObserver()
     inSequence {
       (observer.update _).expects(where {e: Event => {
-        e.isInstanceOf[AttackEnded]
+        e.isInstanceOf[AttackEndedEvent]
       }})
       (observer.update _).expects(where {e: Event => {
-        e.isInstanceOf[PokemonKO]
+        e.isInstanceOf[PokemonKOEvent]
       }})
       (observer.update _).expects(where {e: Event => {
-        e.isInstanceOf[UpdateBoards]
+        e.isInstanceOf[UpdateBoardsEvent]
       }})
     }
     gameManager.confirmAttack(playerBoard, opponentBoard, attackingPokemon.get.attacks.head)
@@ -225,13 +224,13 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
     Then("observers should be notified correctly")
     inSequence {
       (observer.update _).expects(where {e: Event => {
-        e.isInstanceOf[AttackEnded]
+        e.isInstanceOf[AttackEndedEvent]
       }})
       (observer.update _).expects(where {e: Event => {
-        e.isInstanceOf[EndGame]
+        e.isInstanceOf[EndGameEvent]
       }})
       (observer.update _).expects(where {e: Event => {
-        e.isInstanceOf[UpdateBoards]
+        e.isInstanceOf[UpdateBoardsEvent]
       }})
     }
     gameManager.confirmAttack(playerBoard, opponentBoard, attackingPokemon.get.attacks.head)

@@ -3,10 +3,10 @@ package controller
 import common.{CoinUtil, Observable}
 import model.ai.Ai
 import model.core.{DataLoader, GameManager, TurnManager}
-import model.event.Events.Event
+import model.event.Events.{CustomDeckSavedEvent, ShowDeckCardsEvent, ShowSetCardsEvent}
 import model.exception.{CoinNotLaunchedException, InvalidOperationException}
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType, EnergyType}
+import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
 import model.game.SetType.SetType
 
 import scala.util.Random
@@ -154,28 +154,28 @@ object Controller {
     override def loadDecks(set: SetType): Unit = new Thread {
       override def run(): Unit = {
         val deckCards: Map[String, Seq[DeckCard]] = dataLoader.loadDecks(set)
-        dataLoader.notifyObservers(Event.showDeckCardsEvent(deckCards))
+        dataLoader.notifyObservers(ShowDeckCardsEvent(deckCards))
       }
     }.start()
 
     override def loadCustomDecks(): Unit = new Thread {
       override def run(): Unit = {
         val deckCards: Map[String, Seq[DeckCard]] = dataLoader.loadCustomDecks()
-        dataLoader.notifyObservers(Event.showDeckCardsEvent(deckCards))
+        dataLoader.notifyObservers(ShowDeckCardsEvent(deckCards))
       }
     }.start()
 
     override def loadSet(set: SetType): Unit = new Thread {
       override def run(): Unit = {
         val setCards: Seq[Card] = dataLoader.loadSet(set)
-        dataLoader.notifyObservers(Event.showSetCardsEvent(setCards))
+        dataLoader.notifyObservers(ShowSetCardsEvent(setCards))
       }
     }.start()
 
     override def createCustomDeck(customDeck: CustomDeck): Unit = new Thread {
       override def run(): Unit = {
         val success = dataLoader.saveCustomDeck(customDeck)
-        dataLoader.notifyObservers(Event.customDeckSavedEvent(success))
+        dataLoader.notifyObservers(CustomDeckSavedEvent(success))
       }
     }.start()
 

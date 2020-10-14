@@ -1,7 +1,5 @@
 package model.effect
 
-
-import controller.Controller
 import model.core.{DataLoader, GameManager}
 import model.game.{Board, EnergyType, SetType, StatusType}
 import model.game.Cards._

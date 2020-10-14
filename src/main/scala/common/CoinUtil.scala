@@ -1,7 +1,7 @@
 package common
 
 import common.CoinUtil.CoinValue.CoinValue
-import model.event.Events.Event
+import model.event.Events.{Event, FlipCoinEvent}
 
 import scala.util.Random
 
@@ -13,8 +13,8 @@ object CoinUtil extends Observable {
   }
 
   def flipACoin(): CoinValue = new Random().nextInt(2) match {
-    case n if n == 0 => this.notifyObservers(Event.flipCoinEvent(false)); CoinValue.Tail
-    case _ => this.notifyObservers(Event.flipCoinEvent(true)); CoinValue.Head
+    case n if n == 0 => this.notifyObservers(FlipCoinEvent(false)); CoinValue.Tail
+    case _ => this.notifyObservers(FlipCoinEvent(true)); CoinValue.Head
   }
 
   def reset(): Unit = {

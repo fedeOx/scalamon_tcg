@@ -8,7 +8,7 @@ import model.game.Cards.PokemonCard
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
 import model.effect.utils.{atkTo, getAtkOrDef}
-import model.event.Events.Event
+import model.event.Events.{DamageBenchEvent, Event}
 
 
 case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEffect {
@@ -113,7 +113,7 @@ sealed trait MultipleTargetDmg extends AttackEffect {
       for (i <- 0 until numberOfPokemonToApply)
         pokemonToDoDmg(i).get.addDamage(effectParams.dmgToDo, Seq(EnergyType.Colorless))
     } else if (defendingBoard.pokemonBench.count(c => c.isDefined) > 0)
-      gameManager.notifyObservers(Event.damageBenchEffect(numberOfPokemonToApply, effectParams.dmgToDo))
+      gameManager.notifyObservers(DamageBenchEvent(numberOfPokemonToApply, effectParams.dmgToDo))
 
     super.useEffect(attackingBoard, defendingBoard, gameManager)
   }

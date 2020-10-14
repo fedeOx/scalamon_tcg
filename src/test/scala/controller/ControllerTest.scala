@@ -1,18 +1,14 @@
 package controller
 
-import common.{CoinUtil, Observer, TurnOwner}
+import common.Observer
 import common.TurnOwner.TurnOwner
-import model.core
 import model.core.{DataLoader, GameManager, TurnManager}
-import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, FlipCoin, NextTurn, ShowDeckCards, ShowSetCards, UpdateBoards}
+import model.event.Events.{Event, NextTurnEvent, ShowDeckCardsEvent, ShowSetCardsEvent, UpdateBoardsEvent}
 import model.exception.CoinNotLaunchedException
-import model.game.Cards.EnergyCard.EnergyCardType
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.SetType.SetType
-import model.game.{Board, DeckCard, DeckType, EnergyType, SetType, StatusType}
-import org.junit.runner.RunWith
+import model.game.{DeckCard, EnergyType, SetType}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{GivenWhenThen, OneInstancePerTest}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -27,12 +23,12 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen wit
   it must "make DataLoader notify observers when new decks are loaded" in {
     controller.dataLoader.addObserver(observerMock)
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[ShowDeckCards]
+      e.isInstanceOf[ShowDeckCardsEvent]
     }}).repeat(SetType.values.size)
     SetType.values.foreach(s => controller.loadDecks(s))
 
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[ShowDeckCards]
+      e.isInstanceOf[ShowDeckCardsEvent]
     }})
     controller.loadCustomDecks()
     waitForControllerThread()
@@ -41,8 +37,8 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen wit
   it must "make DataLoader notify observers when a new card set are loaded" in {
     controller.dataLoader.addObserver(observerMock)
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[ShowSetCards]
-      e.asInstanceOf[ShowSetCards].setCards.isInstanceOf[Seq[Card]]
+      e.isInstanceOf[ShowSetCardsEvent]
+      e.asInstanceOf[ShowSetCardsEvent].setCards.isInstanceOf[Seq[Card]]
     }}).repeat(SetType.values.size)
     SetType.values.foreach(s => controller.loadSet(s))
     waitForControllerThread()
@@ -51,8 +47,8 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen wit
   it must "make DataLoader notify observers when a new custom deck is created" in {
     controller.dataLoader.addObserver(observerMock)
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[ShowSetCards]
-      e.asInstanceOf[ShowSetCards].setCards.isInstanceOf[Seq[Card]]
+      e.isInstanceOf[ShowSetCardsEvent]
+      e.asInstanceOf[ShowSetCardsEvent].setCards.isInstanceOf[Seq[Card]]
     }}).repeat(SetType.values.size)
     SetType.values.foreach(s => controller.loadSet(s))
     waitForControllerThread()
@@ -68,8 +64,8 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen wit
     controller.turnManager.asInstanceOf[TurnManager].flipACoin()
     controller.turnManager.addObserver(observerMock)
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[NextTurn]
-      e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
+      e.isInstanceOf[NextTurnEvent]
+      e.asInstanceOf[NextTurnEvent].turnOwner.isInstanceOf[TurnOwner]
     }})
     controller.playerReady() // AI player is ready
     controller.playerReady() // Human player is ready
@@ -80,73 +76,50 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen wit
     controller.turnManager.addObserver(observerMock)
     initGame()
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[NextTurn]
-      e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
+      e.isInstanceOf[NextTurnEvent]
+      e.asInstanceOf[NextTurnEvent].turnOwner.isInstanceOf[TurnOwner]
     }})
     controller.endTurn()
   }
 
-  /*
-  it should "add and destroy active pokemon when it is possible" in {
-    initGame()
-    (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdateBoards]
-    }})
-    assert(controller.gameManager.isPlayerActivePokemonEmpty)
-    val activePokemonToAdd: PokemonCard = PokemonCard("1", "base1", Seq(EnergyType.Colorless), "myActivePokemon", 100, Nil, Nil, Nil, "", Nil)
-    controller.addActivePokemon(activePokemonToAdd)
+  it should "swap or retreat pokemon when required" in {
+    initGame();
+    val gameManager = controller.gameManager.asInstanceOf[GameManager]
+    val dataLoader = controller.dataLoader.asInstanceOf[DataLoader]
 
-    (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdatePlayerBoard]
-    }}).twice()
-    Given("a new active pokemon to add")
-    val newActivePokemonToAdd: PokemonCard = PokemonCard("2", "base1", Seq(EnergyType.Colorless), "myNewActivePokemon", 100, Nil, Nil, Nil, "", Nil)
-    When("an active pokemon is already present")
-    assert(!GameManager.isPlayerActivePokemonEmpty)
-    Then("an ActivePokemonException should be thrown")
-    intercept[ActivePokemonException] {
-      controller.addActivePokemon(newActivePokemonToAdd)
-    }
-    When("the actual active pokemon is destroyed")
-    controller.destroyActivePokemon()
-    assert(GameManager.isPlayerActivePokemonEmpty)
-    Then("the new active pokemon can be added")
-    controller.addActivePokemon(newActivePokemonToAdd)
+    Given("an active pokemon and a benched pokemon")
+    val pokemon: Option[PokemonCard] = getPokemon(dataLoader, SetType.Base, "Bulbasaur")
+    val benchedPokemon: Option[PokemonCard] = getPokemon(dataLoader, SetType.Base, "Staryu")
+    val benchPosition = 0
+    gameManager.putPokemonToBench(benchedPokemon, benchPosition)
+    gameManager.setActivePokemon(pokemon)
+    val energy: Option[EnergyCard] = getEnergy(dataLoader, SetType.Base, EnergyType.Colorless)
+    pokemon.get.addEnergy(energy.get)
+    benchedPokemon.get.addEnergy(energy.get)
+
+    When("the operation of swap is triggered")
+    controller.swap(benchPosition)
+
+    Then("the active pokemon should be swapped with the benched one")
+    assert(gameManager.activePokemon() == benchedPokemon)
+    assert(gameManager.pokemonBench()(benchPosition) == pokemon)
+
+    When("the operation of swap is triggered and the active pokemon is KO")
+    benchedPokemon.get.addDamage(benchedPokemon.get.initialHp, Seq(EnergyType.Colorless))
+    assert(benchedPokemon.get.isKO)
+    controller.swap(benchPosition)
+
+    Then("the active pokemon should be swapped with the benched one and destroyed correctly")
+    assert(gameManager.activePokemon() == pokemon)
+    assert(gameManager.pokemonBench()(benchPosition).isEmpty)
+    assert(gameManager.playerBoard.discardStack.contains(benchedPokemon.get))
   }
-
-  it should "add and remove pokemon from bench when it is possible" in {
-    val BenchSize = 5
-    for (i <- 0 until BenchSize) assert(GameManager.isPlayerBenchLocationEmpty(i))
-
-    (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdatePlayerBoard]
-    }}).repeat(BenchSize)
-    val benchPokemonToAdd: PokemonCard = PokemonCard("1", "base1", Seq(EnergyType.Colorless), "myBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
-    for (i <- 0 until BenchSize) controller.addPokemonToBench(benchPokemonToAdd, i)
-    for (i <- 0 until BenchSize) assert(!GameManager.isPlayerBenchLocationEmpty(i))
-
-    Given("a new bench pokemon to add")
-    val newBenchPokemonToAdd: PokemonCard = PokemonCard("2", "base1", Seq(EnergyType.Colorless), "myNewBenchPokemon", 100, Nil, Nil, Nil, "", Nil)
-    When("a pokemon is already present in the specified position of the bench")
-    assert(!GameManager.isPlayerBenchLocationEmpty(0))
-    Then("a BenchPokemonException should be thrown")
-    intercept[BenchPokemonException] {
-      controller.addPokemonToBench(newBenchPokemonToAdd, 0)
-    }
-
-    (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdatePlayerBoard]
-    }}).repeat(BenchSize)
-    for (i <- 0 until BenchSize) controller.destroyPokemonFromBench(i)
-    for (i <- 0 until BenchSize) assert(GameManager.isPlayerBenchLocationEmpty(i))
-  }
-*/
 
   it must "make GameManager notify observers when a card is draw from deck" in {
     initGame()
     controller.gameManager.addObserver(observerMock)
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[UpdateBoards]
+      e.isInstanceOf[UpdateBoardsEvent]
     }})
     controller.drawCard()
   }
@@ -276,15 +249,6 @@ class ControllerTest extends AnyFlatSpec with MockFactory with GivenWhenThen wit
       deck = map.values.head
     }
     deck
-  }
-
-  private def checkBoardCorrectness(board: Board): Boolean = {
-    board.deck.nonEmpty &&
-    board.activePokemon.isEmpty &&
-    board.hand.size == GameManager.InitialHandCardNum &&
-    board.prizeCards.size == GameManager.InitialPrizeCardNum &&
-    board.discardStack.isEmpty &&
-    !board.pokemonBench.exists(c => c.nonEmpty)
   }
 
   def waitForControllerThread(): Unit = {

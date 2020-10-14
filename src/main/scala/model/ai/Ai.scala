@@ -5,8 +5,7 @@ import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import model.core.{GameManager, TurnManager}
-import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, EndGame}
+import model.event.Events._
 import model.exception.InvalidOperationException
 import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
@@ -40,11 +39,11 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     gameManager.activePokemonStartTurnChecks(opponentBoard, playerBoard)
     gameManager.drawCard(opponentBoard)
     populateBench()
-    gameManager.notifyObservers(Event.updateBoardsEvent())
+    gameManager.notifyObservers(UpdateBoardsEvent())
     Thread.sleep(1500)
     //evolve all pkm
     evolveAll()
-    gameManager.notifyObservers(Event.updateBoardsEvent())
+    gameManager.notifyObservers(UpdateBoardsEvent())
     Thread.sleep(1500)
     //calculate if the retreat of the active pokemon is convenient and Do it
     if (!gameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
@@ -59,7 +58,7 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     val getEnergy = opponentBoard.hand.filter(energy => energy.isInstanceOf[EnergyCard])
     if (getEnergy.nonEmpty)
       calculateAssignEnergy()
-    gameManager.notifyObservers(Event.updateBoardsEvent())
+    gameManager.notifyObservers(UpdateBoardsEvent())
     Thread.sleep(1000)
     try {
       if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
@@ -80,16 +79,16 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
       while (!isCancelled) {
         val event: Event = waitForNextEvent()
         event match {
-          case event: Event.BuildGameField => {
-            opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
-            playerBoard = event.asInstanceOf[BuildGameField].playerBoard
+          case event: BuildGameFieldEvent => {
+            opponentBoard = event.asInstanceOf[BuildGameFieldEvent].opponentBoard
+            playerBoard = event.asInstanceOf[BuildGameFieldEvent].playerBoard
             placeCards(opponentBoard.hand)
           }
-          case event: Event.FlipCoin => turn = if (event.isHead) TurnOwner.Player else TurnOwner.Opponent
-          case event: Event.NextTurn => turn = event.turnOwner; if (event.turnOwner == TurnOwner.Opponent) doTurn()
-          case event: Event.PokemonKO => isKo = opponentBoard.activePokemon.get.isKO
-          case event: Event.DamageBenchEffect if turn == TurnOwner.Opponent => dmgToBench(event.pokemonToDamage, event.damage)
-          case _: EndGame => isCancelled = true
+          case event: FlipCoinEvent => turn = if (event.isHead) TurnOwner.Player else TurnOwner.Opponent
+          case event: NextTurnEvent => turn = event.turnOwner; if (event.turnOwner == TurnOwner.Opponent) doTurn()
+          case event: PokemonKOEvent => isKo = opponentBoard.activePokemon.get.isKO
+          case event: DamageBenchEvent if turn == TurnOwner.Opponent => dmgToBench(event.pokemonToDamage, event.damage)
+          case _: EndGameEvent => isCancelled = true
           case _ =>
         }
       }

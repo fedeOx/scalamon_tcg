@@ -3,9 +3,8 @@ package view
 
 import common.Observer
 import controller.Controller
-import javafx.beans.property.SimpleObjectProperty
 import model.event.Events
-import model.event.Events.Event.{CustomDeckSaved, ShowSetCards}
+import model.event.Events.{CustomDeckSavedEvent, ShowSetCardsEvent}
 import model.game.Cards.Card
 import model.game.{CustomDeck, DeckCard, SetType}
 import model.game.SetType.SetType
@@ -161,14 +160,14 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
   }
 
   override def update(event: Events.Event): Unit = event match {
-    case event if event.isInstanceOf[ShowSetCards] =>
-      deckCard = event.asInstanceOf[ShowSetCards].setCards
+    case event if event.isInstanceOf[ShowSetCardsEvent] =>
+      deckCard = event.asInstanceOf[ShowSetCardsEvent].setCards
       Platform.runLater(() => {
         scrollPane.content = createCardPanel
       })
-    case event if event.isInstanceOf[CustomDeckSaved] =>
+    case event if event.isInstanceOf[CustomDeckSavedEvent] =>
       Platform.runLater(() => {
-        if(event.asInstanceOf[CustomDeckSaved].success) {
+        if(event.asInstanceOf[CustomDeckSavedEvent].success) {
           GameLauncher.stage.scene = DeckSelection(controller)
         } else {
           PopupBuilder.openInvalidOperationMessage(parentWindow, "Deck name already present")

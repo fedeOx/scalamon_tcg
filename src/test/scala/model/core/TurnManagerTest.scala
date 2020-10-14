@@ -2,8 +2,7 @@ package model.core
 
 import common.{CoinUtil, Observer}
 import common.TurnOwner.TurnOwner
-import model.event.Events.Event
-import model.event.Events.Event.{FlipCoin, NextTurn}
+import model.event.Events.{Event, FlipCoinEvent, NextTurnEvent}
 import model.exception.CoinNotLaunchedException
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpec
@@ -30,15 +29,15 @@ class TurnManagerTest extends AnyFlatSpec with MockFactory {
 
   it should "flip a coin when required and return the first TurnOwner" in {
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[FlipCoin]
+      e.isInstanceOf[FlipCoinEvent]
     }})
     turnManager.flipACoin()
   }
 
   it should "notify observers when both human player and AI player are ready to play" in {
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[NextTurn]
-      e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
+      e.isInstanceOf[NextTurnEvent]
+      e.asInstanceOf[NextTurnEvent].turnOwner.isInstanceOf[TurnOwner]
     }})
     turnManager.playerReady() // AI player is ready
     turnManager.playerReady() // Human player is ready
@@ -46,8 +45,8 @@ class TurnManagerTest extends AnyFlatSpec with MockFactory {
 
   it should "notify observers when a player ends his turn" in {
     (observerMock.update _).expects(where {e: Event => {
-      e.isInstanceOf[NextTurn]
-      e.asInstanceOf[NextTurn].turnOwner.isInstanceOf[TurnOwner]
+      e.isInstanceOf[NextTurnEvent]
+      e.asInstanceOf[NextTurnEvent].turnOwner.isInstanceOf[TurnOwner]
     }})
     turnManager.switchTurn()
   }
