@@ -7,11 +7,11 @@ import common.Observable
 import io.circe.optics.JsonPath
 import io.circe.parser.parse
 import io.circe.{HCursor, Json}
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.DeckType.DeckType
 import model.game.{CustomDeck, DeckCard, DeckType}
 import model.game.SetType.SetType
 import io.circe.syntax._
+import model.card.{Card, EnergyCard, PokemonCard}
 
 import scala.collection.mutable
 import scala.io.Source

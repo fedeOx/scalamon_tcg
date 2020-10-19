@@ -2,9 +2,8 @@ package model.effect
 
 import common.CoinUtil
 import common.CoinUtil.CoinValue
-import controller.Controller
+import model.card.PokemonCard
 import model.core.GameManager
-import model.game.Cards.PokemonCard
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
 import model.effect.utils.{atkTo, getAtkOrDef}

@@ -1,7 +1,7 @@
 package model.event
 
 import common.TurnOwner.TurnOwner
-import model.game.Cards.Card
+import model.card.Card
 import model.game.{Board, DeckCard}
 
 object Events {

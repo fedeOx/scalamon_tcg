@@ -4,10 +4,10 @@ import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
 
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
+import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{GameManager, TurnManager}
 import model.event.Events._
 import model.exception.InvalidOperationException
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
 
 

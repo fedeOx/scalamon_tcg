@@ -1,6 +1,6 @@
 package view.game
 
-import model.game.Cards.PokemonCard
+import model.card.PokemonCard
 import scalafx.geometry.Pos
 import scalafx.scene.layout.HBox
 import scalafx.scene.paint.{Color, PhongMaterial}

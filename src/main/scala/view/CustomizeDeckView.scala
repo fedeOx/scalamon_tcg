@@ -3,9 +3,9 @@ package view
 
 import common.Observer
 import controller.Controller
+import model.card.Card
 import model.event.Events
 import model.event.Events.{CustomDeckSavedEvent, ShowSetCardsEvent}
-import model.game.Cards.Card
 import model.game.{CustomDeck, DeckCard, SetType}
 import model.game.SetType.SetType
 import scalafx.application.Platform
@@ -18,7 +18,7 @@ import scalafx.scene.layout._
 import scalafx.stage.{Stage, Window}
 
 
-case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene with Observer {
+case class CustomizeDeckView(setType: SetType, controller: Controller) extends Scene with Observer {
 
   controller.dataLoader.addObserver(this)
   var deckCard: Seq[Card] = List()

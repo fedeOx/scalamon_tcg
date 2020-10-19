@@ -1,9 +1,9 @@
 package model.core
 
 import common.Observable
+import model.card.{Card, EnergyCard, PokemonCard}
 import model.event.Events.{AttackEndedEvent, BuildGameFieldEvent, EndGameEvent, PokemonKOEvent, UpdateBoardsEvent}
 import model.exception.{CardNotFoundException, InvalidOperationException}
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, Board, DeckCard, EnergyType, StatusType}
 
 import scala.util.Random

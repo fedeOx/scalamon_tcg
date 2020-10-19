@@ -90,7 +90,7 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
       addDeckCustom.id = "addDeck"
       addDeckCustom.text = ""
       addDeckCustom.onMouseClicked = _ => {
-        GameLauncher.stage.scene = CustomizeDeck(SetType.Base, controller)
+        GameLauncher.stage.scene = CustomizeDeckView(SetType.Base, controller)
       }
       add(addDeckCustom, columnIndexcnt, rowIndexcnt)
       columnIndexcnt += 1

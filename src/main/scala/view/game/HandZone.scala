@@ -1,7 +1,7 @@
 package view.game
 
 import javafx.geometry.Insets
-import model.game.Cards._
+import model.card.Card
 import scalafx.Includes._
 import scalafx.geometry.Pos
 import scalafx.scene.layout.HBox

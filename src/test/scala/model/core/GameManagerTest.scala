@@ -1,9 +1,9 @@
 package model.core
 
 import common.Observer
+import model.card.{Card, EnergyCard, PokemonCard}
 import model.event.Events.{AttackEndedEvent, BuildGameFieldEvent, EndGameEvent, Event, PokemonKOEvent, UpdateBoardsEvent}
 import model.exception.{CardNotFoundException, InvalidOperationException}
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.DeckType.DeckType
 import model.game.EnergyType.EnergyType
 import model.game.SetType.SetType

@@ -1,8 +1,8 @@
 package view
 
 import controller.Controller
+import model.card.PokemonCard
 import model.game.Board
-import model.game.Cards.PokemonCard
 import scalafx.animation.{Interpolator, RotateTransition}
 import scalafx.geometry.Pos
 import scalafx.scene.control.{Button, Label}
@@ -345,7 +345,7 @@ object PopupBuilder extends PopupBuilder {
                 val newGameController = Controller()
                 scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
                 GameLauncher.stage.onCloseRequest = _ => newGameController.resetGame()
-                GameLauncher.stage.asInstanceOf[Stage].scene = StartGameScene(newGameController)
+                GameLauncher.stage.asInstanceOf[Stage].scene = StartGameView(newGameController)
                 GameLauncher.stage.width = 500
                 GameLauncher.stage.height = 300
                 GameLauncher.stage.x = 500

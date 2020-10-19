@@ -2,10 +2,10 @@ package controller
 
 import common.Observer
 import common.TurnOwner.TurnOwner
+import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.{Event, NextTurnEvent, ShowDeckCardsEvent, ShowSetCardsEvent, UpdateBoardsEvent}
 import model.exception.CoinNotLaunchedException
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.SetType.SetType
 import model.game.{DeckCard, EnergyType, SetType}

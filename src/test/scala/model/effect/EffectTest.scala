@@ -1,8 +1,8 @@
 package model.effect
 
+import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{DataLoader, GameManager}
 import model.game.{Board, EnergyType, SetType, StatusType}
-import model.game.Cards._
 import model.game.EnergyType.EnergyType
 import org.scalatest.flatspec.AnyFlatSpec
 

@@ -2,10 +2,10 @@ package controller
 
 import common.{CoinUtil, Observable}
 import model.ai.Ai
+import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{DataLoader, GameManager, TurnManager}
 import model.event.Events.{CustomDeckSavedEvent, ShowDeckCardsEvent, ShowSetCardsEvent}
 import model.exception.{CoinNotLaunchedException, InvalidOperationException}
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
 import model.game.SetType.SetType
 
@@ -29,7 +29,7 @@ trait Controller {
   def loadCustomDecks(): Unit
 
   /**
-   * It makes [[model.core.DataLoader]] loads the list of [[model.game.Cards.Card]] of the specified set and notify
+   * It makes [[model.core.DataLoader]] loads the list of [[model.card.Card]] of the specified set and notify
    * them to all observers.
    * @param set the set whose cards must be loaded
    */

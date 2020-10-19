@@ -2,8 +2,6 @@ package model.effect
 
 import common.CoinUtil
 import common.CoinUtil.CoinValue
-import common.CoinUtil.CoinValue.CoinValue
-import model.event.Events.Event
 
 object EffectManager {
   private var totalParamsSeq: Seq[Params] = Seq()

@@ -1,8 +1,8 @@
 package model.game
 
+import model.card.{Card, PokemonCard}
 import model.core.DataLoader
 import model.exception.InvalidOperationException
-import model.game.Cards.{Card, PokemonCard}
 import model.game.SetType.SetType
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec

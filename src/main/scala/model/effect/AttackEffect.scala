@@ -1,11 +1,9 @@
 package model.effect
 
-import controller.Controller
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
 import model.core.GameManager
 import model.game.Board
-import model.game.Cards.PokemonCard
 import model.effect.EffectType.effectType
 
 trait AttackEffect {

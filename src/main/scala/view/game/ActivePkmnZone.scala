@@ -1,8 +1,8 @@
 package view.game
 
 import javafx.geometry.Insets
+import model.card.PokemonCard
 import model.exception.InvalidOperationException
-import model.game.Cards.PokemonCard
 import model.game.StatusType
 import scalafx.Includes._
 import scalafx.geometry.Pos

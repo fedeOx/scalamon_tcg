@@ -1,7 +1,7 @@
 package view.game
 
 import javafx.geometry.Insets
-import model.game.Cards.{Card, PokemonCard}
+import model.card.{Card, PokemonCard}
 import model.game.EnergyType.EnergyType
 import model.game.StatusType
 import model.game.StatusType.StatusType

@@ -17,7 +17,6 @@ import scalafx.scene.{Group, PerspectiveCamera, Scene, SceneAntialiasing}
 import scalafx.stage.Stage
 import view.PopupBuilder
 
-
 /** *
  * Stage that contains the game scene
  */
