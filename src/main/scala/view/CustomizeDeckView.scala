@@ -3,10 +3,9 @@ package view
 
 import common.Observer
 import controller.Controller
-import javafx.beans.property.SimpleObjectProperty
+import model.card.Card
 import model.event.Events
-import model.event.Events.Event.{CustomDeckSaved, ShowSetCards}
-import model.game.Cards.Card
+import model.event.Events.{CustomDeckSavedEvent, ShowSetCardsEvent}
 import model.game.{CustomDeck, DeckCard, SetType}
 import model.game.SetType.SetType
 import scalafx.application.Platform
@@ -19,7 +18,7 @@ import scalafx.scene.layout._
 import scalafx.stage.{Stage, Window}
 
 
-case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene with Observer {
+case class CustomizeDeckView(setType: SetType, controller: Controller) extends Scene with Observer {
 
   controller.dataLoader.addObserver(this)
   var deckCard: Seq[Card] = List()
@@ -161,14 +160,14 @@ case class CustomizeDeck(setType: SetType, controller: Controller) extends Scene
   }
 
   override def update(event: Events.Event): Unit = event match {
-    case event if event.isInstanceOf[ShowSetCards] =>
-      deckCard = event.asInstanceOf[ShowSetCards].setCards
+    case event if event.isInstanceOf[ShowSetCardsEvent] =>
+      deckCard = event.asInstanceOf[ShowSetCardsEvent].setCards
       Platform.runLater(() => {
         scrollPane.content = createCardPanel
       })
-    case event if event.isInstanceOf[CustomDeckSaved] =>
+    case event if event.isInstanceOf[CustomDeckSavedEvent] =>
       Platform.runLater(() => {
-        if(event.asInstanceOf[CustomDeckSaved].success) {
+        if(event.asInstanceOf[CustomDeckSavedEvent].success) {
           GameLauncher.stage.scene = DeckSelection(controller)
         } else {
           PopupBuilder.openInvalidOperationMessage(parentWindow, "Deck name already present")

@@ -2,7 +2,7 @@ package model.core
 
 import common.{Observable, TurnOwner}
 import common.TurnOwner.TurnOwner
-import model.event.Events.Event
+import model.event.Events.NextTurnEvent
 import model.exception.CoinNotLaunchedException
 
 trait TurnManager extends Observable {
@@ -49,7 +49,7 @@ object TurnManager {
         this.synchronized {
           acks = acks + 1
           if (acks == TotalNumberOfAckRequired) {
-            this.notifyObservers(Event.nextTurnEvent(turnOwner.get))
+            this.notifyObservers(NextTurnEvent(turnOwner.get))
           }
         }
       } else {
@@ -64,7 +64,7 @@ object TurnManager {
         } else {
           turnOwner = Some(TurnOwner.Player)
         }
-        this.notifyObservers(Event.nextTurnEvent(turnOwner.get))
+        this.notifyObservers(NextTurnEvent(turnOwner.get))
       } else {
         throw new CoinNotLaunchedException("It is required to flip a coin before")
       }

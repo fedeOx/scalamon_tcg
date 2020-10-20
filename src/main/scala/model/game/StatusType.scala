@@ -2,7 +2,6 @@ package model.game
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
-import model.game.EnergyType.EnergyType
 
 object StatusType extends Enumeration {
   type StatusType = Value

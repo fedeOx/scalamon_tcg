@@ -4,11 +4,10 @@ import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
 
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
+import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{GameManager, TurnManager}
-import model.event.Events.Event
-import model.event.Events.Event.{BuildGameField, EndGame}
+import model.event.Events._
 import model.exception.InvalidOperationException
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
 import model.game.{Board, EnergyType}
 
 
@@ -20,6 +19,7 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
   private var playerBoard: Board = _
   private var turn: TurnOwner = _
   private var isCancelled: Boolean = false
+  private var isKo: Boolean = false
 
   private def placeCards(hand: Seq[Card]): Unit = {
     val basePokemons: Seq[PokemonCard] = hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
@@ -33,21 +33,24 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
   }
 
   private def doTurn(): Unit = {
+    if (isKo)
+      calculateIfWithdrawAndDo()
+
     gameManager.activePokemonStartTurnChecks(opponentBoard, playerBoard)
     gameManager.drawCard(opponentBoard)
     populateBench()
-    gameManager.notifyObservers(Event.updateBoardsEvent())
+    gameManager.notifyObservers(UpdateBoardsEvent())
     Thread.sleep(1500)
     //evolve all pkm
     evolveAll()
-    gameManager.notifyObservers(Event.updateBoardsEvent())
+    gameManager.notifyObservers(UpdateBoardsEvent())
     Thread.sleep(1500)
     //calculate if the retreat of the active pokemon is convenient and Do it
     if (!gameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
       try {
         calculateIfWithdrawAndDo()
       } catch {
-        case _ : InvalidOperationException => println("can't retreat")
+        case _: InvalidOperationException => println("can't retreat")
       }
     }
 
@@ -55,7 +58,7 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     val getEnergy = opponentBoard.hand.filter(energy => energy.isInstanceOf[EnergyCard])
     if (getEnergy.nonEmpty)
       calculateAssignEnergy()
-    gameManager.notifyObservers(Event.updateBoardsEvent())
+    gameManager.notifyObservers(UpdateBoardsEvent())
     Thread.sleep(1000)
     try {
       if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
@@ -76,15 +79,16 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
       while (!isCancelled) {
         val event: Event = waitForNextEvent()
         event match {
-          case event: Event.BuildGameField => {
-            opponentBoard = event.asInstanceOf[BuildGameField].opponentBoard
-            playerBoard = event.asInstanceOf[BuildGameField].playerBoard
+          case event: BuildGameFieldEvent => {
+            opponentBoard = event.asInstanceOf[BuildGameFieldEvent].opponentBoard
+            playerBoard = event.asInstanceOf[BuildGameFieldEvent].playerBoard
             placeCards(opponentBoard.hand)
           }
-          case event: Event.FlipCoin => turn = if (event.isHead) TurnOwner.Player else TurnOwner.Opponent
-          case event: Event.NextTurn if event.turnOwner == TurnOwner.Opponent => doTurn()
-          case event: Event.PokemonKO => checkForKo()
-          case _: EndGame => isCancelled = true
+          case event: FlipCoinEvent => turn = if (event.isHead) TurnOwner.Player else TurnOwner.Opponent
+          case event: NextTurnEvent => turn = event.turnOwner; if (event.turnOwner == TurnOwner.Opponent) doTurn()
+          case event: PokemonKOEvent => isKo = opponentBoard.activePokemon.get.isKO
+          case event: DamageBenchEvent if turn == TurnOwner.Opponent => dmgToBench(event.pokemonToDamage, event.damage)
+          case _: EndGameEvent => isCancelled = true
           case _ =>
         }
       }
@@ -93,16 +97,19 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     }
   }
 
-  def cancel(): Unit = {
-    isCancelled = true
+  def dmgToBench(pokemonToDmg: Int, dmgToDo: Int): Unit = {
+    var numberOfPokemonToDmg = pokemonToDmg
+    if (pokemonToDmg > opponentBoard.pokemonBench.count(c => c.isDefined)) {
+      numberOfPokemonToDmg = opponentBoard.pokemonBench.count(c => c.isDefined)
+    }
+    for (i <- 0 until numberOfPokemonToDmg) {
+      opponentBoard.pokemonBench.filter(c => c.isDefined)(i).get.addDamage(dmgToDo, Seq(EnergyType.Colorless))
+    }
+
   }
 
-  private def checkForKo(): Unit = {
-    if (opponentBoard.activePokemon.get.isKO) {
-      if (opponentBoard.pokemonBench.count(card => card.isDefined) > 0) {
-        calculateIfWithdrawAndDo()
-      }
-    }
+  def cancel(): Unit = {
+    isCancelled = true
   }
 
 
@@ -249,10 +256,12 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
 
 sealed trait PokemonWithWeight {
   def pokemonCard: PokemonCard
+
   def weightValue: Int
 }
 
 case class PokemonWithWeightImpl(_pokemonCard: PokemonCard, weight: Int) extends PokemonWithWeight {
   override def pokemonCard: PokemonCard = _pokemonCard
+
   override def weightValue: Int = weight
 }

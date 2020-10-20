@@ -2,11 +2,11 @@ package controller
 
 import common.{CoinUtil, Observable}
 import model.ai.Ai
+import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{DataLoader, GameManager, TurnManager}
-import model.event.Events.Event
+import model.event.Events.{CustomDeckSavedEvent, ShowDeckCardsEvent, ShowSetCardsEvent}
 import model.exception.{CoinNotLaunchedException, InvalidOperationException}
-import model.game.Cards.{Card, EnergyCard, PokemonCard}
-import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType, EnergyType}
+import model.game.{Attack, Board, CustomDeck, DeckCard, DeckType}
 import model.game.SetType.SetType
 
 import scala.util.Random
@@ -29,7 +29,7 @@ trait Controller {
   def loadCustomDecks(): Unit
 
   /**
-   * It makes [[model.core.DataLoader]] loads the list of [[model.game.Cards.Card]] of the specified set and notify
+   * It makes [[model.core.DataLoader]] loads the list of [[model.card.Card]] of the specified set and notify
    * them to all observers.
    * @param set the set whose cards must be loaded
    */
@@ -154,28 +154,28 @@ object Controller {
     override def loadDecks(set: SetType): Unit = new Thread {
       override def run(): Unit = {
         val deckCards: Map[String, Seq[DeckCard]] = dataLoader.loadDecks(set)
-        dataLoader.notifyObservers(Event.showDeckCardsEvent(deckCards))
+        dataLoader.notifyObservers(ShowDeckCardsEvent(deckCards))
       }
     }.start()
 
     override def loadCustomDecks(): Unit = new Thread {
       override def run(): Unit = {
         val deckCards: Map[String, Seq[DeckCard]] = dataLoader.loadCustomDecks()
-        dataLoader.notifyObservers(Event.showDeckCardsEvent(deckCards))
+        dataLoader.notifyObservers(ShowDeckCardsEvent(deckCards))
       }
     }.start()
 
     override def loadSet(set: SetType): Unit = new Thread {
       override def run(): Unit = {
         val setCards: Seq[Card] = dataLoader.loadSet(set)
-        dataLoader.notifyObservers(Event.showSetCardsEvent(setCards))
+        dataLoader.notifyObservers(ShowSetCardsEvent(setCards))
       }
     }.start()
 
     override def createCustomDeck(customDeck: CustomDeck): Unit = new Thread {
       override def run(): Unit = {
         val success = dataLoader.saveCustomDeck(customDeck)
-        dataLoader.notifyObservers(Event.customDeckSavedEvent(success))
+        dataLoader.notifyObservers(CustomDeckSavedEvent(success))
       }
     }.start()
 
@@ -226,7 +226,6 @@ object Controller {
     override def drawCard(): Unit = gameManager.drawCard()
 
     override def selectActivePokemonLocation(): Unit = handCardSelected match {
-
       case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !gameManager.isActivePokemonEmpty() && !energyCardAlreadyAssigned =>
         gameManager.addEnergyToPokemon(gameManager.activePokemon().get, c.asInstanceOf[EnergyCard])
         energyCardAlreadyAssigned = true
@@ -245,7 +244,6 @@ object Controller {
     }
 
     override def selectBenchLocation(position: Int): Unit = handCardSelected match {
-
       case Some(c) if c.isInstanceOf[EnergyCard] && isPlayerReady && !gameManager.isBenchLocationEmpty(position) && !energyCardAlreadyAssigned =>
         gameManager.addEnergyToPokemon(gameManager.pokemonBench()(position).get, c.asInstanceOf[EnergyCard])
         energyCardAlreadyAssigned = true

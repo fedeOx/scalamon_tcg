@@ -11,7 +11,7 @@ object GameLauncher extends JFXApp {
     width = 500
     height = 300
     val controller : Controller = Controller()
-    scene = StartGameScene(controller)
+    scene = StartGameView(controller)
     onCloseRequest = _ => controller.resetGame()
   }
 }

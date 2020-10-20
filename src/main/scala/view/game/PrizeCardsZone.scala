@@ -1,6 +1,6 @@
 package view.game
 
-import model.game.Cards.Card
+import model.card.Card
 import scalafx.geometry.Pos
 import scalafx.scene.image.Image
 import scalafx.scene.layout.VBox

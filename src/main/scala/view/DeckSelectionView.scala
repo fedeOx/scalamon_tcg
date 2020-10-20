@@ -3,14 +3,14 @@ package view
 import common.Observer
 import controller.Controller
 import model.event.Events
-import model.event.Events.Event.ShowDeckCards
+import model.event.Events.ShowDeckCardsEvent
 import model.game.SetType.SetType
 import model.game.{DeckCard, SetType}
 import scalafx.Includes._
 import scalafx.application.Platform
 import scalafx.beans.property.{IntegerProperty, ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
-import scalafx.geometry.{Insets, Pos}
+import scalafx.geometry.Pos
 import scalafx.scene.Scene
 import scalafx.scene.control.TableColumn._
 import scalafx.scene.control._
@@ -90,7 +90,7 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
       addDeckCustom.id = "addDeck"
       addDeckCustom.text = ""
       addDeckCustom.onMouseClicked = _ => {
-        GameLauncher.stage.scene = CustomizeDeck(SetType.Base, controller)
+        GameLauncher.stage.scene = CustomizeDeckView(SetType.Base, controller)
       }
       add(addDeckCustom, columnIndexcnt, rowIndexcnt)
       columnIndexcnt += 1
@@ -109,9 +109,9 @@ case class DeckSelection(controller: Controller) extends Scene with Observer {
   }
 
   override def update(event: Events.Event): Unit = event match {
-    case event if event.isInstanceOf[ShowDeckCards] => {
+    case event if event.isInstanceOf[ShowDeckCardsEvent] => {
       Platform.runLater(() => {
-        deckMap = deckMap ++ event.asInstanceOf[ShowDeckCards].deckCards
+        deckMap = deckMap ++ event.asInstanceOf[ShowDeckCardsEvent].deckCards
         deckMap = ListMap(deckMap.toSeq.sortWith(_._1 < _._1):_*)
         scrollPane.content = createDeckPanel
       })
