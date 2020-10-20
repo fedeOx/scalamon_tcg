@@ -2,7 +2,7 @@ package model.core
 
 import common.Observable
 import model.card.{Card, EnergyCard, PokemonCard}
-import model.event.Events.{AttackEndedEvent, BuildGameFieldEvent, EndGameEvent, PokemonKOEvent, UpdateBoardsEvent}
+import common.Events.{EndTurnEvent, BuildGameFieldEvent, EndGameEvent, PokemonKOEvent, UpdateBoardsEvent}
 import model.exception.{CardNotFoundException, InvalidOperationException}
 import model.game.{Attack, Board, DeckCard, EnergyType, StatusType}
 
@@ -21,13 +21,6 @@ trait GameManager extends Observable {
   def playerBoard: Board
 
   def opponentBoard: Board
-
-  /**
-   * Checks if the active pokemon of the specified board is empty.
-   * @param board the board whose active pokemon must be checked
-   * @return true if the active pokemon is empty
-   */
-  def isActivePokemonEmpty(board: Board = playerBoard): Boolean
 
   /**
    * Checks if the specified bench position of the specified board is empty.
@@ -83,8 +76,9 @@ trait GameManager extends Observable {
    * Retreats the active pokemon of the specified board.
    * @param replacementBenchPosition the bench position where the new pokemon is
    * @param board the board whose active pokemon must be retreated
+   * @return true if the retreat succeed, false otherwise
    */
-  def retreatActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Unit
+  def retreatActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Boolean
 
   /**
    * Fulfills all the needed checks on active pokemons status at the beginning of the turn.
@@ -168,8 +162,6 @@ object GameManager {
       _opponentBoard.get
     }
 
-    override def isActivePokemonEmpty(board: Board = playerBoard): Boolean = board.activePokemon.isEmpty
-
     override def isBenchLocationEmpty(position: Int, board: Board = playerBoard): Boolean = board.pokemonBench(position).isEmpty
 
     override def activePokemon(board: Board = playerBoard): Option[PokemonCard] = board.activePokemon
@@ -204,7 +196,8 @@ object GameManager {
       notifyBoardUpdate()
     }
 
-    override def retreatActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Unit = {
+    override def retreatActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Boolean = {
+      var retreatSuccess = false
       val pokemon = activePokemon(board).get
       if (pokemon.status == StatusType.Asleep ) {
         throw new InvalidOperationException("Your pokemon cannot retreat because its status is " + pokemon.status)
@@ -213,7 +206,9 @@ object GameManager {
         pokemon.removeFirstNEnergies(pokemon.retreatCost.size)
         swap(board, Some(pokemon), replacementBenchPosition)
         notifyBoardUpdate()
+        retreatSuccess = true
       }
+      retreatSuccess
     }
 
     override def activePokemonStartTurnChecks(board: Board, opponentBoard: Board): Unit = {
@@ -261,7 +256,7 @@ object GameManager {
           } else if (attackingPokemon.hasEnergies(attack.cost)) {
             attack.effect.get.useEffect(attackingBoard, defendingBoard,this)
           }
-          this.notifyObservers(AttackEndedEvent())
+          this.notifyObservers(EndTurnEvent())
 
           eventuallyRemoveKOBenchedPokemon(defendingBoard, attackingBoard)
           eventuallyRemoveKOBenchedPokemon(attackingBoard, defendingBoard)

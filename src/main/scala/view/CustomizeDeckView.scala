@@ -1,11 +1,9 @@
 package view
 
-
-import common.Observer
+import common.Events.{CustomDeckSavedEvent, ShowSetCardsEvent}
+import common.{Events, Observer}
 import controller.Controller
 import model.card.Card
-import model.event.Events
-import model.event.Events.{CustomDeckSavedEvent, ShowSetCardsEvent}
 import model.game.{CustomDeck, DeckCard, SetType}
 import model.game.SetType.SetType
 import scalafx.application.Platform

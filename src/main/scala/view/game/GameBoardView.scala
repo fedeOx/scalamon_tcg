@@ -1,11 +1,10 @@
 package view.game
 
 import common.TurnOwner.TurnOwner
-import common.{CoinUtil, Observer, TurnOwner}
+import common.{CoinUtil, Events, Observer, TurnOwner}
 import controller.Controller
 import javafx.scene.paint.ImagePattern
-import model.event.Events
-import model.event.Events._
+import common.Events._
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.geometry.Pos
@@ -80,7 +79,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     case event: NextTurnEvent => handleTurnStart(event)
     case event: DamageBenchEvent => damageBench(event)
     case event: PokemonKOEvent => handleKO(event)
-    case _: AttackEndedEvent => handleAttackEnd()
+    case _: EndTurnEvent => handleAttackEnd()
     case _: EndGameEvent => endGame()
     case _ =>
   }

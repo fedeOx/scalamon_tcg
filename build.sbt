@@ -18,7 +18,6 @@ lazy val root = (project in file("."))
       "org.scalafx" %% "scalafx" % "12.0.1-R17",
       "junit" % "junit" % "4.12" % Test,
       "com.novocode" % "junit-interface" % "0.11" % Test,
-      "io.github.typhon0" % "AnimateFX" % "1.2.1",
       "org.scalatest" %% "scalatest" % "3.1.1" % Test,
       "org.scalamock" %% "scalamock" % "4.4.0" % Test,
       "org.openjfx" % s"javafx-base" % "12.0.1" classifier osName,

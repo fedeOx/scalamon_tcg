@@ -1,9 +1,8 @@
 package view
 
-import common.Observer
+import common.{Events, Observer}
 import controller.Controller
-import model.event.Events
-import model.event.Events.ShowDeckCardsEvent
+import common.Events.ShowDeckCardsEvent
 import model.game.SetType.SetType
 import model.game.{DeckCard, SetType}
 import scalafx.Includes._

@@ -2,7 +2,7 @@ package model.core
 
 import common.{CoinUtil, Observer}
 import common.TurnOwner.TurnOwner
-import model.event.Events.{Event, FlipCoinEvent, NextTurnEvent}
+import common.Events.{Event, FlipCoinEvent, NextTurnEvent}
 import model.exception.CoinNotLaunchedException
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpec

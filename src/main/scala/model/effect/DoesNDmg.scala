@@ -7,7 +7,7 @@ import model.core.GameManager
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
 import model.effect.utils.{atkTo, getAtkOrDef}
-import model.event.Events.{DamageBenchEvent, Event}
+import common.Events.DamageBenchEvent
 
 
 case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEffect {
