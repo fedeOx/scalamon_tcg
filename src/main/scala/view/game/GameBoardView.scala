@@ -125,7 +125,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
     if (!gameEnded) {
       turnOwner = event.turnOwner
       if (event.turnOwner == TurnOwner.Player) {
-        humanBoard.alterButton(false)
+        humanBoard.turnStart(false)
         controller.activePokemonStatusCheck()
         Platform.runLater({
           PopupBuilder.openTurnScreen(this)
@@ -133,7 +133,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
           humanBoard.updateHand()
         })
       } else
-        humanBoard.alterButton(true)
+        humanBoard.turnStart(true)
       Platform.runLater({
         aIBoard.updateBench()
         aIBoard.updateActive()

@@ -64,7 +64,7 @@ trait PlayerBoard extends Group {
    * Edit the appearance of the endTurnButton
    * @param isDisabled: true if the button has to appear disabled
    */
-  def alterButton(isDisabled: Boolean): Unit
+  def turnStart(isDisabled: Boolean): Unit
 }
 
 object PlayerBoard {
@@ -127,16 +127,18 @@ object PlayerBoard {
 
     if (!isHumans) rotate = 180 else translateY = 25
 
-    def updateHand() : Unit = hand.updateView(myBoard.hand)
-    def updateActive() : Unit = active.updateView(myBoard.activePokemon)
-    def updateBench() : Unit = bench.updateView(myBoard.pokemonBench)
-    def updatePrizes() : Unit = prize.updateView(myBoard.prizeCards)
-    def updateDeckAndDiscardStack() : Unit = deckDiscard.updateView(myBoard.deck, myBoard.discardStack)
-    def alterButton(isDisabled: Boolean): Unit = {
+    override def updateHand() : Unit = hand.updateView(myBoard.hand)
+    override def updateActive() : Unit = active.updateView(myBoard.activePokemon)
+    override def updateBench() : Unit = bench.updateView(myBoard.pokemonBench)
+    override def updatePrizes() : Unit = prize.updateView(myBoard.prizeCards)
+    override def updateDeckAndDiscardStack() : Unit = deckDiscard.updateView(myBoard.deck, myBoard.discardStack)
+    override def turnStart(isDisabled: Boolean): Unit = {
       if(isDisabled)
         endTurnButton.material.value.asInstanceOf[javafx.scene.paint.PhongMaterial].diffuseColor = Color.DarkGray
-      else
+      else {
         endTurnButton.material.value.asInstanceOf[javafx.scene.paint.PhongMaterial].diffuseColor = Color.White
+        active.resetRetreat()
+      }
     }
   }
 }
