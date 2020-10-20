@@ -29,6 +29,11 @@ trait ActivePkmnZone extends HBox {
    * Opens the menu for attacks and retreat
    */
   def openMenu(): Unit
+
+  /**
+   * Resets the canRetreat field to false
+   */
+  def resetRetreat(): Unit
 }
 
 object ActivePkmnZone {
@@ -45,6 +50,7 @@ object ActivePkmnZone {
     private val HEIGHT = 15
     private var isEmpty: Boolean = _
     private val parentBoard = board
+    private var canRetreat: Boolean = true
     updateView()
 
     def updateView(active: Option[PokemonCard] = Option.empty): Unit = {
@@ -101,13 +107,13 @@ object ActivePkmnZone {
             margin = new Insets(10, 0, 0, 0)
             styleClass += "activeMenuButton"
             if (parentBoard.myBoard.activePokemon.get.totalEnergiesStored < parentBoard.myBoard.activePokemon.get.retreatCost.size
-              || parentBoard.myBoard.pokemonBench.head.isEmpty || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep))
+              || parentBoard.myBoard.pokemonBench.head.isEmpty || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep)
+            || !canRetreat)
               disable = true
             onAction = event => {
+              canRetreat = false
               PopupBuilder.openBenchSelectionScreen(board.gameWindow, parentBoard.myBoard.pokemonBench, isAttackingPokemonKO = false)
               event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
-              //PopupBuilder.openDamageBenchedPokemonScreen(board.gameWindow, parentBoard.myBoard,
-                //parentBoard.opponentBoard, 2, 20)
             }
           }
           buttonContainer.children = buttons
@@ -119,6 +125,10 @@ object ActivePkmnZone {
         resizable = false
       }
       dialog.showAndWait()
+    }
+
+    def resetRetreat(): Unit = {
+      canRetreat = true
     }
 
     prefWidth = WIDTH
