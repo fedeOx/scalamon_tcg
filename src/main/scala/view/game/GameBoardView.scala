@@ -36,7 +36,7 @@ class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with
   controller.gameManager.addObserver(this)
   controller.turnManager.addObserver(this)
   CoinUtil.addObserver(this)
-  CardCreator.setController(controller)
+  CardFactory.setController(controller)
   PopupBuilder.setController(controller)
   x = 0
   y = 0
