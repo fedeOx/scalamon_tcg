@@ -6,7 +6,7 @@ import scalafx.scene.layout.HBox
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import view.PopupBuilder
-import view.game.CardCreator._
+import view.game.CardFactory._
 
 /**
  * The field zone that contains the benched pokemon
@@ -55,8 +55,8 @@ object BenchZone {
         isEmpty = false
         bench = Seq[Box]()
         cards.filter(c => c.isDefined).zipWithIndex.foreach{case (card,cardIndex) => {
-          bench = bench :+ createCard("/assets/"+card.get.belongingSetCode+"/"+card.get.imageNumber+".png",
-            Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), CardType.Bench, cardIndex = cardIndex,
+          bench = bench :+ CardFactory(CardType.Bench, "/assets/"+card.get.belongingSetCode+"/"+card.get.imageNumber+".png",
+            Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), cardIndex = cardIndex,
             isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard),
             gameWindow = Some(board.gameWindow))
         }}
