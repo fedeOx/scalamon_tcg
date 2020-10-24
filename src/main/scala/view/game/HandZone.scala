@@ -7,7 +7,7 @@ import scalafx.geometry.Pos
 import scalafx.scene.layout.HBox
 import scalafx.scene.shape.Box
 import scalafx.scene.transform.Rotate
-import view.game.CardCreator._
+import view.game.CardFactory._
 
 /**
  * The field zone that contains the hand cards
@@ -36,9 +36,9 @@ object HandZone {
     def updateView(cards: Seq[Card]) : Unit = {
       hand = Seq()
       cards.zipWithIndex.foreach{case (card,cardIndex) => {
-        hand = hand :+ createCard("/assets/"+card.belongingSetCode+"/"+card.imageNumber+".png",
-          Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), CardType.Hand, 1*cardIndex,
-          cardIndex = cardIndex, isHumans = Some(isHumans), Some(this), Some(parentBoard.myBoard), gameWindow = Some(parentBoard.gameWindow))
+        hand = hand :+ CardFactory(CardType.Hand, "/assets/"+card.belongingSetCode+"/"+card.imageNumber+".png",
+          zoomZone = Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone),
+          cardIndex = cardIndex, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard), gameWindow = Some(parentBoard.gameWindow))
       }}
       children = hand
     }

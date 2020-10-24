@@ -13,7 +13,7 @@ import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.stage.{Modality, Stage}
 import view.PopupBuilder
-import view.game.CardCreator._
+import view.game.CardFactory._
 
 /**
  * Field Zone that contains the active Pokémon
@@ -64,8 +64,8 @@ object ActivePkmnZone {
         }
       } else {
         isEmpty = false
-        children = createCard("/assets/" + active.get.belongingSetCode + "/" + active.get.imageNumber + ".png", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone),
-          cardType = CardType.Active, isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard), gameWindow = Some(board.gameWindow))
+        children = CardFactory(cardType = CardType.Active, "/assets/" + active.get.belongingSetCode + "/" + active.get.imageNumber + ".png", Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone),
+          isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard), gameWindow = Some(board.gameWindow))
       }
     }
 
@@ -108,7 +108,7 @@ object ActivePkmnZone {
             styleClass += "activeMenuButton"
             if (parentBoard.myBoard.activePokemon.get.totalEnergiesStored < parentBoard.myBoard.activePokemon.get.retreatCost.size
               || parentBoard.myBoard.pokemonBench.head.isEmpty || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep)
-            || !canRetreat)
+              || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Paralyzed) || !canRetreat)
               disable = true
             onAction = event => {
               canRetreat = false

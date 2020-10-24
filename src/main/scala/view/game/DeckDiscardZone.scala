@@ -4,7 +4,7 @@ import model.card.Card
 import scalafx.geometry.Pos
 import scalafx.scene.layout.VBox
 import scalafx.scene.shape.Box
-import view.game.CardCreator._
+import view.game.CardFactory._
 
 /**
  * The field Zone that contains the deck and the discard stack
@@ -28,7 +28,7 @@ object DeckDiscardZone {
   private case class DeckDiscardZoneImpl() extends DeckDiscardZone {
     private val WIDTH = 10
     private val HEIGHT = 25
-    private val deckBox = createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
+    private val deckBox = CardFactory(cardType = CardType.Deck, "/assets/cardBack.jpg")//createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
     private var discardStackBox : Box = _
     children = deckBox
 
@@ -43,8 +43,8 @@ object DeckDiscardZone {
       if (deck.nonEmpty)
         list = list :+ deckBox
       if(discardStack.nonEmpty) {
-        discardStackBox = createCard("/assets/"+discardStack.last.belongingSetCode+"/"+
-          discardStack.last.imageNumber+".png", cardType = CardType.DiscardStack)
+        discardStackBox = CardFactory(CardType.DiscardStack,
+          "/assets/"+discardStack.last.belongingSetCode+"/"+ discardStack.last.imageNumber+".png")
         list = list :+ discardStackBox
       }
       children = list
