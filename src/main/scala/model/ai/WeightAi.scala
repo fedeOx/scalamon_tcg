@@ -9,3 +9,7 @@ object WeightAi extends Enumeration {
   val EvolutionInHand = 20
   val KO: Int = -300
 }
+
+object WeightCalculatorType extends Enumeration {
+  val PlaceCard , WithDraw = Value
+}

@@ -1,7 +1,5 @@
 package model.ai
-
 import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
-
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import model.card.{Card, EnergyCard, PokemonCard}
@@ -21,9 +19,32 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
   private var isCancelled: Boolean = false
   private var isKo: Boolean = false
 
+  override def run() {
+    try {
+      while (!isCancelled) {
+        val event: Event = waitForNextEvent()
+        event match {
+          case event: BuildGameFieldEvent => {
+            opponentBoard = event.asInstanceOf[BuildGameFieldEvent].opponentBoard
+            playerBoard = event.asInstanceOf[BuildGameFieldEvent].playerBoard
+            placeCards(opponentBoard.hand)
+          }
+          case event: FlipCoinEvent => turn = if (event.isHead) TurnOwner.Player else TurnOwner.Opponent
+          case event: NextTurnEvent => turn = event.turnOwner; if (event.turnOwner == TurnOwner.Opponent) doTurn()
+          case _: PokemonKOEvent => isKo = opponentBoard.activePokemon.get.isKO
+          case event: DamageBenchEvent if turn == TurnOwner.Opponent => dmgToBench(event.pokemonToDamage, event.damage)
+          case _: EndGameEvent => isCancelled = true
+          case _ =>
+        }
+      }
+    } catch {
+      case _: Exception =>
+    }
+  }
+
   private def placeCards(hand: Seq[Card]): Unit = {
-    val basePokemons: Seq[PokemonCard] = hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
-    val pokemonWithMaxWeight = basePokemons.flatMap(pkm => createWeightedCard(pkm, calculateweightForPlaceCard)).reduceLeft(getMax)
+    val basePokemons = hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
+    val pokemonWithMaxWeight = WeightCalculator.calculateOrderedSeq(basePokemons, opponentBoard, playerBoard, WeightCalculatorType.PlaceCard).head
     //drop active pokemon from hand
     gameManager.setActivePokemon(Some(pokemonWithMaxWeight.pokemonCard), opponentBoard)
     //populate bench with basePokemon
@@ -53,51 +74,22 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
         case _: InvalidOperationException => println("can't retreat")
       }
     }
-
     //assignEnergy
     val getEnergy = opponentBoard.hand.filter(energy => energy.isInstanceOf[EnergyCard])
     if (getEnergy.nonEmpty)
       calculateAssignEnergy()
     gameManager.notifyObservers(UpdateBoardsEvent())
     Thread.sleep(1000)
-    try {
-      if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
-        gameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.last)
-      } else if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.head.cost)) {
-        gameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.head)
-      }
-    }
-    catch {
-      case ex: Exception => println("Exception caught : " + ex)
+    if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.last.cost)) {
+      gameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.last)
+    } else if (opponentBoard.activePokemon.get.hasEnergies(opponentBoard.activePokemon.get.attacks.head.cost)) {
+      gameManager.confirmAttack(opponentBoard, playerBoard, opponentBoard.activePokemon.get.attacks.head)
     }
     gameManager.activePokemonEndTurnChecks(opponentBoard.activePokemon.get)
     turnManager.switchTurn()
   }
 
-  override def run() {
-    try {
-      while (!isCancelled) {
-        val event: Event = waitForNextEvent()
-        event match {
-          case event: BuildGameFieldEvent => {
-            opponentBoard = event.asInstanceOf[BuildGameFieldEvent].opponentBoard
-            playerBoard = event.asInstanceOf[BuildGameFieldEvent].playerBoard
-            placeCards(opponentBoard.hand)
-          }
-          case event: FlipCoinEvent => turn = if (event.isHead) TurnOwner.Player else TurnOwner.Opponent
-          case event: NextTurnEvent => turn = event.turnOwner; if (event.turnOwner == TurnOwner.Opponent) doTurn()
-          case event: PokemonKOEvent => isKo = opponentBoard.activePokemon.get.isKO
-          case event: DamageBenchEvent if turn == TurnOwner.Opponent => dmgToBench(event.pokemonToDamage, event.damage)
-          case _: EndGameEvent => isCancelled = true
-          case _ =>
-        }
-      }
-    } catch {
-      case _: Exception =>
-    }
-  }
-
-  def dmgToBench(pokemonToDmg: Int, dmgToDo: Int): Unit = {
+  private def dmgToBench(pokemonToDmg: Int, dmgToDo: Int): Unit = {
     var numberOfPokemonToDmg = pokemonToDmg
     if (pokemonToDmg > opponentBoard.pokemonBench.count(c => c.isDefined)) {
       numberOfPokemonToDmg = opponentBoard.pokemonBench.count(c => c.isDefined)
@@ -105,14 +97,15 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     for (i <- 0 until numberOfPokemonToDmg) {
       opponentBoard.pokemonBench.filter(c => c.isDefined)(i).get.addDamage(dmgToDo, Seq(EnergyType.Colorless))
     }
-
   }
 
   def cancel(): Unit = {
     isCancelled = true
   }
 
-
+  /**
+   * place  pokemon on the bench
+   */
   private def populateBench(): Unit = {
     val basePokemons: Seq[PokemonCard] = opponentBoard.hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName == "").asInstanceOf[Seq[PokemonCard]]
     basePokemons.zipWithIndex.foreach {
@@ -122,48 +115,12 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     }
   }
 
-  private def createWeightedCard(pokemon: PokemonCard, calculateweight: PokemonCard => Int) = Seq(PokemonWithWeightImpl(pokemon, calculateweight(pokemon)))
-
-  private def getMax(pkmweight1: PokemonWithWeightImpl, pkmweight2: PokemonWithWeightImpl): PokemonWithWeightImpl = {
-    if (pkmweight1.weight > pkmweight2.weight) pkmweight1 else pkmweight2
-  }
-
-  private def calculateweightForPlaceCard(pokemon: PokemonCard): Int = {
-    var totalweight = 0
-    val getPokemonCard = opponentBoard.hand.filter(pkm => pkm.isInstanceOf[PokemonCard])
-    val getEnergy = opponentBoard.hand.filter(energy => energy.isInstanceOf[EnergyCard])
-
-    if (getPokemonCard.exists(pkm => pkm.asInstanceOf[PokemonCard].evolutionName == pokemon.asInstanceOf[PokemonCard].name))
-      totalweight += WeightAi.EvolutionInHand
-    totalweight += getEnergy.count(card => card.asInstanceOf[EnergyCard].energyType == pokemon.pokemonTypes.head) * WeightAi.HasEnergy
-
-    totalweight
-  }
-
-  private def calculateweightForWithdraw(pokemon: PokemonCard): Int = {
-    var totalweight = 0
-
-    totalweight -= (pokemon.initialHp - pokemon.actualHp)
-    if (pokemon.weaknesses.nonEmpty) {
-      if (pokemon.weaknesses.head.energyType == playerBoard.activePokemon.get.pokemonTypes.head)
-        totalweight += WeightAi.WeakPokemon
-    }
-    totalweight += pokemon.totalEnergiesStored * WeightAi.HasEnergy
-    if (pokemon.evolutionName != "")
-      totalweight += WeightAi.IsEvolution
-
-    if (pokemon == opponentBoard.activePokemon.get)
-      totalweight += pokemon.retreatCost.size * WeightAi.WithdrawCost
-
-    if (pokemon.isKO)
-      totalweight += WeightAi.KO
-
-    totalweight
-  }
-
+  /**
+   * Evolve the pokemon in the field if their evolution is present in hand
+   */
   private def evolveAll(): Unit = {
     val evolution: Seq[PokemonCard] = opponentBoard.hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName != "").asInstanceOf[Seq[PokemonCard]]
-    if (evolution.size > 0)
+    if (evolution.nonEmpty)
       evolve(evolution)
 
     @scala.annotation.tailrec
@@ -190,24 +147,29 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     }
   }
 
+  /**
+   * I calculate and eventually withdraw the active pokemon with a pokemon from my bench
+   */
   private def calculateIfWithdrawAndDo(): Unit = {
-    val activePokemonweight: Int = calculateweightForWithdraw(opponentBoard.activePokemon.get)
-    val benchPokemonsMaxweight = opponentBoard.pokemonBench.filter(c => c.isDefined).flatMap(bench => createWeightedCard(bench.get, calculateweightForWithdraw)).reduceLeft(getMax)
-    val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
-
-    if (activePokemonweight < benchPokemonsMaxweight.weight) {
-      if (!opponentBoard.activePokemon.get.isKO) {
-        gameManager.retreatActivePokemon(benchIndex, opponentBoard)
-      } else {
-        gameManager.destroyActivePokemon(benchIndex, opponentBoard)
+      val aiBench = opponentBoard.pokemonBench.filter(c => c.isDefined).flatten
+      val activePokemonweight: Int = WeightCalculator.calculatePokemonWeight(opponentBoard.activePokemon.get, opponentBoard, playerBoard, WeightCalculatorType.WithDraw)
+      val benchPokemonsMaxweight = WeightCalculator.calculateOrderedSeq(aiBench, opponentBoard, playerBoard, WeightCalculatorType.WithDraw).head
+      val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
+      if (activePokemonweight < benchPokemonsMaxweight.weight) {
+        if (!opponentBoard.activePokemon.get.isKO) {
+          gameManager.retreatActivePokemon(benchIndex, opponentBoard)
+        } else {
+          gameManager.destroyActivePokemon(benchIndex, opponentBoard)
+        }
       }
-    }
   }
 
+  /**
+   * Calculate and eventually assign an energy to a pokemon
+   */
   private def calculateAssignEnergy(): Unit = {
     var returnedIndex = -1
     returnedIndex = assignEnergy(opponentBoard.activePokemon.get)
-
     if (returnedIndex == -1) {
       if (opponentBoard.pokemonBench.count(c => c.isDefined) > 0)
         returnedIndex = iterateSeqToAssign(opponentBoard.pokemonBench.filter(c => c.isDefined))
@@ -223,6 +185,12 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     }
   }
 
+  /**
+   * Gives a pokemon an energy if present in the hand
+   *
+   * @param pokemon pokemon to assign energy to
+   * @return energy index in the hand
+   */
   private def assignEnergy(pokemon: PokemonCard): Int = {
     var energyIndex = -1
     val pokemonType = pokemon.pokemonTypes.head
@@ -254,14 +222,3 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
   }
 }
 
-sealed trait PokemonWithWeight {
-  def pokemonCard: PokemonCard
-
-  def weightValue: Int
-}
-
-case class PokemonWithWeightImpl(_pokemonCard: PokemonCard, weight: Int) extends PokemonWithWeight {
-  override def pokemonCard: PokemonCard = _pokemonCard
-
-  override def weightValue: Int = weight
-}

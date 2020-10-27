@@ -35,6 +35,13 @@
 #Brushfire {
     -fx-background-image: url("/assets/brushfire.png");
 }
+#LockDown {
+     -fx-background-image: url("/assets/lockdown.png");
+ }
+#BodyGuard {
+    -fx-background-image: url("/assets/bodyguard.png");
+}
+
 #tableView-Cards{
     -fx-padding: 10;
     -fx-max-height: 450;

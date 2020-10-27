@@ -1895,7 +1895,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":[{"basicDmgToDo": 30,"coinFlipNumber":0,"coinSide":"tail","enemyToAtk":"single"}]
+            "params":[{"basicDmgToDo": 30,"coinFlipNumber":1,"coinSide":"tail","enemyToAtk":"single"}]
           }
         ]
       },
@@ -3760,7 +3760,7 @@
         "effect": [
           {
             "name": "ndmg",
-            "params":[{"basicDmgToDo": 30,"coinFlipNumber":0,"coinSide":"head","enemyToAtk":"single"}]
+            "params":[{"basicDmgToDo": 30,"coinFlipNumber":1,"coinSide":"head","enemyToAtk":"single"}]
           }
         ]
       }
