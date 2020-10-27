@@ -2,7 +2,7 @@ package model.core
 
 import common.{Observable, TurnOwner}
 import common.TurnOwner.TurnOwner
-import model.event.Events.NextTurnEvent
+import common.Events.NextTurnEvent
 import model.exception.CoinNotLaunchedException
 
 trait TurnManager extends Observable {

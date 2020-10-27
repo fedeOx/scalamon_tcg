@@ -1,7 +1,7 @@
 package common
 
 import common.CoinUtil.CoinValue.CoinValue
-import model.event.Events.FlipCoinEvent
+import Events.FlipCoinEvent
 
 import scala.util.Random
 

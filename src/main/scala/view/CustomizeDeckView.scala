@@ -1,11 +1,9 @@
 package view
 
-
-import common.Observer
+import common.Events.{CustomDeckSavedEvent, ShowSetCardsEvent}
+import common.{Events, Observer}
 import controller.Controller
 import model.card.Card
-import model.event.Events
-import model.event.Events.{CustomDeckSavedEvent, ShowSetCardsEvent}
 import model.game.{CustomDeck, DeckCard, SetType}
 import model.game.SetType.SetType
 import scalafx.application.Platform
@@ -23,8 +21,8 @@ case class CustomizeDeckView(setType: SetType, controller: Controller) extends S
   controller.dataLoader.addObserver(this)
   var deckCard: Seq[Card] = List()
   val parentWindow: Window = window.getValue.asInstanceOf[scalafx.stage.Window]
-  val loadingMessage: Stage = PopupBuilder.openLoadingScreen(parentWindow)
-  Platform.runLater(loadingMessage.show())
+  var loadingMessage: Stage = PopupBuilder.openLoadingScreen(parentWindow)
+  loadingMessage.show()
 
   controller.loadSet(setType)
   val textFieldName: TextField = new TextField {
@@ -40,7 +38,7 @@ case class CustomizeDeckView(setType: SetType, controller: Controller) extends S
         var totalCard = 0
         cardsTableItem.foreach(p => {seqDeck = seqDeck :+ DeckCard(p.id, p.imageNumber,Some(p.set), p.name, p.rarity, p.count) ; totalCard += p.count})
         if (totalCard >= 60) {
-          controller.createCustomDeck(CustomDeck(textFieldName.text.value, setType, seqDeck))
+          controller.createCustomDeck(CustomDeck(textFieldName.text.value, seqDeck))
         } else {
           PopupBuilder.openInvalidOperationMessage(parentWindow, "A deck must have at least 60 cards!")
         }
@@ -58,8 +56,9 @@ case class CustomizeDeckView(setType: SetType, controller: Controller) extends S
   boxDeckSelect.setValue("base")
 
  boxDeckSelect.onAction = _ =>{
+   loadingMessage = PopupBuilder.openLoadingScreen(parentWindow)
+   loadingMessage.show()
    controller.loadSet(SetType.withName(boxDeckSelect.getValue))
-
  }
   stylesheets = List("/style/deckSelection.css")
 

@@ -4,7 +4,8 @@ import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
 import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{GameManager, TurnManager}
-import model.event.Events._
+import common.Events._
+import model.exception.InvalidOperationException
 import model.game.{Board, EnergyType}
 
 
@@ -66,8 +67,12 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     gameManager.notifyObservers(UpdateBoardsEvent())
     Thread.sleep(1500)
     //calculate if the retreat of the active pokemon is convenient and Do it
-    if (!gameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
-      calculateIfWithdrawAndDo()
+    if (gameManager.pokemonBench(opponentBoard).head.isDefined && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
+      try {
+        calculateIfWithdrawAndDo()
+      } catch {
+        case _: InvalidOperationException => println("can't retreat")
+      }
     }
     //assignEnergy
     val getEnergy = opponentBoard.hand.filter(energy => energy.isInstanceOf[EnergyCard])
@@ -124,7 +129,7 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
         opponentBoard.activePokemon = gameManager.evolvePokemon(opponentBoard.activePokemon.get, evolution, opponentBoard)
         evolve(t)
       }
-      case evolution :: t if !gameManager.isBenchLocationEmpty(0, opponentBoard) => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
+      case evolution :: t if gameManager.pokemonBench(opponentBoard).head.isDefined => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
       case List() =>
       case _ =>
     }

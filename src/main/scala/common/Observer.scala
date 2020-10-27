@@ -1,6 +1,6 @@
 package common
 
-import model.event.Events.Event
+import Events.Event
 
 trait Observer {
   def update(event: Event): Unit

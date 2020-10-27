@@ -7,7 +7,7 @@ import model.core.GameManager
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
 import model.effect.utils.{atkTo, getAtkOrDef}
-import model.event.Events.DamageBenchEvent
+import common.Events.DamageBenchEvent
 
 /**
  * Base class for assigning damage to a pokemon
@@ -163,7 +163,7 @@ sealed trait DmgMySelf extends AttackEffect {
 /**
  * Adds a status to the designated pokemon
  */
-sealed trait addStatus extends AttackEffect {
+sealed trait AddStatus extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[StatusParams]).last.asInstanceOf[StatusParams]
     var statusToApply: StatusType = effectParams.firstStatusType
@@ -210,7 +210,7 @@ class DiscardEnergyAndSetImmunity(dmgCount: Int, pokemonToApply: String) extends
 
 class DoesDmgToMultipleTarget(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with MultipleTargetDmg
 
-class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with addStatus
+class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with AddStatus
 
 class DoesDmgToMultipleTarget_AND_DmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesDmgToMultipleTarget(dmgCount, pokemonToApply) with DmgMySelf
 

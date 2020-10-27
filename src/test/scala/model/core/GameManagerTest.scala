@@ -2,7 +2,7 @@ package model.core
 
 import common.Observer
 import model.card.{Card, EnergyCard, PokemonCard}
-import model.event.Events.{AttackEndedEvent, BuildGameFieldEvent, EndGameEvent, Event, PokemonKOEvent, UpdateBoardsEvent}
+import common.Events.{EndTurnEvent, BuildGameFieldEvent, EndGameEvent, Event, PokemonKOEvent, UpdateBoardsEvent}
 import model.exception.{CardNotFoundException, InvalidOperationException}
 import model.game.DeckType.DeckType
 import model.game.EnergyType.EnergyType
@@ -199,7 +199,7 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
     val observer: Observer = attachObserver()
     inSequence {
       (observer.update _).expects(where {e: Event => {
-        e.isInstanceOf[AttackEndedEvent]
+        e.isInstanceOf[EndTurnEvent]
       }})
       (observer.update _).expects(where {e: Event => {
         e.isInstanceOf[PokemonKOEvent]
@@ -224,7 +224,7 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
     Then("observers should be notified correctly")
     inSequence {
       (observer.update _).expects(where {e: Event => {
-        e.isInstanceOf[AttackEndedEvent]
+        e.isInstanceOf[EndTurnEvent]
       }})
       (observer.update _).expects(where {e: Event => {
         e.isInstanceOf[EndGameEvent]

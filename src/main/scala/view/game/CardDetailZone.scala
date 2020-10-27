@@ -16,7 +16,7 @@ import scalafx.scene.transform.Rotate
 /**
  * Zone of the fields where the hovered card's information's are shown
  */
-trait ZoomZone extends HBox {
+trait CardDetailZone extends HBox {
   /**
    * Shows the card's image and informations in the ZoomZone
    * @param card: the card to visualize
@@ -24,14 +24,14 @@ trait ZoomZone extends HBox {
   def showContent(card: Card): Unit
 }
 
-object ZoomZone {
+object CardDetailZone {
   /**
    * Creates the ZoomZone
    * @return the ZoomZone instance
    */
-  def apply(): ZoomZone = ZoomZoneImpl()
+  def apply(): CardDetailZone = ZoomZoneImpl()
 
-  private case class ZoomZoneImpl() extends ZoomZone {
+  private case class ZoomZoneImpl() extends CardDetailZone {
     maxWidth = 13
     maxHeight = 18.2
     translateX = -27
