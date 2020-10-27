@@ -46,7 +46,7 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
     gameManager.notifyObservers(UpdateBoardsEvent())
     Thread.sleep(1500)
     //calculate if the retreat of the active pokemon is convenient and Do it
-    if (!gameManager.isBenchLocationEmpty(0, opponentBoard) && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
+    if (gameManager.pokemonBench(opponentBoard).head.isDefined && opponentBoard.activePokemon.get.retreatCost.size <= opponentBoard.activePokemon.get.totalEnergiesStored) {
       try {
         calculateIfWithdrawAndDo()
       } catch {
@@ -172,7 +172,7 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
         opponentBoard.activePokemon = gameManager.evolvePokemon(opponentBoard.activePokemon.get, evolution, opponentBoard)
         evolve(t)
       }
-      case evolution :: t if !gameManager.isBenchLocationEmpty(0, opponentBoard) => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
+      case evolution :: t if gameManager.pokemonBench(opponentBoard).head.isDefined => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
       case List() =>
       case _ =>
     }

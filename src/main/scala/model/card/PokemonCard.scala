@@ -107,8 +107,7 @@ object PokemonCard {
       }
       energiesMap = mutableEnergiesMap.toImmutableMap
     }
-
-    @throws(classOf[InvalidOperationException])
+    
     override def removeEnergy(energy: EnergyType): Unit = {
       def _removeEnergy(mutableEnergiesMap: mutable.Map[EnergyType, Int]): mutable.Map[EnergyType, Int] =
         mutableEnergiesMap.get(energy) match {

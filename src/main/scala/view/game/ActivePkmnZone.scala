@@ -13,7 +13,6 @@ import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.stage.{Modality, Stage}
 import view.PopupBuilder
-import view.game.CardFactory._
 
 /**
  * Field Zone that contains the active Pokémon
@@ -89,7 +88,8 @@ object ActivePkmnZone {
               prefWidth = 160
               margin = new Insets(10, 0, 0, 0)
               styleClass += "activeMenuButton"
-              if (!parentBoard.myBoard.activePokemon.get.hasEnergies(attack.cost) || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep))
+              if (!parentBoard.myBoard.activePokemon.get.hasEnergies(attack.cost) || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep)
+                || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Paralyzed))
                 disable = true
               onAction = event => {
                 event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()

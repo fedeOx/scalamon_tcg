@@ -20,7 +20,7 @@ import view.PopupBuilder
  * Stage that contains the game scene
  */
 class GameBoardView(val controller: Controller) extends JFXApp.PrimaryStage with Observer {
-  val zoomZone: ZoomZone = ZoomZone()
+  val zoomZone: CardDetailZone = CardDetailZone()
   var turnOwner: TurnOwner = TurnOwner.Player
   var isHandlingEffect: Boolean = false
   private val WIDTH = 1600

@@ -84,13 +84,15 @@ object Board {
     override def pokemonBench: Seq[Option[PokemonCard]] = _pokemonBench
 
     override def addCardsToHand(cards: Seq[Card]): Unit = _hand = _hand ++ cards
+
     override def removeCardFromHand(card: Card): Unit = _hand = _hand.filter(c => c ne card)
+
     override def addCardsToPrizeCards(cards: Seq[Card]): Unit = _prizeCards = _prizeCards ++ cards
+
     override def addCardsToDiscardStack(cards: Seq[Card]): Unit = _discardStack = _discardStack ++ cards
 
-    def putPokemonInBenchPosition(newPokemon: Option[PokemonCard], position: Int): Unit = {
+    override def putPokemonInBenchPosition(newPokemon: Option[PokemonCard], position: Int): Unit =
       _pokemonBench = updateBenchPosition(newPokemon, _pokemonBench, position)
-    }
 
     override def popDeck(popNumber: Int): List[Card] = _deck match {
       case h :: t if popNumber > 0 => _deck = t; h :: popDeck(popNumber - 1)
@@ -108,11 +110,12 @@ object Board {
       case _ => Nil
     }
 
-    private def updateBenchPosition(pokemon: Option[PokemonCard], bench: Seq[Option[PokemonCard]], position: Int): List[Option[PokemonCard]] = bench match {
-      case h :: t if position > 0 => h :: updateBenchPosition(pokemon, t, position-1)
-      case _ :: t => pokemon :: t
-      case _ => throw new InvalidOperationException("The specified position is out of bound")
-    }
+    private def updateBenchPosition(pokemon: Option[PokemonCard], bench: Seq[Option[PokemonCard]], position: Int): List[Option[PokemonCard]] =
+      bench match {
+        case h :: t if position > 0 => h :: updateBenchPosition(pokemon, t, position-1)
+        case _ :: t => pokemon :: t
+        case _ => throw new InvalidOperationException("The specified position is out of bound")
+      }
   }
 }
 

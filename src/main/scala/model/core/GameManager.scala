@@ -23,14 +23,6 @@ trait GameManager extends Observable {
   def opponentBoard: Board
 
   /**
-   * Checks if the specified bench position of the specified board is empty.
-   * @param position the bench position
-   * @param board the board whose bench position must be checked
-   * @return true if the bench position is empty
-   */
-  def isBenchLocationEmpty(position: Int, board: Board = playerBoard): Boolean
-
-  /**
    * Gets the active pokemon of the specified board
    * @param board the board whose active pokemon must be get
    * @return the active pokemon of the specified board
@@ -162,8 +154,6 @@ object GameManager {
       _opponentBoard.get
     }
 
-    override def isBenchLocationEmpty(position: Int, board: Board = playerBoard): Boolean = board.pokemonBench(position).isEmpty
-
     override def activePokemon(board: Board = playerBoard): Option[PokemonCard] = board.activePokemon
 
     override def setActivePokemon(pokemonCard: Option[PokemonCard], board: Board = playerBoard): Unit = {
@@ -199,7 +189,7 @@ object GameManager {
     override def retreatActivePokemon(replacementBenchPosition: Int, board: Board = playerBoard): Boolean = {
       var retreatSuccess = false
       val pokemon = activePokemon(board).get
-      if (pokemon.status == StatusType.Asleep ) {
+      if (pokemon.status == StatusType.Asleep || pokemon.status == StatusType.Paralyzed) {
         throw new InvalidOperationException("Your pokemon cannot retreat because its status is " + pokemon.status)
       } else if (pokemon.hasEnergies(pokemon.retreatCost)) {
         pokemon.status = StatusType.NoStatus
