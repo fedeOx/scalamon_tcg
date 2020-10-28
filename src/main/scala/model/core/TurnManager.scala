@@ -32,43 +32,31 @@ object TurnManager {
   private case class TurnManagerImpl() extends TurnManager {
     private var turnOwner: Option[TurnOwner] = None
     private var acks: Int = 0
-    private val TotalNumberOfAckRequired = 2
+    private val NumberOfAckRequired = 1
 
     import common.CoinUtil
     import common.CoinUtil.CoinValue
 
-    def flipACoin(): Unit = {
-      turnOwner = CoinUtil.flipACoin() match {
-        case CoinValue.Tail => Some(TurnOwner.Opponent)
-        case CoinValue.Head => Some(TurnOwner.Player)
-      }
+    def flipACoin(): Unit = turnOwner = CoinUtil.flipACoin() match {
+      case CoinValue.Tail => Some(TurnOwner.Opponent)
+      case CoinValue.Head => Some(TurnOwner.Player)
     }
 
-    def playerReady(): Unit = {
-      if (turnOwner.nonEmpty) {
-        this.synchronized {
-          acks = acks + 1
-          if (acks == TotalNumberOfAckRequired) {
-            this.notifyObservers(NextTurnEvent(turnOwner.get))
-          }
-        }
-      } else {
-        throw new CoinNotLaunchedException("It is required to flip a coin before")
+    def playerReady(): Unit = this.synchronized {
+      turnOwner match {
+        case Some(owner) if acks == NumberOfAckRequired => this.notifyObservers(NextTurnEvent(owner))
+        case Some(_) => acks = acks + 1
+        case _ => throw new CoinNotLaunchedException("It is required to flip a coin before")
       }
     }
 
     def switchTurn(): Unit = {
-      if (turnOwner.nonEmpty) {
-        if (turnOwner.get == TurnOwner.Player) {
-          turnOwner = Some(TurnOwner.Opponent)
-        } else {
-          turnOwner = Some(TurnOwner.Player)
-        }
-        this.notifyObservers(NextTurnEvent(turnOwner.get))
-      } else {
-        throw new CoinNotLaunchedException("It is required to flip a coin before")
+      def _switchOwner(): TurnOwner = turnOwner match {
+        case Some(owner) if owner == TurnOwner.Player => turnOwner = Some(TurnOwner.Opponent); turnOwner.get
+        case Some(owner) if owner == TurnOwner.Opponent => turnOwner = Some(TurnOwner.Player); turnOwner.get
+        case _ => throw new CoinNotLaunchedException("It is required to flip a coin before")
       }
+      this.notifyObservers(NextTurnEvent(_switchOwner()))
     }
   }
-
 }
