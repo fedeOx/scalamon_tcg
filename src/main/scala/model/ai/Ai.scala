@@ -1,12 +1,10 @@
 package model.ai
 import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
+import common.Events._
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
-import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{GameManager, TurnManager}
-import common.Events._
-import model.exception.InvalidOperationException
-import model.game.{Board, EnergyType}
+import model.game.Board
 
 
 case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread with Observer {
