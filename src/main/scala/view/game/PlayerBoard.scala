@@ -86,7 +86,7 @@ object PlayerBoard {
     private val prize = PrizeCardsZone(isHumans, this)
     private val active = ActivePkmnZone(isHumans, this)
     private val bench = BenchZone(isHumans, this)
-    private val deckDiscard = DeckDiscardZone()
+    private val deckDiscard = DeckDiscardZone(this)
     private var hand : HandZone = _
     private var endTurnButton: Box = _
 

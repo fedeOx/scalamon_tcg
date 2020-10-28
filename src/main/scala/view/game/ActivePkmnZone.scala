@@ -3,7 +3,7 @@ package view.game
 import javafx.geometry.Insets
 import model.card.PokemonCard
 import model.exception.InvalidOperationException
-import model.game.StatusType
+import model.game.{Attack, StatusType}
 import scalafx.Includes._
 import scalafx.geometry.Pos
 import scalafx.scene.Scene
@@ -82,40 +82,9 @@ object ActivePkmnZone {
           }
           private var buttons: Seq[Button] = Seq()
           parentBoard.myBoard.activePokemon.get.attacks.foreach(f = attack => {
-            buttons = buttons :+ new Button(attack.name) {
-              text = attack.name
-              prefHeight = 50
-              prefWidth = 160
-              margin = new Insets(10, 0, 0, 0)
-              styleClass += "activeMenuButton"
-              if (!parentBoard.myBoard.activePokemon.get.hasEnergies(attack.cost) || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep)
-                || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Paralyzed))
-                disable = true
-              onAction = event => {
-                event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
-                try {
-                  board.gameWindow.asInstanceOf[GameBoardView].controller.declareAttack(parentBoard.myBoard, parentBoard.opponentBoard, attack)
-                } catch {
-                  case ex: InvalidOperationException => PopupBuilder.openInvalidOperationMessage(parentBoard.gameWindow, ex.getMessage)
-                }
-              }
-            }
+            buttons = buttons :+ createAttackButton(attack)
           })
-          buttons = buttons :+ new Button("Retreat") {
-            prefHeight = 50
-            prefWidth = 160
-            margin = new Insets(10, 0, 0, 0)
-            styleClass += "activeMenuButton"
-            if (parentBoard.myBoard.activePokemon.get.totalEnergiesStored < parentBoard.myBoard.activePokemon.get.retreatCost.size
-              || parentBoard.myBoard.pokemonBench.head.isEmpty || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep)
-              || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Paralyzed) || !canRetreat)
-              disable = true
-            onAction = event => {
-              canRetreat = false
-              PopupBuilder.openBenchSelectionScreen(board.gameWindow, parentBoard.myBoard.pokemonBench, isAttackingPokemonKO = false)
-              event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
-            }
-          }
+          buttons = buttons :+ createRetreatButton()
           buttonContainer.children = buttons
           content = buttonContainer
         }
@@ -125,6 +94,44 @@ object ActivePkmnZone {
         resizable = false
       }
       dialog.showAndWait()
+    }
+
+    private def createAttackButton(attack: Attack) : Button = {
+      new Button(attack.name) {
+        text = attack.name
+        prefHeight = 50
+        prefWidth = 160
+        margin = new Insets(10, 0, 0, 0)
+        styleClass += "activeMenuButton"
+        if (!parentBoard.myBoard.activePokemon.get.hasEnergies(attack.cost) || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep))
+          disable = true
+        onAction = event => {
+          event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+          try {
+            board.gameWindow.asInstanceOf[GameBoardView].controller.declareAttack(parentBoard.myBoard, parentBoard.opponentBoard, attack)
+          } catch {
+            case ex: InvalidOperationException => PopupBuilder.openInvalidOperationMessage(parentBoard.gameWindow, ex.getMessage)
+          }
+        }
+      }
+    }
+
+    private def createRetreatButton() : Button = {
+      new Button("Retreat") {
+        prefHeight = 50
+        prefWidth = 160
+        margin = new Insets(10, 0, 0, 0)
+        styleClass += "activeMenuButton"
+        if (parentBoard.myBoard.activePokemon.get.totalEnergiesStored < parentBoard.myBoard.activePokemon.get.retreatCost.size
+          || parentBoard.myBoard.pokemonBench.head.isEmpty || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Asleep)
+          || parentBoard.myBoard.activePokemon.get.status.equals(StatusType.Paralyzed) || !canRetreat)
+          disable = true
+        onAction = event => {
+          canRetreat = false
+          PopupBuilder.openBenchSelectionScreen(board.gameWindow, parentBoard.myBoard.pokemonBench, isAttackingPokemonKO = false)
+          event.getSource.asInstanceOf[javafx.scene.control.Button].scene.value.getWindow.asInstanceOf[javafx.stage.Stage].close()
+        }
+      }
     }
 
     def resetRetreat(): Unit = {
