@@ -1,12 +1,11 @@
 package model.effect
-
 import common.CoinUtil
 import common.CoinUtil.CoinValue
 
 object EffectManager {
   private var totalParamsSeq: Seq[Params] = Seq()
 
-  def convertJsonEffectToAttackEffect(jsonEffect: Option[Seq[Effect]]): Option[AttackEffect] = {
+  def convertJsonEffect(jsonEffect: Option[Seq[Effect]]): Option[AttackEffect] = {
     val mainEffect: Effect = jsonEffect.get.head
     mainEffect.name match {
       case EffectType.doesNdmg => Some(doesNDmgEffectSpecialize(jsonEffect.get))
@@ -24,6 +23,7 @@ object EffectManager {
     val basicCoinSide = effectParams.coinSide
     val basicEnemyToAtk = effectParams.enemyToAtk
     var returnedAttack: AttackEffect = null
+    resolveAttack(jsonEffect)
 
     @scala.annotation.tailrec
     def resolveAttack(attackEffect: Seq[Effect]): Unit = attackEffect match {
@@ -124,12 +124,10 @@ object EffectManager {
       case h :: t if h.name == EffectType.prevent =>{
         val effectParams = jsonEffect.find(effect => effect.name == EffectType.prevent).get.params.head.asInstanceOf[PreventParams]
         returnedAttack = returnedEffect(new Prevent(basicDmgToDo, basicEnemyToAtk), effectParams)
-
       }
       case _ :: t => resolveAttack(t)
     }
 
-    resolveAttack(jsonEffect)
     returnedAttack
   }
 

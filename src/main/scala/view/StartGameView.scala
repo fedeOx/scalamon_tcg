@@ -16,12 +16,8 @@ case class StartGameView(controller: Controller) extends Scene {
       id = "startGame-btn"
       text = "Select Deck"
       onAction = _ => {
-
-        GameLauncher.stage.scene =  DeckSelection(controller)
-        GameLauncher.stage.width = 1400
-        GameLauncher.stage.height = 1000
-        GameLauncher.stage.x = 200
-        GameLauncher.stage.y = 20
+        GameLauncher.stage.close()
+        new DeckSelection(controller)
       }
     }
   }

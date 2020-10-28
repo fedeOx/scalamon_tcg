@@ -23,12 +23,13 @@ object DeckDiscardZone {
    * Creates an instance of DeckDiscardZone
    * @return an instance of DeckDiscardZone
    */
-  def apply(): DeckDiscardZone = DeckDiscardZoneImpl()
+  def apply(board: PlayerBoard): DeckDiscardZone = DeckDiscardZoneImpl(board)
 
-  private case class DeckDiscardZoneImpl() extends DeckDiscardZone {
+  private case class DeckDiscardZoneImpl(board: PlayerBoard) extends DeckDiscardZone {
     private val WIDTH = 10
     private val HEIGHT = 25
-    private val deckBox = CardFactory(cardType = CardType.Deck, "/assets/cardBack.jpg")//createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
+    private val parentBoard = board
+    private val deckBox = CardFactory(cardType = CardType.Deck, "/assets/cardBack.jpg", board = Option.empty)//createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
     private var discardStackBox : Box = _
     children = deckBox
 
@@ -41,7 +42,7 @@ object DeckDiscardZone {
     def updateView(deck: Seq[Card], discardStack: Seq[Card]) : Unit = {
       var list = Seq[Box]()
       if (deck.nonEmpty)
-        list = list :+ deckBox
+        list = list :+ CardFactory(cardType = CardType.Deck, "/assets/cardBack.jpg", board = Some(parentBoard.myBoard))//createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
       if(discardStack.nonEmpty) {
         discardStackBox = CardFactory(CardType.DiscardStack,
           "/assets/"+discardStack.last.belongingSetCode+"/"+ discardStack.last.imageNumber+".png")

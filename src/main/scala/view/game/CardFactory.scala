@@ -45,7 +45,7 @@ object CardFactory extends CardFactory {
       board,gameWindow)
     case CardType.Hand => new HandCard(cardImage,zoomZone,cardIndex,isHumans,zone,
       board,gameWindow)
-    case CardType.Deck => new DeckCard(cardImage)
+    case CardType.Deck => new DeckCard(cardImage,board)
     case _ => new StaticCard(cardImage)
   }
 
@@ -132,14 +132,17 @@ object CardFactory extends CardFactory {
       addAction(this, CardType.Hand, cardIndex, board = board, gameWindow = gameWindow)
     drawMode = DrawMode.Fill
   }
-  private class DeckCard(cardImage: String) extends GraphicCard {
+  private class DeckCard(cardImage: String, board: Option[Board]) extends GraphicCard {
     val cardWidth = 5.5
     val cardHeight = 7.7
     val cardMaterial = new PhongMaterial()
     cardMaterial.diffuseMap = new Image(cardImage)
     width = cardWidth
     height = cardHeight
-    depth = 1.5
+    if(board.isDefined)
+      depth = 0.45+(0.05*(board.get.deck.size/2))
+    else
+      depth = 1.5
     material = cardMaterial
     drawMode = DrawMode.Fill
   }
