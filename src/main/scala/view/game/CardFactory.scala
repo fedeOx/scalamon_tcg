@@ -30,13 +30,13 @@ object CardFactory extends CardFactory {
     controller = c
   }
 
-  abstract class GraphicCard() extends Box {
+  trait GraphicCard extends Box {
     def cardWidth : Double
     def cardHeight: Double
     def cardMaterial : PhongMaterial
   }
 
-  def apply(cardType: CardType, cardImage: String,zoomZone: Option[ZoomZone] = Option.empty, transX: Double = 0,
+  def apply(cardType: CardType, cardImage: String, zoomZone: Option[CardDetailZone] = Option.empty, transX: Double = 0,
             cardIndex: Int = 0, isHumans: Option[Boolean] = Option.empty, zone: Option[Node] = Option.empty,
             board: Option[Board] = Option.empty, gameWindow: Option[Window] = Option.empty): GraphicCard = cardType match {
     case CardType.Active => new ActiveCard(cardImage,zoomZone,cardIndex,isHumans,zone,
@@ -49,7 +49,7 @@ object CardFactory extends CardFactory {
     case _ => new StaticCard(cardImage)
   }
 
-  private class ActiveCard(cardImage: String,zoomZone: Option[ZoomZone] = Option.empty,
+  private class ActiveCard(cardImage: String, zoomZone: Option[CardDetailZone] = Option.empty,
                            cardIndex: Int = 0, isHumans: Option[Boolean] = Option.empty, zone: Option[Node] = Option.empty,
                            board: Option[Board] = Option.empty, gameWindow: Option[Window] = Option.empty) extends GraphicCard {
     val cardWidth = 8
@@ -81,7 +81,7 @@ object CardFactory extends CardFactory {
     drawMode = DrawMode.Fill
   }
 
-  private class BenchCard(cardImage: String,zoomZone: Option[ZoomZone] = Option.empty,
+  private class BenchCard(cardImage: String, zoomZone: Option[CardDetailZone] = Option.empty,
                           cardIndex: Int = 0, isHumans: Option[Boolean] = Option.empty, zone: Option[Node] = Option.empty,
                           board: Option[Board] = Option.empty, gameWindow: Option[Window] = Option.empty) extends GraphicCard {
     val cardWidth = 5.5
@@ -106,7 +106,7 @@ object CardFactory extends CardFactory {
     drawMode = DrawMode.Fill
   }
   
-  private class HandCard(cardImage: String,zoomZone: Option[ZoomZone] = Option.empty,
+  private class HandCard(cardImage: String, zoomZone: Option[CardDetailZone] = Option.empty,
                          cardIndex: Int = 0, isHumans: Option[Boolean] = Option.empty, zone: Option[Node] = Option.empty,
                          board: Option[Board] = Option.empty, gameWindow: Option[Window] = Option.empty) extends GraphicCard {
     val cardWidth = 5.5

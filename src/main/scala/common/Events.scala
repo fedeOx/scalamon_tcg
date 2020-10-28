@@ -1,4 +1,4 @@
-package model.event
+package common
 
 import common.TurnOwner.TurnOwner
 import model.card.Card
@@ -17,15 +17,15 @@ object Events {
 
   case class NextTurnEvent(turnOwner: TurnOwner) extends Event
 
-  case class UpdateBoardsEvent() extends Event
-
   case class PokemonKOEvent(isPokemonInCharge: Boolean, board: Board) extends Event
-
-  case class AttackEndedEvent() extends Event
-
-  case class EndGameEvent() extends Event
 
   case class CustomDeckSavedEvent(success: Boolean) extends Event
 
   case class DamageBenchEvent(pokemonToDamage: Int, damage: Int) extends Event
+
+  case class UpdateBoardsEvent() extends Event
+
+  case class EndTurnEvent() extends Event
+
+  case class EndGameEvent() extends Event
 }

@@ -13,7 +13,6 @@ import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import scalafx.stage.{Modality, Stage}
 import view.PopupBuilder
-import view.game.CardFactory._
 
 /**
  * Field Zone that contains the active Pokémon

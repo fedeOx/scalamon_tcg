@@ -35,6 +35,13 @@
 #Brushfire {
     -fx-background-image: url("/assets/brushfire.png");
 }
+#LockDown {
+     -fx-background-image: url("/assets/lockdown.png");
+ }
+#BodyGuard {
+    -fx-background-image: url("/assets/bodyguard.png");
+}
+
 #tableView-Cards{
     -fx-padding: 10;
     -fx-max-height: 450;
@@ -51,7 +58,7 @@
 }
 #startGame-btn {
     -fx-background-radius: 48;
-    -fx-padding: 10 20 10 20;
+    -fx-padding: 10;
     -fx-font-family: "Helvetica";
     -fx-font-size: 16px;
 

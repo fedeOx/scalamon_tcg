@@ -27,10 +27,8 @@ object Attack {
           override def name: String = _name
           override def cost: Seq[EnergyType] = _costs
           override def damage: Option[Int] = Try(_damage.replaceAll("[^0-9.]", "").toInt).toOption
-          override def effect: Option[AttackEffect] = EffectManager.convertJsonEffectToAttackEffect(_effect)
+          override def effect: Option[AttackEffect] = EffectManager.convertJsonEffect(_effect)
         }
       }
   }
-
-
 }

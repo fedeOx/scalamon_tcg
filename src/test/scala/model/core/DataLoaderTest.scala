@@ -62,7 +62,7 @@ class DataLoaderTest extends AnyFlatSpec with GivenWhenThen {
       DeckCard("base-3", 3, Some(SetType.Base), "myPokemon2", "rare", 1) :: Nil
 
     When("the custom deck is saved")
-    dataLoader.saveCustomDeck(CustomDeck(deckName, SetType.Base, customDeck))
+    dataLoader.saveCustomDeck(CustomDeck(deckName, customDeck))
 
     Then("it should be able to be found in the destination file")
     val cursor = buildCursor(new FileInputStream(DataLoader.SaveDirectory + DataLoader.CustomDeckFileName))

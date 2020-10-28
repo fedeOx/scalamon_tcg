@@ -1,6 +1,6 @@
 package common
 
-import model.event.Events.Event
+import Events.Event
 
 trait Observable {
   protected var observers: Seq[Observer] = Vector()

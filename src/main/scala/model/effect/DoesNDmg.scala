@@ -7,9 +7,14 @@ import model.core.GameManager
 import model.game.{Board, EnergyType, StatusType}
 import model.game.StatusType.StatusType
 import model.effect.utils.{atkTo, getAtkOrDef}
-import model.event.Events.{DamageBenchEvent, Event}
+import common.Events.DamageBenchEvent
 
-
+/**
+ * Base class for assigning damage to a pokemon
+ *
+ * @param baseDmgCount   the amount of damage to be performed
+ * @param pokemonToApply represents the Pokémon to attribute the damage to
+ */
 case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEffect {
   override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     atkTo(pokemonToApply, defendingBoard.activePokemon, attackingBoard.pokemonBench, defendingBoard.pokemonBench).foreach(pkm =>
@@ -25,6 +30,9 @@ case class DoesNDmg(baseDmgCount: Int, pokemonToApply: String) extends AttackEff
   override var totalDmgToEnemyPkm: Int = totalDmgToEnemyPkm + baseDmgCount
 }
 
+/**
+ * Adds damage based on the energy assigned to a specific pokemon
+ */
 sealed trait ForEachEnergyAttachedTo extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[EachEnergyParams]).get.asInstanceOf[EachEnergyParams]
@@ -42,6 +50,9 @@ sealed trait ForEachEnergyAttachedTo extends AttackEffect {
   }
 }
 
+/**
+ * Adds damage based on the damage received by a specific pokemon
+ */
 sealed trait ForEachDamageCount extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[EachDmgParams]).get.asInstanceOf[EachDmgParams]
@@ -55,6 +66,9 @@ sealed trait ForEachDamageCount extends AttackEffect {
   }
 }
 
+/**
+ * Removes a number of energy from a pokemon
+ */
 sealed trait DiscardEnergy extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[DiscardEnergyParams]).get.asInstanceOf[DiscardEnergyParams]
@@ -72,6 +86,9 @@ sealed trait DiscardEnergy extends AttackEffect {
   }
 }
 
+/**
+ * Recover a certain amount of life from the selected pokemon
+ */
 sealed trait RecoverLife extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[RecoveryParams]).get.asInstanceOf[RecoveryParams]
@@ -84,6 +101,9 @@ sealed trait RecoverLife extends AttackEffect {
   }
 }
 
+/**
+ * Sets the immunity for a specific pokemon
+ */
 sealed trait SetImmunity extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     attackingBoard.activePokemon.get.immune = true
@@ -91,6 +111,9 @@ sealed trait SetImmunity extends AttackEffect {
   }
 }
 
+/**
+ * Does damage to a specified number of pokemon
+ */
 sealed trait MultipleTargetDmg extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[ToBenchParams]).last.asInstanceOf[ToBenchParams]
@@ -118,6 +141,9 @@ sealed trait MultipleTargetDmg extends AttackEffect {
   }
 }
 
+/**
+ * The attacking pokemon damages itself
+ */
 sealed trait DmgMySelf extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     if (params.exists(p => p.isInstanceOf[DmgMyselfParams])) {
@@ -134,7 +160,10 @@ sealed trait DmgMySelf extends AttackEffect {
   }
 }
 
-sealed trait addStatus extends AttackEffect {
+/**
+ * Adds a status to the designated pokemon
+ */
+sealed trait AddStatus extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[StatusParams]).last.asInstanceOf[StatusParams]
     var statusToApply: StatusType = effectParams.firstStatusType
@@ -150,6 +179,9 @@ sealed trait addStatus extends AttackEffect {
   }
 }
 
+/**
+ * Prevents damage to the pokemon
+ */
 sealed trait PreventDmg extends AttackEffect {
   abstract override def useEffect(attackingBoard: Board, defendingBoard: Board, gameManager: GameManager): Unit = {
     val effectParams = params.find(p => p.isInstanceOf[PreventParams]).get.asInstanceOf[PreventParams]
@@ -178,22 +210,37 @@ class DiscardEnergyAndSetImmunity(dmgCount: Int, pokemonToApply: String) extends
 
 class DoesDmgToMultipleTarget(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with MultipleTargetDmg
 
-class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with addStatus
+class DoesDmgAndApplyStatus(dmgCount: Int, pokemonToApply: String) extends DoesNDmg(dmgCount, pokemonToApply) with AddStatus
 
 class DoesDmgToMultipleTarget_AND_DmgMyself(dmgCount: Int, pokemonToApply: String) extends DoesDmgToMultipleTarget(dmgCount, pokemonToApply) with DmgMySelf
 
 
 private object utils {
-  def getAtkOrDef(string: String, attackingPokemon: Option[PokemonCard], defendingPokemon: Option[PokemonCard]): Option[PokemonCard] = {
-    string match {
+  /**
+   * Specifies the target pokemon
+   * @param pokemonToApply contains the string within the parameters indicating the target pokemon
+   * @param attackingPokemon indicates the current attacking pokemon
+   * @param defendingPokemon indicates the current defending pokemon
+   * @return the pokemon specified by the parameter
+   */
+  def getAtkOrDef(pokemonToApply: String, attackingPokemon: Option[PokemonCard], defendingPokemon: Option[PokemonCard]): Option[PokemonCard] = {
+    pokemonToApply match {
       case "atk" => attackingPokemon
       case "def" => defendingPokemon
     }
   }
 
-  def atkTo(string: String, defendingPokemon: Option[PokemonCard], myBench: Seq[Option[PokemonCard]], enemyBench: Seq[Option[PokemonCard]]): Seq[Option[PokemonCard]] = {
+  /**
+   * Specifies a sequence of target pokemon
+   * @param pokemonToApply contains the string within the parameters indicating the target pokemon
+   * @param defendingPokemon  the current defending pokemon
+   * @param myBench pokemon on my bench
+   * @param enemyBench  the pokemon on the opponent's bench
+   * @return
+   */
+  def atkTo(pokemonToApply: String, defendingPokemon: Option[PokemonCard], myBench: Seq[Option[PokemonCard]], enemyBench: Seq[Option[PokemonCard]]): Seq[Option[PokemonCard]] = {
     var seq: Seq[Option[PokemonCard]] = Seq()
-    string match {
+    pokemonToApply match {
       case "atk" => myBench
       case "def" => enemyBench
       case "single" => Seq(defendingPokemon)
