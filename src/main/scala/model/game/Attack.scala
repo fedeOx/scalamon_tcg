@@ -15,14 +15,27 @@ trait Attack {
 }
 
 object Attack {
+  /*
+  def apply(name: String, cost: Seq[EnergyType], damage: String, effect: Option[Seq[Effect]]): Attack =
+     AttackImpl(name, cost, Try(damage.replaceAll("[^0-9.]", "").toInt).toOption, EffectManager.convertJsonEffect(effect))
+
+  implicit val decoder: Decoder[Attack] =
+    Decoder.forProduct4("name", "cost", "damage", "effect")(Attack.apply)
+
+  private case class AttackImpl(override val name: String,
+                                override val cost: Seq[EnergyType],
+                                override val damage: Option[Int],
+                                override val effect: Option[AttackEffect]) extends Attack
+   */
+
   implicit val decoder: Decoder[Attack] = new Decoder[Attack] {
     override def apply(c: HCursor): Result[Attack] =
-        for {
-          _name <- c.downField("name").as[String]
-          _costs <- c.downField("cost").as[Seq[EnergyType]]
-          _damage <- c.downField("damage").as[String]
-          _effect <- c.downField("effect").as[Option[Seq[Effect]]]
-        } yield {
+      for {
+        _name <- c.downField("name").as[String]
+        _costs <- c.downField("cost").as[Seq[EnergyType]]
+        _damage <- c.downField("damage").as[String]
+        _effect <- c.downField("effect").as[Option[Seq[Effect]]]
+      } yield {
         new Attack {
           override def name: String = _name
           override def cost: Seq[EnergyType] = _costs

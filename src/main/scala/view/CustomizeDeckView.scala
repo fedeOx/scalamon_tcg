@@ -34,7 +34,7 @@ case class CustomizeDeckView(setType: SetType, controller: Controller) extends S
       if (textFieldName.text.value != "") {
         var totalCard = 0
         cardsTableItem.foreach(p => {
-          seqDeck = seqDeck :+ DeckCard(p.id, p.imageNumber, Some(p.set), p.name, p.rarity, p.count); totalCard += p.count
+          seqDeck = seqDeck :+ DeckCard(p.id, Some(p.set), p.name, p.rarity, p.count); totalCard += p.count
         })
         if (totalCard >= 60) {
           controller.createCustomDeck(CustomDeck(textFieldName.text.value, seqDeck))
@@ -138,8 +138,8 @@ case class CustomizeDeckView(setType: SetType, controller: Controller) extends S
   }
 
   private def addOrRemove(add: Boolean, card: Card): Unit = {
-    if (cardsTableItem.exists(p => p.imageNumber == card.imageNumber && p.set == card.belongingSet)) {
-      val pokemonSelected = cardsTableItem.find(p => p.imageNumber == card.imageNumber && p.set == card.belongingSet).get
+    if (cardsTableItem.exists(p => p.id == card.id && p.set == card.belongingSet)) {
+      val pokemonSelected = cardsTableItem.find(p => p.id == card.id && p.set == card.belongingSet).get
       if (add)
         pokemonSelected.count += 1
       else {
@@ -148,7 +148,7 @@ case class CustomizeDeckView(setType: SetType, controller: Controller) extends S
       }
       pokemonSelected.countCard = ObjectProperty(pokemonSelected.count)
     } else if (add) {
-      cardsTableItem.add(CardView(card.id, card.imageNumber, card.name, card.rarity, 1, card.belongingSet))
+      cardsTableItem.add(CardView(card.id, card.name, card.rarity, 1, card.belongingSet))
     }
     tableView.setItems(cardsTableItem)
     tableView.refresh()

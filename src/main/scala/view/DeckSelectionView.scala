@@ -20,9 +20,8 @@ import view.game.GameBoardView
 import scala.collection.immutable.ListMap
 
 
-case class CardView(id: String, imageNumber: Int, name: String, rarity: String, var count: Int, set: SetType) {
+case class CardView(id: String, name: String, rarity: String, var count: Int, set: SetType) {
   val idCard = new StringProperty(this, "id", id)
-  val imageNumberCard = new IntegerProperty(this, "imageNumber", imageNumber)
   val nameCard = new StringProperty(this, "lastName", name)
   val rarityCard = new StringProperty(this, "rarity", rarity)
   var countCard = new ObjectProperty(this, "count", count)
@@ -73,7 +72,7 @@ class DeckSelection(controller: Controller) extends JFXApp.PrimaryStage with Obs
     new GameBoardView(controller)
     var seqDeck: Seq[DeckCard] = Seq()
     var setTypesSelected: Seq[SetType] = Seq()
-    cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, p.imageNumber, Some(p.set), p.name, p.rarity, p.count))
+    cardsTableItem.foreach(p => seqDeck = seqDeck :+ DeckCard(p.id, Some(p.set), p.name, p.rarity, p.count))
     seqDeck.foreach(card => {
       if (!setTypesSelected.contains(card.belongingSet.get)) {
         setTypesSelected = setTypesSelected :+ card.belongingSet.get
@@ -124,7 +123,7 @@ class DeckSelection(controller: Controller) extends JFXApp.PrimaryStage with Obs
     deckButton.onAction = () => {
       cardsTableItem.clear()
       selectedDeck.foreach(card => {
-        cardsTableItem = cardsTableItem :+ CardView(card.id, card.imageNumber, card.name, card.rarity, card.count, set = card.belongingSet.getOrElse(SetType.Base))
+        cardsTableItem = cardsTableItem :+ CardView(card.id, card.name, card.rarity, card.count, set = card.belongingSet.getOrElse(SetType.Base))
       })
       tableView.setItems(cardsTableItem)
       tableView.refresh()

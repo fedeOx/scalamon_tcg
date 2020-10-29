@@ -57,9 +57,9 @@ class DataLoaderTest extends AnyFlatSpec with GivenWhenThen {
   it must "save and load custom decks correctly" in {
     Given("a custom deck")
     val deckName: String = "myCustomDeckName"
-    val customDeck: Seq[DeckCard] = DeckCard("base-1", 1, Some(SetType.Base), "myPokemon", "rare", 1) ::
-      DeckCard("base-2", 2, Some(SetType.Base), "myPokemon2", "rare", 1) ::
-      DeckCard("base-3", 3, Some(SetType.Base), "myPokemon2", "rare", 1) :: Nil
+    val customDeck: Seq[DeckCard] = DeckCard("base-1", Some(SetType.Base), "myPokemon", "rare", 1) ::
+      DeckCard("base-2", Some(SetType.Base), "myPokemon2", "rare", 1) ::
+      DeckCard("base-3", Some(SetType.Base), "myPokemon2", "rare", 1) :: Nil
 
     When("the custom deck is saved")
     dataLoader.saveCustomDeck(CustomDeck(deckName, customDeck))

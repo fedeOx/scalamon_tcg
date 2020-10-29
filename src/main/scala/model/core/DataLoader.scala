@@ -138,21 +138,12 @@ object DataLoader {
       deckCards
     }
 
-    private def buildSet(cursor: HCursor): Seq[Card] = {
-      val supertypePath = JsonPath.root.supertype.string
-      var pokemonCards: Seq[Card] = List()
-      var energyCards: Seq[Card] = List()
-      for (i <- cursor.values.get) {
-        val supertype = supertypePath.getOption(i).get
-        if (supertype == "Pokémon") {
-          pokemonCards = pokemonCards :+ i.as[PokemonCard].toOption.get
-        }
-        if (supertype == "Energy") {
-          energyCards = energyCards :+ i.as[EnergyCard].toOption.get
-        }
-      }
-      pokemonCards ++ energyCards
-    }
+    private def buildSet(cursor: HCursor): Seq[Card] =
+      cursor.values.get.foldLeft(List[Card]())((l, i) => JsonPath.root.supertype.string.getOption(i).get match {
+        case "Pokémon" => i.as[PokemonCard].toOption.get :: l
+        case "Energy" => i.as[EnergyCard].toOption.get :: l
+        case _ => l
+      })
 
     private def inputStream(resourcePath: String, fromResource: Boolean): Option[InputStream] = fromResource match {
       case true => Option(getClass.getResourceAsStream(resourcePath))

@@ -237,7 +237,7 @@ class GameManagerTest extends AnyFlatSpec with MockFactory with GivenWhenThen  {
   }
 
   it should "throw CardNotFoundException if a DeckCard does not exists in Cards set" in new BaseContext with DataLoaderContext {
-    val nonExistentCard: DeckCard = DeckCard("nonExistentID", 1000, Some(SetType.Base), "sausages", "very rare", 3)
+    val nonExistentCard: DeckCard = DeckCard("nonExistentID", Some(SetType.Base), "sausages", "very rare", 3)
     val cardsSet: Seq[Card] = dataLoader.loadSet(SetType.Base)
     var playerDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(DeckType.Base1)
     val opponentDeckCards: Seq[DeckCard] = dataLoader.loadSingleDeck(DeckType.Base2)
