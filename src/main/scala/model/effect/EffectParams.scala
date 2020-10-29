@@ -20,83 +20,83 @@ sealed trait NDmgParams extends Params {
 }
 
 sealed trait ToBenchParams extends Params {
-  def headDmgTo: String
+  val headDmgTo: String
 
-  def tailDmgTo: String
+  val tailDmgTo: String
 
-  def benchToApply: String
+  val benchToApply: String
 
-  def dmgToDo: Int
+  val dmgToDo: Int
 
-  def limit: Int
+  val limit: Int
 }
 
 sealed trait EachDmgParams extends Params {
-  def dmgToAdd: Int
+  val dmgToAdd: Int
 
-  def pokemonToApply: String
+  val pokemonToApply: String
 
-  def signature: String
+  val signature: String
 }
 
 sealed trait EachEnergyParams extends Params {
-  def plusDmg: Int
+  val plusDmg: Int
 
-  def pokemonToApply: String
+  val pokemonToApply: String
 
-  def limitBy: Int
+  val limitBy: Int
 
-  def atkPosition: Int
+  val atkPosition: Int
 }
 
 sealed trait DmgMyselfParams extends Params {
-  def dmgMyself: Int
+  val dmgMyself: Int
 }
 
 sealed trait StatusParams extends Params {
-  def pokemonToApply: String
+  val pokemonToApply: String
 
-  def firstStatusType: StatusType
+  val firstStatusType: StatusType
 
-  def firstEffectCoin: String
+  val firstEffectCoin: String
 
-  def secondEffectCoin: String
+  val secondEffectCoin: String
 
-  def secondStatus: StatusType
+  val secondStatus: StatusType
 }
 
 sealed trait SetImmunityParams extends Params {
-  def tailBounded: Boolean
+  val tailBounded: Boolean
 
-  def headBounded: Boolean
+  val headBounded: Boolean
 }
 
 sealed trait RecoveryParams extends Params {
-  def recoveryAmount: Int
+  val recoveryAmount: Int
 
-  def pokemonToApply: String
+  val pokemonToApply: String
 
-  def headBounded: Boolean
+  val headBounded: Boolean
 
-  def tailBounded: Boolean
+  val tailBounded: Boolean
 }
 
 sealed trait DiscardEnergyParams extends Params {
-  def discardAmount: Int
+  val discardAmount: Int
 
-  def energyType: EnergyType
+  val energyType: EnergyType
 
-  def pokemonToApply: String
+  val pokemonToApply: String
 }
 
 sealed trait DmgMyselfOrNotParams extends Params {
-  def tailDmg: Int
+  val tailDmg: Int
 
-  def headDmg: Int
+  val headDmg: Int
 }
 
 sealed trait PreventParams extends Params {
-  def dmgToPrevent: Int
+  val dmgToPrevent: Int
 }
 
 object NDmgParams {
@@ -129,7 +129,7 @@ object ToBenchParams {
 
   implicit val decodeToBench: Decoder[ToBenchParams] = Decoder.forProduct5("headDmg", "tailDmg", "benchToApply", "dmgToDo", "limit")(ToBenchParams.apply)
 
-  private case class ToBenchParamsImpl(name: String, headDmgTo: String, tailDmgTo: String, benchToApply: String, dmgToDo: Int, limit: Int) extends ToBenchParams
+  private case class ToBenchParamsImpl(override val name: String, override val headDmgTo: String, override val tailDmgTo: String, override val benchToApply: String, override val dmgToDo: Int, override val limit: Int) extends ToBenchParams
 
 }
 
@@ -138,7 +138,7 @@ object EachDmgParams {
 
   implicit val decodeEachDmg: Decoder[EachDmgParams] = Decoder.forProduct3("dmgToAdd", "pokemonToApply", "signature")(EachDmgParams.apply)
 
-  private case class eachDmgParamsImpl(name: String, dmgToAdd: Int, pokemonToApply: String, signature: String) extends EachDmgParams
+  private case class eachDmgParamsImpl(override val name: String, override val dmgToAdd: Int, override val pokemonToApply: String,override val signature: String) extends EachDmgParams
 
 }
 
@@ -147,7 +147,7 @@ object EachEnergyParams {
 
   implicit val decodeEachEnergy: Decoder[EachEnergyParams] = Decoder.forProduct4("plusDmg", "pokemonToApply", "limitBy", "atkPosition")(EachEnergyParams.apply)
 
-  private case class eachEnergyParamsImpl(name: String, plusDmg: Int, pokemonToApply: String, limitBy: Int, atkPosition: Int) extends EachEnergyParams
+  private case class eachEnergyParamsImpl(override val name: String,override val plusDmg: Int, override val pokemonToApply: String, override val limitBy: Int, override val atkPosition: Int) extends EachEnergyParams
 
 }
 
@@ -156,7 +156,7 @@ object DmgMyselfParams {
 
   implicit val decodeDmgMyself: Decoder[DmgMyselfParams] = Decoder.forProduct1("dmgMyself")(DmgMyselfParams.apply)
 
-  private case class dmgMyselfParamsImpl(name: String, dmgMyself: Int) extends DmgMyselfParams
+  private case class dmgMyselfParamsImpl(override val name: String, override val dmgMyself: Int) extends DmgMyselfParams
 
 }
 
@@ -165,7 +165,7 @@ object StatusParams {
 
   implicit val decodeDmgMyself: Decoder[StatusParams] = Decoder.forProduct5("pokemonToApply", "firstStatusType", "firstEffectCoin", "secondEffectCoin", "secondStatus")(StatusParams.apply)
 
-  private case class statusParamsImpl(name: String, pokemonToApply: String, firstStatusType: StatusType, firstEffectCoin: String, secondEffectCoin: String, secondStatus: StatusType) extends StatusParams
+  private case class statusParamsImpl(override val name: String, override val pokemonToApply: String,override val firstStatusType: StatusType,override val firstEffectCoin: String,override val secondEffectCoin: String, override val secondStatus: StatusType) extends StatusParams
 
 }
 
@@ -175,7 +175,7 @@ object SetImmunityParams {
 
   implicit val decodeSetImmunity: Decoder[SetImmunityParams] = Decoder.forProduct2("tailBounded", "headBounded")(SetImmunityParams.apply)
 
-  private case class setImmunityParamsImpl(name: String, tailBounded: Boolean, headBounded: Boolean) extends SetImmunityParams
+  private case class setImmunityParamsImpl(override val name: String,override val  tailBounded: Boolean,override val  headBounded: Boolean) extends SetImmunityParams
 
 }
 
@@ -184,7 +184,7 @@ object RecoveryParams {
 
   implicit val decodeRecovery: Decoder[RecoveryParams] = Decoder.forProduct4("recoveryAmount", "pokemonToApply", "headBounded", "tailBounded")(RecoveryParams.apply)
 
-  private case class recoveryParamsImpl(name: String, recoveryAmount: Int, pokemonToApply: String, headBounded: Boolean, tailBounded: Boolean) extends RecoveryParams
+  private case class recoveryParamsImpl(override val name: String,override val  recoveryAmount: Int, override val pokemonToApply: String,override val headBounded: Boolean,override val tailBounded: Boolean) extends RecoveryParams
 
 }
 
@@ -193,7 +193,7 @@ object DiscardEnergyParams {
 
   implicit val decodeDiscardEnergy: Decoder[DiscardEnergyParams] = Decoder.forProduct3("discardAmount", "energyType", "pokemonToApply")(DiscardEnergyParams.apply)
 
-  private case class discardEnergyParamsImpl(name: String, discardAmount: Int, energyType: EnergyType, pokemonToApply: String) extends DiscardEnergyParams
+  private case class discardEnergyParamsImpl(override val name: String,override val discardAmount: Int,override val energyType: EnergyType,override val pokemonToApply: String) extends DiscardEnergyParams
 
 }
 
@@ -202,13 +202,13 @@ object DmgMyselfOrNotParams {
 
   implicit val decodeDmgMyselfOrNot: Decoder[DmgMyselfOrNotParams] = Decoder.forProduct2("tailDmg", "headDmg")(DmgMyselfOrNotParams.apply)
 
-  private case class dmgMyselfOrNotParamsImpl(name: String, tailDmg: Int, headDmg: Int) extends DmgMyselfOrNotParams
+  private case class dmgMyselfOrNotParamsImpl(override val name: String,override val tailDmg: Int,override val  headDmg: Int) extends DmgMyselfOrNotParams
 
 }
 
 object PreventParams {
   def apply(dmgToPrevent: Int): PreventParams = PreventParamsImpl(EffectType.prevent.toString, dmgToPrevent)
   implicit val decodePreventParams: Decoder[PreventParams] = Decoder.forProduct1("dmgToPrevent")(PreventParams.apply)
-  private case class PreventParamsImpl(name: String, dmgToPrevent: Int) extends PreventParams
+  private case class PreventParamsImpl(override val name: String,override val dmgToPrevent: Int) extends PreventParams
 
 }
