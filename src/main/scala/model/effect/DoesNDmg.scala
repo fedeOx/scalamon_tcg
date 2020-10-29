@@ -95,7 +95,9 @@ sealed trait RecoverLife extends AttackEffect {
     val totalAmount = attackingBoard.activePokemon.get.initialHp - attackingBoard.activePokemon.get.actualHp
     if (effectParams.recoveryAmount == -1) {
       attackingBoard.activePokemon.get.actualHp += totalAmount
-    } else
+    } else if((attackingBoard.activePokemon.get.actualHp + effectParams.recoveryAmount) > attackingBoard.activePokemon.get.initialHp)
+      attackingBoard.activePokemon.get.actualHp = attackingBoard.activePokemon.get.initialHp
+    else
       attackingBoard.activePokemon.get.actualHp += effectParams.recoveryAmount
     super.useEffect(attackingBoard, defendingBoard, gameManager)
   }
