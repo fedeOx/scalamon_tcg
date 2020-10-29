@@ -1,6 +1,6 @@
 package view.game
 
-/***
+/**
  * Enum that represents all the card Types, based on the zone of the field
  * in which they are positioned
  */

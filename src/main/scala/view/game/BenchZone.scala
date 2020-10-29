@@ -6,7 +6,6 @@ import scalafx.scene.layout.HBox
 import scalafx.scene.paint.{Color, PhongMaterial}
 import scalafx.scene.shape.Box
 import view.PopupBuilder
-import view.game.CardFactory._
 
 /**
  * The field zone that contains the benched pokemon
@@ -19,7 +18,8 @@ trait BenchZone extends HBox {
 
   /**
    * Updates the HBox children
-   * @param cards: the cards that are located in the bench
+   *
+   * @param cards : the cards that are located in the bench
    */
   def updateView(cards: Seq[Option[PokemonCard]] = Seq()): Unit
 }
@@ -27,8 +27,9 @@ trait BenchZone extends HBox {
 object BenchZone {
   /**
    * creates an instance of BenchZone
-   * @param isHumans: true if it's the human's BenchZone
-   * @param board: the parent PlayerBoard
+   *
+   * @param isHumans : true if it's the human's BenchZone
+   * @param board    : the parent PlayerBoard
    * @return an instance of BenchZone
    */
   def apply(isHumans: Boolean, board: PlayerBoard): BenchZone = BenchZoneImpl(isHumans, board)
@@ -36,12 +37,13 @@ object BenchZone {
   private case class BenchZoneImpl(isHumans: Boolean, board: PlayerBoard) extends BenchZone {
     private val WIDTH = 35
     private val HEIGHT = 10
-    private var bench : Seq[Box] = Seq()
-    private var isEmpty : Boolean = _
+    private var bench: Seq[Box] = Seq()
+    private var isEmpty: Boolean = _
     private val parentBoard = board
     var cardClicked = false
 
     updateView()
+
     def updateView(cards: Seq[Option[PokemonCard]] = Seq()): Unit = {
       if (cards.isEmpty || (cards.count(c => c.isEmpty) == 5)) {
         isEmpty = true
@@ -54,12 +56,13 @@ object BenchZone {
       } else {
         isEmpty = false
         bench = Seq[Box]()
-        cards.filter(c => c.isDefined).zipWithIndex.foreach{case (card,cardIndex) => {
-          bench = bench :+ CardFactory(CardType.Bench, "/assets/"+card.get.belongingSetCode+"/"+card.get.imageNumber+".png",
+        cards.filter(c => c.isDefined).zipWithIndex.foreach { case (card, cardIndex) => {
+          bench = bench :+ CardFactory(CardType.Bench, "/assets/" + card.get.belongingSetCode + "/" + card.get.imageNumber + ".png",
             Some(board.gameWindow.asInstanceOf[GameBoardView].zoomZone), cardIndex = cardIndex,
             isHumans = Some(isHumans), zone = Some(this), board = Some(parentBoard.myBoard),
             gameWindow = Some(board.gameWindow))
-        }}
+        }
+        }
       }
       children = bench
     }
@@ -79,12 +82,12 @@ object BenchZone {
             cardClicked = false
           else {
             var position: Int = 0
-            if(!isEmpty)
+            if (!isEmpty)
               position = bench.size
             try {
               board.gameWindow.asInstanceOf[GameBoardView].controller.selectBenchLocation(position)
             } catch {
-              case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow,ex.getMessage)
+              case ex: Exception => PopupBuilder.openInvalidOperationMessage(board.gameWindow, ex.getMessage)
             }
           }
         }
@@ -93,4 +96,5 @@ object BenchZone {
       }
     }
   }
+
 }

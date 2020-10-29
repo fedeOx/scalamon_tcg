@@ -14,7 +14,8 @@ import view.game.CardType.CardType
 trait CardFactory {
   /**
    * Sets the object's controller field
-   * @param c: the controller
+   *
+   * @param c : the controller
    */
   def setController(c: Controller): Unit
 
@@ -31,21 +32,23 @@ object CardFactory extends CardFactory {
   }
 
   trait GraphicCard extends Box {
-    def cardWidth : Double
+    def cardWidth: Double
+
     def cardHeight: Double
-    def cardMaterial : PhongMaterial
+
+    def cardMaterial: PhongMaterial
   }
 
   def apply(cardType: CardType, cardImage: String, zoomZone: Option[CardDetailZone] = Option.empty, transX: Double = 0,
             cardIndex: Int = 0, isHumans: Option[Boolean] = Option.empty, zone: Option[Node] = Option.empty,
             board: Option[Board] = Option.empty, gameWindow: Option[Window] = Option.empty): GraphicCard = cardType match {
-    case CardType.Active => new ActiveCard(cardImage,zoomZone,cardIndex,isHumans,zone,
-      board,gameWindow)
-    case CardType.Bench => new BenchCard(cardImage,zoomZone,cardIndex,isHumans,zone,
-      board,gameWindow)
-    case CardType.Hand => new HandCard(cardImage,zoomZone,cardIndex,isHumans,zone,
-      board,gameWindow)
-    case CardType.Deck => new DeckCard(cardImage,board)
+    case CardType.Active => new ActiveCard(cardImage, zoomZone, cardIndex, isHumans, zone,
+      board, gameWindow)
+    case CardType.Bench => new BenchCard(cardImage, zoomZone, cardIndex, isHumans, zone,
+      board, gameWindow)
+    case CardType.Hand => new HandCard(cardImage, zoomZone, cardIndex, isHumans, zone,
+      board, gameWindow)
+    case CardType.Deck => new DeckCard(cardImage, board)
     case _ => new StaticCard(cardImage)
   }
 
@@ -74,7 +77,7 @@ object CardFactory extends CardFactory {
     }
     onMouseExited = _ => {
       if (zoomZone.isDefined)
-        zoomZone.get.children.remove(0,zoomZone.get.children.size())
+        zoomZone.get.children.remove(0, zoomZone.get.children.size())
     }
     if (isHumans.isDefined && isHumans.get)
       addAction(this, CardType.Active, zone = zone, gameWindow = gameWindow)
@@ -99,13 +102,13 @@ object CardFactory extends CardFactory {
     }
     onMouseExited = _ => {
       if (zoomZone.isDefined)
-        zoomZone.get.children.remove(0,zoomZone.get.children.size())
+        zoomZone.get.children.remove(0, zoomZone.get.children.size())
     }
     if (isHumans.isDefined && isHumans.get)
       addAction(this, CardType.Bench, cardIndex, zone = zone, gameWindow = gameWindow)
     drawMode = DrawMode.Fill
   }
-  
+
   private class HandCard(cardImage: String, zoomZone: Option[CardDetailZone] = Option.empty,
                          cardIndex: Int = 0, isHumans: Option[Boolean] = Option.empty, zone: Option[Node] = Option.empty,
                          board: Option[Board] = Option.empty, gameWindow: Option[Window] = Option.empty) extends GraphicCard {
@@ -126,12 +129,13 @@ object CardFactory extends CardFactory {
     }
     onMouseExited = _ => {
       if (zoomZone.isDefined)
-        zoomZone.get.children.remove(0,zoomZone.get.children.size())
+        zoomZone.get.children.remove(0, zoomZone.get.children.size())
     }
     if (isHumans.isDefined && isHumans.get)
       addAction(this, CardType.Hand, cardIndex, board = board, gameWindow = gameWindow)
     drawMode = DrawMode.Fill
   }
+
   private class DeckCard(cardImage: String, board: Option[Board]) extends GraphicCard {
     val cardWidth = 5.5
     val cardHeight = 7.7
@@ -139,8 +143,8 @@ object CardFactory extends CardFactory {
     cardMaterial.diffuseMap = new Image(cardImage)
     width = cardWidth
     height = cardHeight
-    if(board.isDefined)
-      depth = 0.45+(0.05*(board.get.deck.size/2))
+    if (board.isDefined)
+      depth = 0.45 + (0.05 * (board.get.deck.size / 2))
     else
       depth = 1.5
     material = cardMaterial
@@ -174,7 +178,7 @@ object CardFactory extends CardFactory {
     case _ =>
   }
 
-  private def activeAction(gameWindow: Option[Window],zone: Option[Node]) : Unit = {
+  private def activeAction(gameWindow: Option[Window], zone: Option[Node]): Unit = {
     if (gameWindow.get.asInstanceOf[GameBoardView].turnOwner.equals(TurnOwner.Player)) {
       if (controller.handCardSelected.isEmpty)
         zone.get.asInstanceOf[ActivePkmnZone].openMenu()
@@ -182,13 +186,13 @@ object CardFactory extends CardFactory {
         try {
           controller.selectActivePokemonLocation()
         } catch {
-          case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get,ex.getMessage)
+          case ex: Exception => PopupBuilder.openInvalidOperationMessage(gameWindow.get, ex.getMessage)
         }
       }
     }
   }
 
-  private def benchAction(gameWindow: Option[Window],zone: Option[Node], cardIndex: Int) : Unit = {
+  private def benchAction(gameWindow: Option[Window], zone: Option[Node], cardIndex: Int): Unit = {
     if (gameWindow.get.asInstanceOf[GameBoardView].turnOwner.equals(TurnOwner.Player)) {
       zone.get.asInstanceOf[BenchZone].cardClicked = true
       try {

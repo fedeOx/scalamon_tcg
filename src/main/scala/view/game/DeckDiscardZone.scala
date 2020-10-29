@@ -4,7 +4,6 @@ import model.card.Card
 import scalafx.geometry.Pos
 import scalafx.scene.layout.VBox
 import scalafx.scene.shape.Box
-import view.game.CardFactory._
 
 /**
  * The field Zone that contains the deck and the discard stack
@@ -12,8 +11,9 @@ import view.game.CardFactory._
 trait DeckDiscardZone extends VBox {
   /**
    * Updates the VBox children
-   * @param deck: the board's deck
-   * @param discardStack: the board's discard stack
+   *
+   * @param deck         : the board's deck
+   * @param discardStack : the board's discard stack
    */
   def updateView(deck: Seq[Card], discardStack: Seq[Card]): Unit
 }
@@ -21,6 +21,7 @@ trait DeckDiscardZone extends VBox {
 object DeckDiscardZone {
   /**
    * Creates an instance of DeckDiscardZone
+   *
    * @return an instance of DeckDiscardZone
    */
   def apply(board: PlayerBoard): DeckDiscardZone = DeckDiscardZoneImpl(board)
@@ -29,8 +30,8 @@ object DeckDiscardZone {
     private val WIDTH = 10
     private val HEIGHT = 25
     private val parentBoard = board
-    private val deckBox = CardFactory(cardType = CardType.Deck, "/assets/cardBack.jpg", board = Option.empty)//createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
-    private var discardStackBox : Box = _
+    private val deckBox = CardFactory(cardType = CardType.Deck, "/assets/cardBack.jpg", board = Option.empty)
+    private var discardStackBox: Box = _
     children = deckBox
 
     alignment = Pos.Center
@@ -39,16 +40,17 @@ object DeckDiscardZone {
     styleClass += "deckDiscard"
     translateX = 45
 
-    def updateView(deck: Seq[Card], discardStack: Seq[Card]) : Unit = {
+    def updateView(deck: Seq[Card], discardStack: Seq[Card]): Unit = {
       var list = Seq[Box]()
       if (deck.nonEmpty)
-        list = list :+ CardFactory(cardType = CardType.Deck, "/assets/cardBack.jpg", board = Some(parentBoard.myBoard))//createCard("/assets/cardBack.jpg",cardType = CardType.Deck)
-      if(discardStack.nonEmpty) {
+        list = list :+ CardFactory(cardType = CardType.Deck, "/assets/cardBack.jpg", board = Some(parentBoard.myBoard))
+      if (discardStack.nonEmpty) {
         discardStackBox = CardFactory(CardType.DiscardStack,
-          "/assets/"+discardStack.last.belongingSetCode+"/"+ discardStack.last.imageNumber+".png")
+          "/assets/" + discardStack.last.belongingSetCode + "/" + discardStack.last.imageNumber + ".png")
         list = list :+ discardStackBox
       }
       children = list
     }
   }
+
 }
