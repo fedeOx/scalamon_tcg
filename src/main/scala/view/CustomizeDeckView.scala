@@ -21,7 +21,7 @@ case class CustomizeDeckView(setType: SetType, controller: Controller) extends S
   controller.dataLoader.addObserver(this)
   var deckCard: Seq[Card] = List()
   val parentWindow: Window = window.getValue.asInstanceOf[scalafx.stage.Window]
-  var loadingMessage: Stage = PopupBuilder.openLoadingScreen(parentWindow)
+  var loadingMessage: Stage = PopupBuilder.openLoadingScreen(parentWindow, showWheel = false)
   loadingMessage.show()
   controller.loadSet(setType)
   val textFieldName: TextField = new TextField {maxWidth = 200}
@@ -54,7 +54,7 @@ case class CustomizeDeckView(setType: SetType, controller: Controller) extends S
   boxDeckSelect.getItems.addAll("base", "fossil")
   boxDeckSelect.setValue("base")
   boxDeckSelect.onAction = _ => {
-    loadingMessage = PopupBuilder.openLoadingScreen(parentWindow)
+    loadingMessage = PopupBuilder.openLoadingScreen(parentWindow, showWheel = false)
     loadingMessage.show()
     controller.loadSet(SetType.withName(boxDeckSelect.getValue))
   }
