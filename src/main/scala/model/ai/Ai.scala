@@ -1,8 +1,10 @@
 package model.ai
 import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue}
+
 import common.Events._
 import common.TurnOwner.TurnOwner
 import common.{Observer, TurnOwner}
+import model.ai.AiLogicManager.calculateIfWithdrawAndDo
 import model.core.{GameManager, TurnManager}
 import model.game.Board
 
@@ -15,7 +17,6 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
   private var playerBoard: Board = _
   private var turn: TurnOwner = _
   private var isCancelled: Boolean = false
-  private var isKo: Boolean = false
 
   override def run() {
     try {
@@ -28,15 +29,15 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
             AiLogicManager.placeCards(opponentBoard.hand,opponentBoard,playerBoard,gameManager,turnManager)
           }
           case event: FlipCoinEvent => turn = if (event.isHead) TurnOwner.Player else TurnOwner.Opponent
-          case event: NextTurnEvent => turn = event.turnOwner; if (event.turnOwner == TurnOwner.Opponent) AiLogicManager.doTurn(opponentBoard,playerBoard,gameManager,turnManager,isKo)
-          case _: PokemonKOEvent => isKo = opponentBoard.activePokemon.get.isKO
+          case event: NextTurnEvent => turn = event.turnOwner; if (event.turnOwner == TurnOwner.Opponent) AiLogicManager.doTurn(opponentBoard,playerBoard,gameManager,turnManager)
+          case _: PokemonKOEvent => if(opponentBoard.activePokemon.get.isKO) calculateIfWithdrawAndDo(opponentBoard, playerBoard, gameManager)
           case event: DamageBenchEvent if turn == TurnOwner.Opponent => AiLogicManager.dmgToBench(event.pokemonToDamage, event.damage,opponentBoard)
           case _: EndGameEvent => isCancelled = true
           case _ =>
         }
       }
     } catch {
-      case _: Exception =>
+      case e: Exception => println(e)
     }
   }
 
