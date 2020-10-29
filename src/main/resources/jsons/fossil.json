@@ -1450,7 +1450,7 @@
           },
           {
             "name" : "EachEnergy",
-            "params":[{"plusDmg":10,"pokemonToApply":"atk","limitBy":2,"atkPosition": 0}]
+            "params":[{"plusDmg":10,"pokemonToApply":"atk","limitBy":2,"atkPosition": 1}]
           }
         ]
       },
