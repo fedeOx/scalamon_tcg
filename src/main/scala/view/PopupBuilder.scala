@@ -29,9 +29,10 @@ trait PopupBuilder {
    * Opens the loading screen that appears at the start of the game
    *
    * @param parentWindow : the loading screen's parent window
+   * @param showWheel : true if the screen has to show the loading wheel image
    * @return the loading screen
    */
-  def openLoadingScreen(parentWindow: Window): Stage
+  def openLoadingScreen(parentWindow: Window, showWheel: Boolean = true): Stage
 
   /**
    * Closes the loading screen
@@ -103,7 +104,7 @@ object PopupBuilder extends PopupBuilder {
     controller = c
   }
 
-  def openLoadingScreen(parent: Window): Stage = {
+  def openLoadingScreen(parent: Window, showWheel: Boolean = true): Stage = {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
@@ -111,11 +112,15 @@ object PopupBuilder extends PopupBuilder {
       scene = new Scene(300, 200) {
         stylesheets = List("/style/popup.css")
         content = new VBox {
+          var elements : List[Node]= List()
           styleClass += "message"
-          children = List(new ImageView(new Image("/assets/loading.gif")) {
-            fitWidth = 60
-            fitHeight = 60
-          }, new Label("Caricamento..."))
+          if (showWheel)
+            elements = elements :+ new ImageView(new Image("/assets/loading.gif")) {
+              fitWidth = 60
+              fitHeight = 60
+            }
+          elements = elements :+ new Label("Caricamento...")
+          children = elements
         }
       }
       sizeToScene()
@@ -153,6 +158,7 @@ object PopupBuilder extends PopupBuilder {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
+      initStyle(StageStyle.Undecorated)
       scene = new Scene(300, 200) {
         stylesheets = List("/style/popup.css")
         content = new VBox() {
@@ -160,7 +166,6 @@ object PopupBuilder extends PopupBuilder {
           children = List(new Label(message) {
             minWidth = 300
             maxHeight(200)
-            //prefHeight = 100
             wrapText = true
             textAlignment = TextAlignment.Center
           }, new Button("Ok") {
@@ -332,6 +337,7 @@ object PopupBuilder extends PopupBuilder {
     val dialog: Stage = new Stage() {
       initOwner(parent)
       initModality(Modality.ApplicationModal)
+      initStyle(StageStyle.Undecorated)
       scene = new Scene(300, 200) {
         stylesheets = List("/style/popup.css")
         content = new VBox() {
