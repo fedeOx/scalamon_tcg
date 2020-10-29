@@ -10,5 +10,6 @@ classes
 build
 .gradle
 .idea
+src/main/scala/META-INF
 
 !process/requirements/Requirements_ScalamonTCG.pdf

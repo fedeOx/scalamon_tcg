@@ -72,17 +72,11 @@ object DataLoader {
 
     import common.MyMapHelpers._
 
-    override def loadDecks(set: SetType): Map[String, Seq[DeckCard]] = {
-      val map: mutable.Map[String, Seq[DeckCard]] = mutable.Map()
-      DeckType.values.filter(v => v.setType == set).foreach(v => map += (v.name -> loadSingleDeck(v)))
-      map.toImmutableMap
-    }
+    override def loadDecks(set: SetType): Map[String, Seq[DeckCard]] = DeckType.values.filter(v => v.setType == set)
+      .foldLeft(mutable.Map[String, Seq[DeckCard]]())((m, v) => m += (v.name -> loadSingleDeck(v))).toImmutableMap
 
-    override def loadCustomDecks(): Map[String, Seq[DeckCard]] = {
-      val map: mutable.Map[String, Seq[DeckCard]] = mutable.Map()
-      loadCustomDecksNames.map(n => map += (n -> loadSingleCustomDeck(n)))
-      map.toImmutableMap
-    }
+    override def loadCustomDecks(): Map[String, Seq[DeckCard]] = loadCustomDecksNames()
+      .foldLeft(mutable.Map[String, Seq[DeckCard]]())((m, n) => m += (n -> loadSingleCustomDeck(n))).toImmutableMap
 
     override def loadSingleDeck(deck: DeckType): Seq[DeckCard] =
       buildDeck(buildCursor(inputStream(CardsDirectory + DeckResCode + deck.setType + ResExtension, fromResource = true)), deck.name)
@@ -91,7 +85,7 @@ object DataLoader {
       buildDeck(buildCursor(inputStream(SaveDirectory + CustomDeckFileName, fromResource = false)), deckName)
 
     override def loadSet(set: SetType): Seq[Card] =
-      buildSet(buildCursor(inputStream(CardsDirectory + File.separator + set + ResExtension, fromResource = true)))
+      buildSet(buildCursor(inputStream(CardsDirectory + "/" + set + ResExtension, fromResource = true)))
 
     override def saveCustomDeck(deck: CustomDeck): Boolean = {
       var success = false
@@ -112,7 +106,7 @@ object DataLoader {
       success
     }
 
-    private def loadCustomDecksNames: Seq[String] = {
+    private def loadCustomDecksNames(): Seq[String] = {
       var list: Seq[String] = List.empty
       if (Files.exists(Paths.get(SaveDirectory + CustomDeckFileName))) {
         val cursor = buildCursor(inputStream(SaveDirectory + CustomDeckFileName, fromResource = false))
@@ -124,13 +118,11 @@ object DataLoader {
     }
 
     private def buildCursor(inputFile: Option[InputStream]): HCursor = {
-      var lines = ""
-      if (inputFile.nonEmpty) {
-        val source = Source.fromInputStream(inputFile.get)
-        lines = try source.getLines() mkString "\n" finally source.close()
+      def _lines: String = inputFile match {
+        case Some(f) => Source.fromInputStream(f, "UTF-8").getLines().foldLeft("")((lines, s) => lines + s + "\n")
+        case None => ""
       }
-      val parseResult: Json = parse(lines).getOrElse(Json.Null)
-      parseResult.hcursor
+      parse(_lines).getOrElse(Json.Null).hcursor
     }
 
     private def buildDeck(cursor: HCursor, deckName: String): Seq[DeckCard] = {
