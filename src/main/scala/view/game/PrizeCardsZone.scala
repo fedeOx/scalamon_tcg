@@ -6,7 +6,6 @@ import scalafx.scene.image.Image
 import scalafx.scene.layout.VBox
 import scalafx.scene.paint.PhongMaterial
 import scalafx.scene.shape.Box
-import view.game.CardFactory._
 
 /**
  * The field zone for the prize cards
@@ -40,7 +39,7 @@ object PrizeCardsZone {
     styleClass += "prizeCards"
 
     def updateView(prizes: Seq[Card]): Unit = {
-      children = List(CardFactory(cardType = CardType.Prize,"/assets/cardBack.jpg"), new Box {
+      children = List(CardFactory(cardType = CardType.Prize, "/assets/cardBack.jpg"), new Box {
         val numberMaterial = new PhongMaterial()
         numberMaterial.diffuseMap = new Image("/assets/prize" + prizes.size + ".png")
         material = numberMaterial
@@ -52,5 +51,6 @@ object PrizeCardsZone {
       })
     }
   }
+
 }
 

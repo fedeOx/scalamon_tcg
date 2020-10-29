@@ -29,7 +29,7 @@ trait PopupBuilder {
    * Opens the loading screen that appears at the start of the game
    *
    * @param parentWindow : the loading screen's parent window
-   * @param showWheel : true if the screen has to show the loading wheel image
+   * @param showWheel    : true if the screen has to show the loading wheel image
    * @return the loading screen
    */
   def openLoadingScreen(parentWindow: Window, showWheel: Boolean = true): Stage
@@ -112,7 +112,7 @@ object PopupBuilder extends PopupBuilder {
       scene = new Scene(300, 200) {
         stylesheets = List("/style/popup.css")
         content = new VBox {
-          var elements : List[Node]= List()
+          var elements: List[Node] = List()
           styleClass += "message"
           if (showWheel)
             elements = elements :+ new ImageView(new Image("/assets/loading.gif")) {
