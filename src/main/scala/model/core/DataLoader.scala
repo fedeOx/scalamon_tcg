@@ -140,8 +140,8 @@ object DataLoader {
 
     private def buildSet(cursor: HCursor): Seq[Card] =
       cursor.values.get.foldLeft(List[Card]())((l, i) => JsonPath.root.supertype.string.getOption(i).get match {
-        case "Pokémon" => i.as[PokemonCard].toOption.get :: l
-        case "Energy" => i.as[EnergyCard].toOption.get :: l
+        case "Pokémon" => l :+ i.as[PokemonCard].toOption.get
+        case "Energy" => l :+ i.as[EnergyCard].toOption.get
         case _ => l
       })
 

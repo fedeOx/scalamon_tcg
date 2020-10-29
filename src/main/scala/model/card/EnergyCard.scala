@@ -30,25 +30,15 @@ object EnergyCard {
     }
   }
 
-  def apply(id: String, imageId: Int, belongingSet: SetType, name: String, rarity: String,  setCode: String, energyType: EnergyType,
-            energyCardType: EnergyCardType): EnergyCard =
+  def apply(id: String, belongingSet: SetType, name: String, rarity: String,  setCode: String, energyType: EnergyType,
+            energyCardType: EnergyCardType): EnergyCard = {
+    val imageId = id.replace(setCode + "-", "").toInt
     EnergyCardImpl(id, imageId, belongingSet, name, rarity, setCode, energyType, energyCardType)
-
-  implicit val decoder: Decoder[EnergyCard] = new Decoder[EnergyCard] {
-    override def apply(c: HCursor): Result[EnergyCard] =
-      for {
-        _id <- c.downField("id").as[String]
-        _name <- c.downField("name").as[String]
-        _set <- c.downField("set").as[SetType]
-        _rarity <- c.downField("rarity").as[String]
-        _setCode <- c.downField("setCode").as[String]
-        _energyType <- c.downField("type").as[EnergyType]
-        _energyCardType <- c.downField("subtype").as[EnergyCardType]
-      } yield {
-        val imageId = _id.replace(c.downField("setCode").as[String].getOrElse("") + "-", "").toInt
-        EnergyCard(_id, imageId, _set, _name, _rarity, _setCode, _energyType, _energyCardType)
-      }
   }
+
+  implicit val decoder: Decoder[EnergyCard] =
+    Decoder.forProduct7("id", "set", "name", "rarity", "setCode",
+      "type", "subtype")(EnergyCard.apply)
 
   case class EnergyCardImpl(override val id: String,
                             override val imageNumber: Int,
