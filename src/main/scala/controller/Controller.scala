@@ -233,7 +233,7 @@ object Controller {
             gameManager.putPokemonToBench(evolvedPokemon, position.get)
           handCardSelected = None
 
-        case _ => throw new InvalidOperationException("Operation not allowed")
+        case _ => throw new InvalidOperationException("Operation not allowed on selected location")
       }
   }
 }

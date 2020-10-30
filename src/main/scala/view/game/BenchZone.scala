@@ -92,7 +92,7 @@ object BenchZone {
           }
         }
       } else {
-        PopupBuilder.openInvalidOperationMessage(board.gameWindow, "    Put an active pokémon first")
+        PopupBuilder.openInvalidOperationMessage(board.gameWindow, "You have to put an active pokémon first")
       }
     }
   }

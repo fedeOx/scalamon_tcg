@@ -207,7 +207,7 @@ object GameManager {
         pokemon.immune = false
       }
       pokemon.damageModifier = 0
-      if (pokemon.status == StatusType.Poisoned) {
+      if (pokemon.status == StatusType.Poisoned && !pokemon.isKO) {
         pokemon.addDamage(PoisonDamage, Seq())
         eventuallyRemoveKOActivePokemon(pokemon, board, opponentBoard, isPokemonInCharge = false)
       }
