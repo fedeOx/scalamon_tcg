@@ -1,5 +1,6 @@
 package view
 
+import app.GameLauncher
 import common.{Events, Observer}
 import controller.Controller
 import common.Events.ShowDeckCardsEvent
@@ -7,7 +8,7 @@ import model.game.SetType.SetType
 import model.game.{DeckCard, SetType}
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
-import scalafx.beans.property.{IntegerProperty, ObjectProperty, StringProperty}
+import scalafx.beans.property.{ObjectProperty, StringProperty}
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Pos
 import scalafx.scene.Scene
@@ -17,6 +18,7 @@ import scalafx.scene.image.Image
 import scalafx.scene.layout._
 import scalafx.scene.text.Font
 import view.game.GameBoardView
+
 import scala.collection.immutable.ListMap
 
 

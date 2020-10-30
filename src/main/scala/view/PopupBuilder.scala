@@ -1,5 +1,6 @@
 package view
 
+import app.GameLauncher
 import controller.Controller
 import model.card.PokemonCard
 import model.game.Board

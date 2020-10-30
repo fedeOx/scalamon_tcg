@@ -4,7 +4,6 @@ import common.Events.UpdateBoardsEvent
 import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{GameManager, TurnManager}
 import model.exception.InvalidOperationException
-import model.game.EnergyType.EnergyType
 import model.game.{Board, EnergyType}
 
 object AiLogicManager {
@@ -133,7 +132,6 @@ object AiLogicManager {
         case List() =>
         case benchPkm :: _ if benchPkm.get.name == evolution.evolutionName => {
           val getbenchedIndex: Int = opponentBoard.pokemonBench.filter(card => card.isDefined).indexWhere(pkm => pkm.get.name == benchPkm.get.name)
-          println("evolvo bench " + benchPkm.get.name + " in  " + evolution)
           gameManager.putPokemonToBench(gameManager.evolvePokemon(benchPkm.get, evolution, opponentBoard), getbenchedIndex, opponentBoard)
         } //pokemon found in bench
         case _ :: t => evolveBench(t, evolution)

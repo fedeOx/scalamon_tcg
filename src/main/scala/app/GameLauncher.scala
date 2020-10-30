@@ -1,8 +1,9 @@
-package view
+package app
 
 import controller.Controller
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
+import view.StartGameView
 
 object GameLauncher extends JFXApp {
 
@@ -15,4 +16,3 @@ object GameLauncher extends JFXApp {
     onCloseRequest = _ => controller.resetGame()
   }
 }
-

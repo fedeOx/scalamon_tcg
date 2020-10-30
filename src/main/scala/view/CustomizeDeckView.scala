@@ -1,5 +1,6 @@
 package view
 
+import app.GameLauncher
 import common.Events.{CustomDeckSavedEvent, ShowSetCardsEvent}
 import common.{Events, Observer}
 import controller.Controller
