@@ -4,6 +4,7 @@ import common.Events.UpdateBoardsEvent
 import model.card.{Card, EnergyCard, PokemonCard}
 import model.core.{GameManager, TurnManager}
 import model.exception.InvalidOperationException
+import model.game.EnergyType.EnergyType
 import model.game.{Board, EnergyType}
 
 object AiLogicManager {
@@ -77,7 +78,6 @@ object AiLogicManager {
     turnManager.switchTurn()
   }
 
-
   /**
    * choose a certain number of bench pokemon and do the damage to it
    *
@@ -118,7 +118,6 @@ object AiLogicManager {
     @scala.annotation.tailrec
     def evolve(pokemons: Seq[PokemonCard]): Unit = pokemons match {
       case evolution :: t if opponentBoard.activePokemon.get.name == evolution.evolutionName => {
-        println("evolvo Active " + opponentBoard.activePokemon + " in  " + evolution)
         opponentBoard.activePokemon = gameManager.evolvePokemon(opponentBoard.activePokemon.get, evolution, opponentBoard)
         opponentBoard.removeCardFromHand(evolution)
         evolve(t)
@@ -152,12 +151,8 @@ object AiLogicManager {
     val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
       if (!opponentBoard.activePokemon.get.isKO) {
-        println("NO KO - metto il pokemon con indice " + benchIndex + "  -  " + opponentBoard.pokemonBench(benchIndex).get.name + " HP: " + opponentBoard.pokemonBench(benchIndex).get.actualHp)
-        println("NO KO -al posto di : " + opponentBoard.activePokemon.get)
         gameManager.retreatActivePokemon(benchIndex, opponentBoard)
       } else {
-        println("KO - metto il pokemon con indice " + benchIndex + "  -  " + opponentBoard.pokemonBench(benchIndex).get.name + " HP: " + opponentBoard.pokemonBench(benchIndex).get.actualHp)
-        println("KO - al posto di : " + opponentBoard.activePokemon.get)
         gameManager.destroyActivePokemon(benchIndex, opponentBoard)
       }
     }
@@ -197,10 +192,10 @@ object AiLogicManager {
     if (!pokemon.hasEnergies(pokemon.attacks.last.cost)) {
       energyIndex = opponentBoard.hand.indexWhere(card => card.isInstanceOf[EnergyCard] && card.asInstanceOf[EnergyCard].energyType == pokemonType)
       if (energyIndex == -1) {
-        val numberOfColorlessNeededForAtk: Int = pokemon.attacks.last.cost.count(card => card.isInstanceOf[EnergyCard] && card.asInstanceOf[EnergyCard].energyType == EnergyType.Colorless)
+        val numberOfColorlessNeededForAtk: Int = pokemon.attacks.last.cost.count(p => p.toString == "Colorless")
         pokemon.energiesMap.filter(p => p._1 != pokemonType).foreach(map => totalEnergyCount += map._2)
-        if (numberOfColorlessNeededForAtk < totalEnergyCount)
-          energyIndex = opponentBoard.hand.indexWhere(card => card.isInstanceOf[EnergyCard])
+        if (numberOfColorlessNeededForAtk > totalEnergyCount)
+          energyIndex = opponentBoard.hand.indexWhere(energy => energy.name.contains("Energy"))
       }
       if (energyIndex >= 0)
         gameManager.addEnergyToPokemon(pokemon, opponentBoard.hand(energyIndex).asInstanceOf[EnergyCard], opponentBoard)
