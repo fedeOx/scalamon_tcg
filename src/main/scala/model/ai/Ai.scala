@@ -36,7 +36,7 @@ case class Ai(gameManager: GameManager, turnManager: TurnManager) extends Thread
         }
       }
     } catch {
-      case _: Exception =>
+      case e: Exception => println(e)
     }
   }
 
