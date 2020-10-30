@@ -37,7 +37,7 @@ object AiLogicManager {
    * @param turnManager
    */
   def doTurn(opponentBoard: Board, playerBoard: Board, gameManager: GameManager, turnManager: TurnManager): Unit = {
-       if (opponentBoard.activePokemon.get.isKO)
+    if (opponentBoard.activePokemon.get.isKO)
       calculateIfWithdrawAndDo(opponentBoard, playerBoard, gameManager)
 
     gameManager.activePokemonStartTurnChecks(opponentBoard, playerBoard)
@@ -108,13 +108,15 @@ object AiLogicManager {
    */
   private def evolveAll(opponentBoard: Board, playerBoard: Board, gameManager: GameManager): Unit = {
     val evolution: Seq[PokemonCard] = opponentBoard.hand.filter(pkm => pkm.isInstanceOf[PokemonCard] && pkm.asInstanceOf[PokemonCard].evolutionName != "").asInstanceOf[Seq[PokemonCard]]
-    if (evolution.size > 0)
+    if (evolution.nonEmpty)
       evolve(evolution)
 
     @scala.annotation.tailrec
     def evolve(pokemons: Seq[PokemonCard]): Unit = pokemons match {
       case evolution :: t if opponentBoard.activePokemon.get.name == evolution.evolutionName => {
+        println("evolvo Active " + opponentBoard.activePokemon + " in  " + evolution)
         opponentBoard.activePokemon = gameManager.evolvePokemon(opponentBoard.activePokemon.get, evolution, opponentBoard)
+        opponentBoard.removeCardFromHand(evolution)
         evolve(t)
       }
       case evolution :: t if gameManager.pokemonBench(opponentBoard).head.isDefined => evolveBench(opponentBoard.pokemonBench.filter(pkm => pkm.isDefined), evolution); evolve(t)
@@ -128,6 +130,7 @@ object AiLogicManager {
         case List() =>
         case benchPkm :: _ if benchPkm.get.name == evolution.evolutionName => {
           val getbenchedIndex: Int = opponentBoard.pokemonBench.filter(card => card.isDefined).indexWhere(pkm => pkm.get.name == benchPkm.get.name)
+          println("evolvo bench " + benchPkm.get.name + " in  " + evolution)
           gameManager.putPokemonToBench(gameManager.evolvePokemon(benchPkm.get, evolution, opponentBoard), getbenchedIndex, opponentBoard)
         } //pokemon found in bench
         case _ :: t => evolveBench(t, evolution)
@@ -138,19 +141,19 @@ object AiLogicManager {
   /**
    * I calculate and eventually withdraw the active pokemon with a pokemon from my bench
    */
-   def calculateIfWithdrawAndDo(opponentBoard: Board, playerBoard: Board, gameManager: GameManager): Unit = {
+  def calculateIfWithdrawAndDo(opponentBoard: Board, playerBoard: Board, gameManager: GameManager): Unit = {
     val aiBench = opponentBoard.pokemonBench.filter(c => c.isDefined).flatten
     val activePokemonweight: Int = WeightCalculator.calculatePokemonWeight(opponentBoard.activePokemon.get, opponentBoard, playerBoard, WeightCalculatorType.WithDraw)
     val benchPokemonsMaxweight = WeightCalculator.calculateOrderedSeq(aiBench, opponentBoard, playerBoard, WeightCalculatorType.WithDraw).head
     val benchIndex = opponentBoard.pokemonBench.indexWhere(pkm => pkm.contains(benchPokemonsMaxweight.pokemonCard))
     if (activePokemonweight < benchPokemonsMaxweight.weight) {
       if (!opponentBoard.activePokemon.get.isKO) {
-        println("NO KO - metto il pokemon con indice "+benchIndex + "  -  "+ opponentBoard.pokemonBench(benchIndex).get.name +" HP: "+ opponentBoard.pokemonBench(benchIndex).get.actualHp)
-        println("NO KO -al posto di : "+ opponentBoard.activePokemon.get)
+        println("NO KO - metto il pokemon con indice " + benchIndex + "  -  " + opponentBoard.pokemonBench(benchIndex).get.name + " HP: " + opponentBoard.pokemonBench(benchIndex).get.actualHp)
+        println("NO KO -al posto di : " + opponentBoard.activePokemon.get)
         gameManager.retreatActivePokemon(benchIndex, opponentBoard)
       } else {
-        println("KO - metto il pokemon con indice "+benchIndex + "  -  "+ opponentBoard.pokemonBench(benchIndex).get.name +" HP: "+ opponentBoard.pokemonBench(benchIndex).get.actualHp)
-        println("KO - al posto di : "+ opponentBoard.activePokemon.get)
+        println("KO - metto il pokemon con indice " + benchIndex + "  -  " + opponentBoard.pokemonBench(benchIndex).get.name + " HP: " + opponentBoard.pokemonBench(benchIndex).get.actualHp)
+        println("KO - al posto di : " + opponentBoard.activePokemon.get)
         gameManager.destroyActivePokemon(benchIndex, opponentBoard)
       }
     }
