@@ -22,7 +22,6 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
 
   behavior of "Pokemons Effect"
 
-
   it should "damage the enemy based on my water energies limited by 2 " in {
     Given(" a pokemon with damage based on its assigned energy")
     BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Blastoise")
@@ -59,7 +58,6 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
     BoardTmp.iaBoard.activePokemon.get.attacks.head.effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard,gameManager)
     assert(BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 10 * BoardTmp.playerBoard.activePokemon.get.totalEnergiesStored)
   }
-
 
   it should "damage itself by value and all pokemon on the opposing bench" in {
     Given(" a pokemon with auto-damage and multi-damage atk")
@@ -205,21 +203,6 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
         BoardTmp.iaBoard.pokemonBench(1).get.actualHp == BoardTmp.iaBoard.pokemonBench(1).get.initialHp - 10))
   }
 
- /* it should "the pokemon must damage the defending pokemon and a pokemon on its bench" in {
-    Given("gengar")
-    BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Gengar")
-    BoardTmp.playerBoard.activePokemon = getSpecificPokemon("Tentacruel")
-    BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Lapras"), 0)
-    BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Golem"), 1)
-    BoardTmp.playerBoard.putPokemonInBenchPosition(getSpecificPokemon("Graveler"), 2)
-    When("atker do attack")
-    BoardTmp.iaBoard.activePokemon.get.attacks.head.effect.get.useEffect(BoardTmp.iaBoard, BoardTmp.playerBoard,gameManager)
-    Then(" dmg enemy pokemon by 30")
-    assert(BoardTmp.playerBoard.activePokemon.get.actualHp == BoardTmp.playerBoard.activePokemon.get.initialHp - 30)
-    And("damage one of the opposing bench pokemon by 10")
-    assert(BoardTmp.playerBoard.pokemonBench.head.get.actualHp == BoardTmp.playerBoard.pokemonBench.head.get.initialHp - 10)
-  }*/
-
   it should "the pokemon must recover 20 of life" in {
     Given("Golbat")
     BoardTmp.iaBoard.activePokemon = getSpecificPokemon("Golbat")
@@ -252,9 +235,6 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
     assert( BoardTmp.iaBoard.activePokemon.get.actualHp == (BoardTmp.iaBoard.activePokemon.get.initialHp-20) )
   }
 
-
-
-
   def getSpecificPokemon(_name: String): Option[PokemonCard] = {
     val pokemonCard: Option[PokemonCard] = pokemonCards.find(pkm => pkm.asInstanceOf[PokemonCard].name == _name).asInstanceOf[Option[PokemonCard]]
     Some(PokemonCard(pokemonCard.get.id, pokemonCard.get.imageNumber, pokemonCard.get.belongingSet, pokemonCard.get.belongingSetCode, pokemonCard.get.rarity, pokemonCard.get.pokemonTypes, pokemonCard.get.name, pokemonCard.get.initialHp, pokemonCard.get.weaknesses, pokemonCard.get.resistances, pokemonCard.get.retreatCost, pokemonCard.get.evolutionName, pokemonCard.get.attacks))
@@ -264,5 +244,4 @@ class EffectTest() extends AnyFlatSpec with GivenWhenThen {
     for (i <- 1 to numberOfEnergy)
       pokemon.addEnergy(energyCards.find(energy => energy.asInstanceOf[EnergyCard].energyType == energyType).get.asInstanceOf[EnergyCard])
   }
-
 }

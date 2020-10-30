@@ -1,7 +1,6 @@
 package model.game
 
-import io.circe.Decoder.Result
-import io.circe.{Decoder, Encoder, HCursor, Json}
+import io.circe.{Decoder, Encoder}
 import model.game.SetType.SetType
 
 trait DeckCard {
@@ -14,32 +13,17 @@ trait DeckCard {
 }
 
 object DeckCard {
-  def apply(id: String, imageNumber: Int, belongingSet: Option[SetType], name: String, rarity: String, count: Int): DeckCard =
+  def apply(id: String, belongingSet: Option[SetType], name: String, rarity: String, count: Int): DeckCard = {
+    val imageNumber = id.substring(id.indexOf("-") + 1).toInt
     DeckCardImpl(id, imageNumber, belongingSet, name, rarity, count)
-
-  implicit val decoder: Decoder[DeckCard] = new Decoder[DeckCard] {
-    override def apply(c: HCursor): Result[DeckCard] =
-      for {
-        _id <- c.downField("id").as[String]
-        _belongingSet <- c.getOrElse[Option[SetType]]("set")(None)
-        _name <- c.downField("name").as[String]
-        _rarity <- c.downField("rarity").as[String]
-        _count <- c.downField("count").as[Int]
-      } yield {
-        val imageNumber = _id.substring(_id.indexOf("-") + 1).toInt
-        DeckCard(_id, imageNumber, _belongingSet, _name, _rarity, _count)
-      }
   }
 
-  implicit val encoder: Encoder[DeckCard] = new Encoder[DeckCard] {
-    override def apply(card: DeckCard): Json = Json.obj(
-      ("id", Json.fromString(card.id)),
-      ("set", Json.fromString(card.belongingSet.get.toString)),
-      ("name", Json.fromString(card.name)),
-      ("rarity", Json.fromString(card.rarity)),
-      ("count", Json.fromInt(card.count))
-    )
-  }
+  implicit val decoder: Decoder[DeckCard] =
+    Decoder.forProduct5("id", "set", "name", "rarity", "count")(DeckCard.apply)
+
+  implicit val encoder: Encoder[DeckCard] =
+    Encoder.forProduct5("id", "set", "name", "rarity", "count")(c =>
+      (c.id, c.belongingSet.get.toString, c.name, c.rarity, c.count))
 
   case class DeckCardImpl(override val id: String,
                           override val imageNumber: Int,
